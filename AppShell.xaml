@@ -4,12 +4,21 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:OKKT25"
-    Shell.FlyoutBehavior="Flyout"
+    Shell.FlyoutBehavior="Disabled"
     Title="OKKT25">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+    <TabBar>
+        <Tab Title="New trip" Icon="icon_home.png" Route="New_trip">
+            <ShellContent
+                Title="New trip"
+                ContentTemplate="{DataTemplate local:MainPage}" />
+        </Tab>
+
+        <Tab Title="Past trips" Icon="icon_home.png" Route="Past_trip">
+            <ShellContent
+                Title="Past trips"
+                ContentTemplate="{DataTemplate local:PastTrip}" />
+        </Tab>
+    </TabBar>
 
 </Shell>
