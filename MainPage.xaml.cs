@@ -282,7 +282,7 @@ namespace OKKT25
 
 
             double fullCostTotal = 0;
-            double[] fullCostValues = [];
+            List<double> fullCostValues = [];
 
             foreach (var item in fullCostEntries)
             {
@@ -293,7 +293,7 @@ namespace OKKT25
                     return;
                 }
 
-                fullCostValues.Append(value);
+                fullCostValues.Add(value);
             }
 
             for (int i = 0; i < fullCostValues.Count(); i += 2)
@@ -315,7 +315,7 @@ namespace OKKT25
                 .ToArray();
 
             double discountCostTotal = 0;
-            double[] discountValues = [];
+            List<double> discountValues = [];
 
 
             foreach (var item in discountCostEntries)
@@ -328,7 +328,7 @@ namespace OKKT25
                     await ShowError("Kérlek adj meg érvényes teljes költséget!");
                     return;
                 }
-                discountValues.Append(value);
+                discountValues.Add(value);
             }
 
             for (int i = 0; i < discountValues.Count(); i += 2)
