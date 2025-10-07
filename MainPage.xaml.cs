@@ -73,42 +73,52 @@ namespace OKKT25
                         if (double.TryParse(entry.Text, out double amount))
                             currentTripData.PocketMoney.Add(amount);
                     }
+                    currentTripData.AveragePocketMoney = 0; // Reset average in per-person mode
                 }
                 else if (pocketMoneyEntries.Count > 0 && double.TryParse(pocketMoneyEntries[0].Text, out double avgAmount))
                 {
                     currentTripData.AveragePocketMoney = avgAmount;
+                    currentTripData.PocketMoney.Clear(); // Reset individual amounts in grouped mode
                 }
 
-                // Költség adatok mentése
+                // Költség adatok mentése - JAVÍTOTT RÉSZ
                 currentTripData.Costs.Clear();
                 foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
                 {
-                    var entries = layout.Children.OfType<Entry>().ToList();
-                    var checkBoxes = layout.Children.OfType<StackLayout>()
-                        .SelectMany(sl => sl.Children.OfType<CheckBox>()).FirstOrDefault();
+                    // Összes Entry gyűjtése a layout-ban
+                    var allEntries = layout.Children
+                        .OfType<StackLayout>()
+                        .SelectMany(sl => sl.Children.OfType<Entry>())
+                        .ToList();
 
-                    if (entries.Count >= 2)
+                    // CheckBox keresése
+                    var checkBox = layout.Children
+                        .OfType<StackLayout>()
+                        .SelectMany(sl => sl.Children.OfType<CheckBox>())
+                        .FirstOrDefault();
+
+                    if (allEntries.Count >= 3) // Legalább költség típus, összeg és fő
                     {
                         var costItem = new CostItem
                         {
-                            Type = entries[0].Text ?? string.Empty
+                            Type = allEntries[0].Text ?? string.Empty // Költség típusa
                         };
 
-                        // Teljes költség mezők
-                        if (entries.Count > 1 && double.TryParse(entries[1].Text, out double amount))
+                        // Teljes költség mezők (második sor)
+                        if (allEntries.Count > 1 && double.TryParse(allEntries[1].Text, out double amount))
                             costItem.Amount = amount;
 
-                        if (entries.Count > 2 && int.TryParse(entries[2].Text, out int numberOfPeople))
+                        if (allEntries.Count > 2 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
                             costItem.NumberOfPeople = numberOfPeople;
 
-                        // Kedvezményes költség mezők
-                        if (entries.Count > 3 && double.TryParse(entries[3].Text, out double discountAmount))
+                        // Kedvezményes költség mezők (harmadik sor - csak ha látható)
+                        if (allEntries.Count > 3 && double.TryParse(allEntries[3].Text, out double discountAmount))
                             costItem.DiscountAmount = discountAmount;
 
-                        if (entries.Count > 4 && int.TryParse(entries[4].Text, out int discountPeople))
+                        if (allEntries.Count > 4 && int.TryParse(allEntries[4].Text, out int discountPeople))
                             costItem.DiscountNumberOfPeople = discountPeople;
 
-                        costItem.HasDiscount = checkBoxes?.IsChecked ?? false;
+                        costItem.HasDiscount = checkBox?.IsChecked ?? false;
 
                         currentTripData.Costs.Add(costItem);
                     }
@@ -125,10 +135,13 @@ namespace OKKT25
 
                 // Sikeres mentés visszajelzés
                 await DisplayAlert("Sikeres mentés", "Az adataid el lettek mentve!", "OK");
+
+                Debug.WriteLine($"Mentés sikeres: {currentTripData.Costs.Count} költség elem mentve");
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Hiba", $"Nem sikerült menteni: {ex.Message}", "OK");
+                Debug.WriteLine($"Mentési hiba: {ex}");
             }
         }
 
