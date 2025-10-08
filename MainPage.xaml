@@ -3,7 +3,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="OKKT25.MainPage"
-             Title="🎒 Osztálykirándulás Tervező"
+             Title="Osztálykirándulás Tervező"
              BackgroundColor="#F5F5F5">
 
     <ScrollView>
@@ -25,7 +25,34 @@
                             Keyboard="Numeric"
                             BackgroundColor="#F5F5F5"
                             TextColor="#424242"/>
+
+                    <Label Text="Kirándulás helyszíne:" 
+                            FontAttributes="Bold"
+                            TextColor="#424242"/>
+                                        
+                    <Entry x:Name="TripDestination"
+                            Placeholder="pl: Budapest"
+                            Keyboard="Numeric"
+                            BackgroundColor="#F5F5F5"
+                            TextColor="#424242"/>
+
+                    <Label Text="Kirándulás dátuma:" 
+                            FontAttributes="Bold"
+                            TextColor="#424242"/>
                     
+                    <HorizontalStackLayout Spacing="10">
+                        <DatePicker x:Name="TripDateStart"
+                                MinimumDate="{Binding MinDate}"
+                                Date="{Binding Date}"
+                                BackgroundColor="#F5F5F5"
+                                TextColor="#000000"/>
+                        <DatePicker x:Name="TripDateEnd"
+                                MinimumDate="{Binding MinDate}"
+                                Date="{Binding Date}"
+                                BackgroundColor="#F5F5F5"
+                                TextColor="#000000"/>
+                    </HorizontalStackLayout>
+
                     <StackLayout Padding="20" Spacing="10">
 
                         <Label Text="Költségek:" 
@@ -112,7 +139,7 @@
                                 IsVisible="False"
                                 Spacing="12"/>
 
-            <Button x:Name="BtnSave" Text="💾 Mentés" Clicked="OnSaveClicked" 
+            <Button x:Name="BtnSave" Text="Mentés" Clicked="OnSaveClicked" 
                 BackgroundColor="#4CAF50" TextColor="White" />
 
         </VerticalStackLayout>

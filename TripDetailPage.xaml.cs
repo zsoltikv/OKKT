@@ -15,6 +15,60 @@ namespace OKKT25
             Title = tripName;
             DisplayTripDetails();
             PhotosCollection.ItemsSource = photoSources;
+            DisplayPhotos();
+        }
+
+        private void DisplayPhotos()
+        {
+            PhotosCollection.ItemsSource = null;
+
+            // 🔹 betöltjük a korábban elmentett képeket
+            if (tripData.PhotoPaths != null)
+            {
+                foreach (var path in tripData.PhotoPaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        photoSources.Add(ImageSource.FromFile(path));
+                    }
+                }
+            }
+
+            // 🔹 újra frissítjük az ItemsSource-t
+            PhotosCollection.ItemsSource = photoSources;
+
+            // 🔹 minden képre kattintási esemény (nagyban megnyitás)
+            PhotosCollection.RemainingItemsThresholdReached += (s, e) =>
+            {
+                // ez csak akkor kell, ha lapozást használsz
+            };
+
+            PhotosCollection.ItemTemplate = new DataTemplate(() =>
+            {
+                var image = new Image
+                {
+                    HeightRequest = 120,
+                    WidthRequest = 120,
+                    Aspect = Aspect.AspectFill
+                };
+
+                image.SetBinding(Image.SourceProperty, ".");
+                var tapGesture = new TapGestureRecognizer();
+                tapGesture.Tapped += async (s, e) =>
+                {
+                    var imgSource = ((Image)s).Source;
+                    await Navigation.PushModalAsync(new ImageViewPage(imgSource));
+                };
+                image.GestureRecognizers.Add(tapGesture);
+
+                return new Frame
+                {
+                    Padding = 5,
+                    HasShadow = false,
+                    BackgroundColor = Colors.Transparent,
+                    Content = image
+                };
+            });
         }
 
         private async void OnAddPhotoClicked(object sender, EventArgs e)
@@ -82,9 +136,9 @@ namespace OKKT25
             var summaryText = new Label
             {
                 Text = $@"Teljes költség: {FormatNumber(totalCost)} Ft
-Résztvevők: {tripData.Participants} fő
-Hátralévő idő: {tripData.MonthsLeft} hónap
-Mentve: {tripData.LastSaved:yyyy.MM.dd HH:mm}",
+                            Résztvevők: {tripData.Participants} fő
+                            Hátralévő idő: {tripData.MonthsLeft} hónap
+                            Mentve: {tripData.LastSaved:yyyy.MM.dd HH:mm}",
                 FontSize = 16,
                 TextColor = Color.FromArgb("#212121"),
                 Padding = new Thickness(15)

@@ -24,6 +24,7 @@ namespace OKKT25
             public List<double> PocketMoney { get; set; } = new List<double>();
             public double AveragePocketMoney { get; set; }
             public DateTime LastSaved { get; set; } = DateTime.Now;
+            public List<string> PhotoPaths { get; set; } = new();
         }
         public class CostItem
         {
@@ -47,7 +48,12 @@ namespace OKKT25
         private List<Entry> pocketMoneyEntries = new List<Entry>();
         private bool isPerPersonMode = false;
         private TripData currentTripData = new TripData();
-        private const string SAVE_FILE_NAME = "trip_data.json";
+
+        DatePicker datePicker = new DatePicker()
+        {
+            MinimumDate = DateTime.Now,
+            Date = DateTime.Now,
+        };
 
         public MainPage()
         {

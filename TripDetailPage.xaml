@@ -9,8 +9,8 @@
         
         <VerticalStackLayout Padding="20" Spacing="15">
 
-            <!-- 🔙 Vissza nyíl gomb -->
-            <Button Text="← Vissza"
+            <!-- Vissza nyíl gomb -->
+            <Button Text="Vissza"
                     FontSize="18"
                     BackgroundColor="Transparent"
                     TextColor="#1976D2"
@@ -20,8 +20,8 @@
             <!-- A részletes tartalom -->
             <VerticalStackLayout x:Name="DetailLayout" Padding="0" Spacing="15"/>
 
-            <!-- 📸 Fotó hozzáadása gomb -->
-            <Button Text="📸 Fotó hozzáadása"
+            <!-- Fotó hozzáadása gomb -->
+            <Button Text="Fotó hozzáadása"
                     FontSize="16"
                     BackgroundColor="#1976D2"
                     TextColor="White"
