@@ -57,70 +57,13 @@ namespace OKKT25
 
         private async void SaveData()
         {
+
+            currentTripData.IsPerPersonMode = isPerPersonMode;
+            currentTripData.LastSaved = DateTime.Now;
+            currentTripData.TripName = TripName.Text;
+            currentTripData.PocketMoney.Clear();
             try
             {
-                if (int.TryParse(EntryParticipants.Text, out int participants))
-                    currentTripData.Participants = participants;
-
-                if (int.TryParse(EntryMonthsLeft.Text, out int months))
-                    currentTripData.MonthsLeft = months;
-
-                currentTripData.IsPerPersonMode = isPerPersonMode;
-                currentTripData.LastSaved = DateTime.Now;
-                currentTripData.TripName = TripName.Text;
-                currentTripData.PocketMoney.Clear();
-                if (isPerPersonMode)
-                {
-                    foreach (var entry in pocketMoneyEntries)
-                    {
-                        if (double.TryParse(entry.Text, out double amount))
-                            currentTripData.PocketMoney.Add(amount);
-                    }
-                    currentTripData.AveragePocketMoney = 0;
-                }
-                else if (pocketMoneyEntries.Count > 0 && double.TryParse(pocketMoneyEntries[0].Text, out double avgAmount))
-                {
-                    currentTripData.AveragePocketMoney = avgAmount;
-                    currentTripData.PocketMoney.Clear();
-                }
-
-                currentTripData.Costs.Clear();
-                foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
-                {
-                    var allEntries = layout.Children
-                        .OfType<StackLayout>()
-                        .SelectMany(sl => sl.Children.OfType<Entry>())
-                        .ToList();
-
-                    var checkBox = layout.Children
-                        .OfType<StackLayout>()
-                        .SelectMany(sl => sl.Children.OfType<CheckBox>())
-                        .FirstOrDefault();
-
-                    if (allEntries.Count >= 3)
-                    {
-                        var costItem = new CostItem
-                        {
-                            Type = allEntries[0].Text ?? string.Empty
-                        };
-
-                        if (allEntries.Count > 1 && double.TryParse(allEntries[1].Text, out double amount))
-                            costItem.Amount = amount;
-
-                        if (allEntries.Count > 2 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
-                            costItem.NumberOfPeople = numberOfPeople;
-
-                        if (allEntries.Count > 3 && double.TryParse(allEntries[3].Text, out double discountAmount))
-                            costItem.DiscountAmount = discountAmount;
-
-                        if (allEntries.Count > 4 && int.TryParse(allEntries[4].Text, out int discountPeople))
-                            costItem.DiscountNumberOfPeople = discountPeople;
-
-                        costItem.HasDiscount = checkBox?.IsChecked ?? false;
-                        currentTripData.Costs.Add(costItem);
-                    }
-                }
-
                 var json = JsonSerializer.Serialize(currentTripData, new JsonSerializerOptions
                 {
                     WriteIndented = true
@@ -137,6 +80,7 @@ namespace OKKT25
                 await DisplayAlert("Hiba", $"Nem sikerült menteni: {ex.Message}", "OK");
             }
         }
+
 
         private void RestoreUIFromData()
         {
@@ -562,109 +506,76 @@ namespace OKKT25
 
         private async void OnCalculateClicked(object sender, EventArgs e)
         {
-            var fullCostEntries = DynamicCostsLayout.Children
-                .OfType<StackLayout>()
-                .SelectMany(nc => nc.Children
+            currentTripData.Costs.Clear();
+            foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
+            {
+                // Összes Entry gyűjtése a layout-ban
+                var allEntries = layout.Children
                     .OfType<StackLayout>()
-                    .SelectMany(sr => sr.Children
-                        .OfType<Entry>()
-                        .Where(e => e.StyleId == "FullCostAmount")
-                    )
-                )
-                .ToArray();
+                    .SelectMany(sl => sl.Children.OfType<Entry>())
+                    .ToList();
 
-            if (fullCostEntries.Length != 2)
-            {
-                await ShowError("Kérlek adj meg 2 teljes költség mezőt!");
-                return;
-            }
-
-            double fullCostTotal = 0;
-            List<double> fullCostValues = new List<double>();
-
-            foreach (var item in fullCostEntries)
-            {
-                if (item == null || !double.TryParse(item.Text, out double value) || value <= 0)
-                {
-                    await ShowError("Kérlek adj meg érvényes teljes költséget!");
-                    return;
-                }
-                fullCostValues.Add(value);
-            }
-
-            for (int i = 0; i < fullCostValues.Count; i += 2)
-            {
-                fullCostTotal += fullCostValues[i] * fullCostValues[i + 1];
-            }
-
-            var discountCostEntries = DynamicCostsLayout.Children
-                .OfType<StackLayout>()
-                .SelectMany(nc => nc.Children
+                // CheckBox keresése
+                var checkBox = layout.Children
                     .OfType<StackLayout>()
-                    .SelectMany(sr => sr.Children
-                        .OfType<Entry>()
-                        .Where(e => e.StyleId == "DiscountCostAmount")
-                    )
-                )
-                .ToArray();
+                    .SelectMany(sl => sl.Children.OfType<CheckBox>())
+                    .FirstOrDefault();
 
-            double discountCostTotal = 0;
-            List<double> discountValues = new List<double>();
-
-            foreach (var item in discountCostEntries)
-            {
-                var parentLayout = item.Parent as StackLayout;
-                if (parentLayout?.IsVisible == false) continue;
-                if (item == null || !double.TryParse(item.Text, out double value) || value <= 0)
+                if (allEntries.Count >= 3) // Legalább költség típus, összeg és fő
                 {
-                    await ShowError("Kérlek adj meg érvényes teljes költséget!");
-                    return;
+                    var costItem = new CostItem
+                    {
+                        Type = allEntries[0].Text ?? string.Empty // Költség típusa
+                    };
+
+                    // Teljes költség mezők (második sor)
+                    if (allEntries.Count > 1 && double.TryParse(allEntries[1].Text, out double amount))
+                        costItem.Amount = amount;
+
+                    if (allEntries.Count > 2 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
+                        costItem.NumberOfPeople = numberOfPeople;
+
+                    // Kedvezményes költség mezők (harmadik sor - csak ha látható)
+                    if (allEntries.Count > 3 && double.TryParse(allEntries[3].Text, out double discountAmount))
+                        costItem.DiscountAmount = discountAmount;
+
+                    if (allEntries.Count > 4 && int.TryParse(allEntries[4].Text, out int discountPeople))
+                        costItem.DiscountNumberOfPeople = discountPeople;
+
+                    costItem.HasDiscount = checkBox?.IsChecked ?? false;
+
+                    currentTripData.Costs.Add(costItem);
                 }
-                discountValues.Add(value);
             }
 
-            for (int i = 0; i < discountValues.Count; i += 2)
-            {
-                discountCostTotal += discountValues[i] * discountValues[i + 1];
-            }
-
-            double finalCost = fullCostTotal + discountCostTotal;
-
+            // Résztvevők száma (például külön Entry vagy dinamikus mező)
+            currentTripData.Participants = 0;
             if (!int.TryParse(EntryParticipants.Text, out int participants) ||
                 participants <= 0 || participants > 100)
             {
                 await ShowError("Kérlek adj meg érvényes résztvevő számot (1-100)!");
                 return;
             }
+            else
+            {
+                currentTripData.Participants = participants;
+            }
 
+            // Hónapok száma
+            currentTripData.MonthsLeft = 0;
             if (!int.TryParse(EntryMonthsLeft.Text, out int monthsLeft) ||
                 monthsLeft <= 0 || monthsLeft > 24)
             {
                 await ShowError("Kérlek adj meg érvényes hónapok számát (1-24)!");
                 return;
             }
-
-            double additionalCosts = 0;
-            foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
+            else
             {
-                var entries = layout.Children.OfType<Entry>().ToList();
-                if (entries.Count >= 2)
-                {
-                    if (double.TryParse(entries[1].Text, out double cost) && cost >= 0)
-                    {
-                        additionalCosts += cost;
-                    }
-                    else
-                    {
-                        await ShowError($"Kérlek adj meg érvényes összeget a(z) '{entries[0].Text}' költségnél!");
-                        return;
-                    }
-                }
+                currentTripData.MonthsLeft = monthsLeft;
             }
 
-            finalCost += additionalCosts;
-
-            var pocketMoneyList = new List<double>();
+            // Zsebpénz kezelés
+            currentTripData.PocketMoney.Clear();
             if (isPerPersonMode)
             {
                 for (int i = 0; i < pocketMoneyEntries.Count; i++)
@@ -674,7 +585,7 @@ namespace OKKT25
                         await ShowError($"Kérlek add meg a {i + 1}. diák érvényes zsebpénzét!");
                         return;
                     }
-                    pocketMoneyList.Add(amount);
+                    currentTripData.PocketMoney.Add(amount);
                 }
             }
             else
@@ -686,11 +597,20 @@ namespace OKKT25
                 }
                 for (int i = 0; i < participants; i++)
                 {
-                    pocketMoneyList.Add(amount);
+                    currentTripData.PocketMoney.Add(amount);
                 }
             }
 
-            DisplayResults(finalCost, participants, monthsLeft, pocketMoneyList);
+            currentTripData.AveragePocketMoney = 0;
+            currentTripData.AveragePocketMoney = currentTripData.PocketMoney.Average();
+
+            currentTripData.IsPerPersonMode = isPerPersonMode;
+
+            // Eredmények megjelenítése
+            double finalCost = currentTripData.Costs.Sum(c =>
+                c.Amount * c.NumberOfPeople + (c.HasDiscount ? c.DiscountAmount * c.DiscountNumberOfPeople : 0)
+            );
+            DisplayResults(finalCost, participants, monthsLeft, currentTripData.PocketMoney);
         }
 
         private void DisplayResults(double totalCost, int participants, int monthsLeft, List<double> pocketMoneyList)
