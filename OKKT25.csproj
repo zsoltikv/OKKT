@@ -65,15 +65,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="PastTrip.xaml.cs">
-	    <DependentUpon>PastTrip.xaml</DependentUpon>
-	  </Compile>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiXaml Update="PastTrip.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="PastTripsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

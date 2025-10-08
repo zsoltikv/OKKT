@@ -11,7 +11,6 @@ namespace OKKT25
         public PastTripsPage()
         {
             InitializeComponent();
-            LoadTrips();
         }
 
         protected override void OnAppearing()
@@ -44,7 +43,9 @@ namespace OKKT25
                             trips.Add(new MainPage.TripSummary
                             {
                                 FileName = file,
-                                TripName = Path.GetFileNameWithoutExtension(file),
+                                TripName = string.IsNullOrWhiteSpace(tripData.TripName)
+                                            ? Path.GetFileNameWithoutExtension(file)
+                                            : tripData.TripName,
                                 LastSaved = tripData.LastSaved,
                                 Participants = tripData.Participants,
                                 TotalCost = totalCost

@@ -15,6 +15,8 @@ namespace OKKT25
     {
         public class TripData
         {
+
+            public string TripName { get; set; } = string.Empty;
             public int Participants { get; set; }
             public int MonthsLeft { get; set; }
             public bool IsPerPersonMode { get; set; }
@@ -65,7 +67,7 @@ namespace OKKT25
 
                 currentTripData.IsPerPersonMode = isPerPersonMode;
                 currentTripData.LastSaved = DateTime.Now;
-
+                currentTripData.TripName = TripName.Text;
                 currentTripData.PocketMoney.Clear();
                 if (isPerPersonMode)
                 {

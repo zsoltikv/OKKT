@@ -1,4 +1,4 @@
-﻿using Microsoft.Maui.Controls;
+﻿using System.Collections.ObjectModel;
 using System.Globalization;
 
 namespace OKKT25
@@ -6,6 +6,7 @@ namespace OKKT25
     public partial class TripDetailPage : ContentPage
     {
         private MainPage.TripData tripData;
+        private ObservableCollection<ImageSource> photoSources = new();
 
         public TripDetailPage(MainPage.TripData data, string tripName)
         {
@@ -13,6 +14,50 @@ namespace OKKT25
             tripData = data;
             Title = tripName;
             DisplayTripDetails();
+            PhotosCollection.ItemsSource = photoSources;
+        }
+
+        private async void OnAddPhotoClicked(object sender, EventArgs e)
+        {
+            string action = await DisplayActionSheet("Fénykép hozzáadása", "Mégse", null, "📷 Kamera", "🖼️ Galéria");
+
+            FileResult result = null;
+
+            try
+            {
+                if (action == "📷 Kamera")
+                {
+                    result = await MediaPicker.CapturePhotoAsync();
+                }
+                else if (action == "🖼️ Galéria")
+                {
+                    result = await MediaPicker.PickPhotoAsync();
+                }
+
+                if (result != null)
+                {
+                    // 🔹 Mentés az alkalmazás adatkönyvtárába
+                    string targetPath = Path.Combine(FileSystem.Current.AppDataDirectory, Path.GetFileName(result.FullPath));
+
+                    using (var sourceStream = await result.OpenReadAsync())
+                    using (var targetStream = File.Create(targetPath))
+                    {
+                        await sourceStream.CopyToAsync(targetStream);
+                    }
+
+                    // 🔹 Hozzáadjuk a képet az ObservableCollection-höz fájlelérési útként
+                    photoSources.Add(ImageSource.FromFile(targetPath));
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", $"Nem sikerült a művelet: {ex.Message}", "OK");
+            }
+        }
+
+        private async void OnBackClicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
         }
 
         private void DisplayTripDetails()

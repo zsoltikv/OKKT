@@ -6,7 +6,50 @@
              BackgroundColor="#F5F5F5">
 
     <ScrollView>
-        <VerticalStackLayout x:Name="DetailLayout" Padding="20" Spacing="15"/>
+        
+        <VerticalStackLayout Padding="20" Spacing="15">
+
+            <!-- 🔙 Vissza nyíl gomb -->
+            <Button Text="← Vissza"
+                    FontSize="18"
+                    BackgroundColor="Transparent"
+                    TextColor="#1976D2"
+                    HorizontalOptions="Start"
+                    Clicked="OnBackClicked"/>
+
+            <!-- A részletes tartalom -->
+            <VerticalStackLayout x:Name="DetailLayout" Padding="0" Spacing="15"/>
+
+            <!-- 📸 Fotó hozzáadása gomb -->
+            <Button Text="📸 Fotó hozzáadása"
+                    FontSize="16"
+                    BackgroundColor="#1976D2"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Clicked="OnAddPhotoClicked"/>
+
+            <!-- Galéria megjelenítése -->
+            <CollectionView x:Name="PhotosCollection"
+                            ItemsLayout="HorizontalList"
+                            HeightRequest="100"
+                            Margin="0,10,0,20">
+                
+                <CollectionView.ItemTemplate>
+                    
+                    <DataTemplate>
+                        
+                        <Frame Padding="5" Margin="5" HasShadow="False">
+                            <Image Source="{Binding}" Aspect="AspectFill" WidthRequest="100" HeightRequest="100"/>
+                        </Frame>
+                        
+                    </DataTemplate>
+                    
+                </CollectionView.ItemTemplate>
+                
+            </CollectionView>
+
+        </VerticalStackLayout>
+        
     </ScrollView>
 
 </ContentPage>
