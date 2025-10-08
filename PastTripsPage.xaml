@@ -31,17 +31,17 @@
                                    TextColor="#1976D2"
                                    Grid.Row="0" Grid.Column="0"/>
 
-                            <Label Text="{Binding LastSaved, StringFormat='🕒 {0:yyyy.MM.dd HH:mm}'}" 
+                            <Label Text="{Binding LastSaved, StringFormat='{0:yyyy.MM.dd HH:mm}'}" 
                                    FontSize="12"
                                    TextColor="#757575"
                                    Grid.Row="1" Grid.Column="0"/>
 
-                            <Label Text="{Binding Participants, StringFormat='👥 {0} fő'}" 
+                            <Label Text="{Binding Participants, StringFormat='{0} fő'}" 
                                    FontSize="14"
                                    TextColor="#424242"
                                    Grid.Row="2" Grid.Column="0"/>
 
-                            <Label Text="›" 
+                            <Label Text=">" 
                                    FontSize="30"
                                    TextColor="#BDBDBD"
                                    VerticalOptions="Center"
