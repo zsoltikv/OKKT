@@ -17,6 +17,15 @@
                    Padding="20">
                 <VerticalStackLayout Spacing="12">
 
+                    <Label Text="Kirándulás neve:" 
+                           FontAttributes="Bold"
+                           TextColor="#424242"/>
+                    <Entry x:Name="TripName"
+                            Placeholder="pl: Osztálykirándulás"
+                            Keyboard="Numeric"
+                            BackgroundColor="#F5F5F5"
+                            TextColor="#424242"/>
+                    
                     <StackLayout Padding="20" Spacing="10">
 
                         <Label Text="Költségek:" 

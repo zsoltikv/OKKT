@@ -8,17 +8,15 @@
     Title="OKKT25">
 
     <TabBar>
-        <Tab Title="New trip" Icon="icon_home.png" Route="New_trip">
-            <ShellContent
-                Title="New trip"
-                ContentTemplate="{DataTemplate local:MainPage}" />
-        </Tab>
+        <ShellContent
+        Title="Új kirándulás"
+        Icon="home.png"
+        ContentTemplate="{DataTemplate local:MainPage}" />
 
-        <Tab Title="Past trips" Icon="icon_home.png" Route="Past_trip">
-            <ShellContent
-                Title="Past trips"
-                ContentTemplate="{DataTemplate local:PastTrip}" />
-        </Tab>
+        <ShellContent
+        Title="Korábbi"
+        Icon="folder.png"
+        ContentTemplate="{DataTemplate local:PastTripsPage}" />
     </TabBar>
 
 </Shell>

@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.Compatibility;
 using Microsoft.Maui.Graphics;
 using System;
 using System.Collections.Generic;
@@ -12,7 +11,6 @@ using StackLayout = Microsoft.Maui.Controls.StackLayout;
 
 namespace OKKT25
 {
-
     public partial class MainPage : ContentPage
     {
         public class TripData
@@ -25,7 +23,6 @@ namespace OKKT25
             public double AveragePocketMoney { get; set; }
             public DateTime LastSaved { get; set; } = DateTime.Now;
         }
-
         public class CostItem
         {
             public string Type { get; set; } = string.Empty;
@@ -36,25 +33,30 @@ namespace OKKT25
             public int DiscountNumberOfPeople { get; set; }
         }
 
+        public class TripSummary
+        {
+            public string FileName { get; set; }
+            public string TripName { get; set; }
+            public DateTime LastSaved { get; set; }
+            public int Participants { get; set; }
+            public double TotalCost { get; set; }
+        }
+
         private List<Entry> pocketMoneyEntries = new List<Entry>();
         private bool isPerPersonMode = false;
         private TripData currentTripData = new TripData();
         private const string SAVE_FILE_NAME = "trip_data.json";
+
         public MainPage()
         {
             InitializeComponent();
             UpdatePocketMoneyLayout();
         }
 
-        private List<Entry> fullCostEntries = new List<Entry>();
-        private List<Entry> discountCostEntries = new List<Entry>();
-
-        // Adatok mentése
         private async void SaveData()
         {
             try
             {
-                // Alapadatok mentése
                 if (int.TryParse(EntryParticipants.Text, out int participants))
                     currentTripData.Participants = participants;
 
@@ -64,7 +66,6 @@ namespace OKKT25
                 currentTripData.IsPerPersonMode = isPerPersonMode;
                 currentTripData.LastSaved = DateTime.Now;
 
-                // Zsebpénz adatok mentése
                 currentTripData.PocketMoney.Clear();
                 if (isPerPersonMode)
                 {
@@ -73,45 +74,40 @@ namespace OKKT25
                         if (double.TryParse(entry.Text, out double amount))
                             currentTripData.PocketMoney.Add(amount);
                     }
-                    currentTripData.AveragePocketMoney = 0; // Reset average in per-person mode
+                    currentTripData.AveragePocketMoney = 0;
                 }
                 else if (pocketMoneyEntries.Count > 0 && double.TryParse(pocketMoneyEntries[0].Text, out double avgAmount))
                 {
                     currentTripData.AveragePocketMoney = avgAmount;
-                    currentTripData.PocketMoney.Clear(); // Reset individual amounts in grouped mode
+                    currentTripData.PocketMoney.Clear();
                 }
 
-                // Költség adatok mentése - JAVÍTOTT RÉSZ
                 currentTripData.Costs.Clear();
                 foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
                 {
-                    // Összes Entry gyűjtése a layout-ban
                     var allEntries = layout.Children
                         .OfType<StackLayout>()
                         .SelectMany(sl => sl.Children.OfType<Entry>())
                         .ToList();
 
-                    // CheckBox keresése
                     var checkBox = layout.Children
                         .OfType<StackLayout>()
                         .SelectMany(sl => sl.Children.OfType<CheckBox>())
                         .FirstOrDefault();
 
-                    if (allEntries.Count >= 3) // Legalább költség típus, összeg és fő
+                    if (allEntries.Count >= 3)
                     {
                         var costItem = new CostItem
                         {
-                            Type = allEntries[0].Text ?? string.Empty // Költség típusa
+                            Type = allEntries[0].Text ?? string.Empty
                         };
 
-                        // Teljes költség mezők (második sor)
                         if (allEntries.Count > 1 && double.TryParse(allEntries[1].Text, out double amount))
                             costItem.Amount = amount;
 
                         if (allEntries.Count > 2 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
                             costItem.NumberOfPeople = numberOfPeople;
 
-                        // Kedvezményes költség mezők (harmadik sor - csak ha látható)
                         if (allEntries.Count > 3 && double.TryParse(allEntries[3].Text, out double discountAmount))
                             costItem.DiscountAmount = discountAmount;
 
@@ -119,78 +115,38 @@ namespace OKKT25
                             costItem.DiscountNumberOfPeople = discountPeople;
 
                         costItem.HasDiscount = checkBox?.IsChecked ?? false;
-
                         currentTripData.Costs.Add(costItem);
                     }
                 }
 
-                // JSON szerializálás és mentés
                 var json = JsonSerializer.Serialize(currentTripData, new JsonSerializerOptions
                 {
                     WriteIndented = true
                 });
 
-                string targetFile = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, SAVE_FILE_NAME);
+                string tripName = string.IsNullOrWhiteSpace(TripName.Text) ? "Unnamed_Trip" : TripName.Text;
+                string safeFileName = string.Join("_", tripName.Split(Path.GetInvalidFileNameChars())) + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".json";
+                string targetFile = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, safeFileName);
                 await System.IO.File.WriteAllTextAsync(targetFile, json, Encoding.UTF8);
-
-                // Sikeres mentés visszajelzés
                 await DisplayAlert("Sikeres mentés", "Az adataid el lettek mentve!", "OK");
-
-                Debug.WriteLine($"Mentés sikeres: {currentTripData.Costs.Count} költség elem mentve");
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Hiba", $"Nem sikerült menteni: {ex.Message}", "OK");
-                Debug.WriteLine($"Mentési hiba: {ex}");
             }
         }
 
-        // Adatok betöltése
-        private async void LoadSavedData()
-        {
-            try
-            {
-                string targetFile = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, SAVE_FILE_NAME);
-
-                if (System.IO.File.Exists(targetFile))
-                {
-                    var json = await System.IO.File.ReadAllTextAsync(targetFile, Encoding.UTF8);
-                    var savedData = JsonSerializer.Deserialize<TripData>(json);
-
-                    if (savedData != null)
-                    {
-                        currentTripData = savedData;
-                        RestoreUIFromData();
-
-                        // Információ a betöltésről
-                        var lastSaved = savedData.LastSaved.ToString("yyyy.MM.dd HH:mm");
-                        await DisplayAlert("Adatok betöltve",
-                            $"Sikeresen betöltötted a korábbi adatokat!\nUtoljára mentve: {lastSaved}", "OK");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Betöltési hiba: {ex.Message}");
-                // Csendes hiba, ne zavarja a felhasználót
-            }
-        }
-
-        // UI visszaállítása a mentett adatokból
         private void RestoreUIFromData()
         {
-            // Alapadatok
             EntryParticipants.Text = currentTripData.Participants.ToString();
             EntryMonthsLeft.Text = currentTripData.MonthsLeft.ToString();
 
-            // Zsebpénz mód
             isPerPersonMode = currentTripData.IsPerPersonMode;
             if (isPerPersonMode)
                 RadioPerPerson.IsChecked = true;
             else
                 RadioGrouped.IsChecked = true;
 
-            // Zsebpénz adatok
             UpdatePocketMoneyLayout();
             if (isPerPersonMode && currentTripData.PocketMoney.Count > 0)
             {
@@ -204,7 +160,6 @@ namespace OKKT25
                 pocketMoneyEntries[0].Text = currentTripData.AveragePocketMoney.ToString();
             }
 
-            // Költség adatok
             DynamicCostsLayout.Children.Clear();
             foreach (var cost in currentTripData.Costs)
             {
@@ -212,7 +167,6 @@ namespace OKKT25
             }
         }
 
-        // Költség elem hozzáadása a UI-hoz
         private void AddCostItemToUI(CostItem cost)
         {
             var newCostLayout = new StackLayout
@@ -226,7 +180,6 @@ namespace OKKT25
             var secondRowLayout = new StackLayout { Orientation = StackOrientation.Horizontal, Spacing = 10 };
             var thirdRowLayout = new StackLayout { Orientation = StackOrientation.Horizontal, Spacing = 10, IsVisible = cost.HasDiscount };
 
-            // Költség típus
             var costTypeEntry = new Entry
             {
                 Placeholder = "Költség típusa",
@@ -236,7 +189,6 @@ namespace OKKT25
                 Text = cost.Type
             };
 
-            // Teljes költség mezők
             var costAmountEntry = new Entry
             {
                 Placeholder = "Összeg (Ft)",
@@ -259,7 +211,6 @@ namespace OKKT25
                 Text = cost.NumberOfPeople > 0 ? cost.NumberOfPeople.ToString() : ""
             };
 
-            // Kedvezményes költség mezők
             var discountCostAmountEntry = new Entry
             {
                 Placeholder = "Kedvezményes összeg (Ft)",
@@ -307,7 +258,6 @@ namespace OKKT25
                 thirdRowLayout.IsVisible = isDiscountAvailable.IsChecked;
             };
 
-            // Eltávolító gomb
             var removeButton = new Button
             {
                 Text = "×",
@@ -328,7 +278,6 @@ namespace OKKT25
                 HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
-            // Layout összeállítás
             firstRowLayout.Children.Add(costTypeEntry);
             firstRowLayout.Children.Add(removeButton);
 
@@ -347,13 +296,11 @@ namespace OKKT25
             DynamicCostsLayout.Children.Add(newCostLayout);
         }
 
-        // MENTÉS GOMB - Explicit mentés
         private void OnSaveClicked(object sender, EventArgs e)
         {
             SaveData();
         }
 
-        // ADATOK TÖRLÉSE
         private async void OnClearDataClicked(object sender, EventArgs e)
         {
             bool answer = await DisplayAlert("Adatok törlése",
@@ -370,7 +317,6 @@ namespace OKKT25
                         System.IO.File.Delete(targetFile);
                     }
 
-                    // UI reset
                     currentTripData = new TripData();
                     EntryParticipants.Text = "";
                     EntryMonthsLeft.Text = "";
@@ -387,9 +333,9 @@ namespace OKKT25
                 }
             }
         }
+
         private void OnAddCostClicked(object sender, EventArgs e)
         {
-            // Új vízszintes layout a költség típus és összeg mezőhöz
             var newCostLayout = new StackLayout
             {
                 Orientation = StackOrientation.Vertical,
@@ -416,7 +362,6 @@ namespace OKKT25
                 IsVisible = false
             };
 
-            // Költség típus beviteli mező
             var costTypeEntry = new Entry
             {
                 Placeholder = "Költség típusa",
@@ -426,7 +371,6 @@ namespace OKKT25
                 StyleId = "CostType"
             };
 
-            // Költség összeg beviteli mező
             var costAmountEntry = new Entry
             {
                 Placeholder = "Összeg (Ft)",
@@ -437,7 +381,6 @@ namespace OKKT25
                 StyleId = "FullCostAmount"
             };
 
-            // Teljes összeg fők száma beviteli mező
             var numberOfFullCost = new Entry
             {
                 Placeholder = "Fő (db)",
@@ -492,7 +435,6 @@ namespace OKKT25
                 thirdRowLayout.IsVisible = isDiscountAvailable.IsChecked;
             };
 
-            // Eltávolító gomb, ha szeretnéd törölni a mezőt
             var removeButton = new Button
             {
                 Text = "×",
@@ -513,7 +455,6 @@ namespace OKKT25
                 HorizontalOptions = LayoutOptions.FillAndExpand
             };
 
-            // Hozzáadjuk a mezőket a layouthoz
             firstRowLayout.Children.Add(costTypeEntry);
             firstRowLayout.Children.Add(removeButton);
 
@@ -527,10 +468,8 @@ namespace OKKT25
             newCostLayout.Children.Add(secondRowLayout);
             newCostLayout.Children.Add(checkBoxLayout);
             newCostLayout.Children.Add(thirdRowLayout);
-
             newCostLayout.Children.Add(line);
 
-            // Hozzáadjuk a dinamikus layoutot a fő konténerhez
             DynamicCostsLayout.Children.Add(newCostLayout);
         }
 
@@ -618,18 +557,13 @@ namespace OKKT25
 
             AnimateView(LayoutPocketMoney);
         }
+
         private async void OnCalculateClicked(object sender, EventArgs e)
         {
-            /*
-            DynamicCostsLayout ->  newCostLayout -> second, thirdrowlayout
-            FullCostAmount
-
-            */
-            // FullCostAmount Entry-k kiválasztása
             var fullCostEntries = DynamicCostsLayout.Children
-                .OfType<StackLayout>()                     // newCostLayout
+                .OfType<StackLayout>()
                 .SelectMany(nc => nc.Children
-                    .OfType<StackLayout>()                 // secondRowLayout
+                    .OfType<StackLayout>()
                     .SelectMany(sr => sr.Children
                         .OfType<Entry>()
                         .Where(e => e.StyleId == "FullCostAmount")
@@ -637,41 +571,34 @@ namespace OKKT25
                 )
                 .ToArray();
 
-            Console.WriteLine(fullCostEntries.Length);
-
             if (fullCostEntries.Length != 2)
             {
                 await ShowError("Kérlek adj meg 2 teljes költség mezőt!");
                 return;
             }
 
-
             double fullCostTotal = 0;
-            List<double> fullCostValues = [];
+            List<double> fullCostValues = new List<double>();
 
             foreach (var item in fullCostEntries)
             {
-                double value = 0;
-                if (item == null || !double.TryParse(item.Text, out value) || value <= 0)
+                if (item == null || !double.TryParse(item.Text, out double value) || value <= 0)
                 {
                     await ShowError("Kérlek adj meg érvényes teljes költséget!");
                     return;
                 }
-
                 fullCostValues.Add(value);
             }
 
-            for (int i = 0; i < fullCostValues.Count(); i += 2)
+            for (int i = 0; i < fullCostValues.Count; i += 2)
             {
-                Debug.WriteLine("asd");
                 fullCostTotal += fullCostValues[i] * fullCostValues[i + 1];
             }
 
-            // Kedvezményes költség ellenőrzés
             var discountCostEntries = DynamicCostsLayout.Children
-                .OfType<StackLayout>()                     // newCostLayout
+                .OfType<StackLayout>()
                 .SelectMany(nc => nc.Children
-                    .OfType<StackLayout>()                 // secondRowLayout
+                    .OfType<StackLayout>()
                     .SelectMany(sr => sr.Children
                         .OfType<Entry>()
                         .Where(e => e.StyleId == "DiscountCostAmount")
@@ -680,15 +607,13 @@ namespace OKKT25
                 .ToArray();
 
             double discountCostTotal = 0;
-            List<double> discountValues = [];
-
+            List<double> discountValues = new List<double>();
 
             foreach (var item in discountCostEntries)
             {
-                double value = 0;
                 var parentLayout = item.Parent as StackLayout;
                 if (parentLayout?.IsVisible == false) continue;
-                if (item == null || !double.TryParse(item.Text, out value) || value <= 0)
+                if (item == null || !double.TryParse(item.Text, out double value) || value <= 0)
                 {
                     await ShowError("Kérlek adj meg érvényes teljes költséget!");
                     return;
@@ -696,14 +621,13 @@ namespace OKKT25
                 discountValues.Add(value);
             }
 
-            for (int i = 0; i < discountValues.Count(); i += 2)
+            for (int i = 0; i < discountValues.Count; i += 2)
             {
                 discountCostTotal += discountValues[i] * discountValues[i + 1];
             }
 
             double finalCost = fullCostTotal + discountCostTotal;
 
-            // Résztvevők száma (például külön Entry vagy dinamikus mező)
             if (!int.TryParse(EntryParticipants.Text, out int participants) ||
                 participants <= 0 || participants > 100)
             {
@@ -711,7 +635,6 @@ namespace OKKT25
                 return;
             }
 
-            // Hónapok száma
             if (!int.TryParse(EntryMonthsLeft.Text, out int monthsLeft) ||
                 monthsLeft <= 0 || monthsLeft > 24)
             {
@@ -719,14 +642,12 @@ namespace OKKT25
                 return;
             }
 
-            // Dinamikus költségek összegyűjtése
             double additionalCosts = 0;
             foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
             {
                 var entries = layout.Children.OfType<Entry>().ToList();
                 if (entries.Count >= 2)
                 {
-                    // entries[0] = költség típusa, entries[1] = összege
                     if (double.TryParse(entries[1].Text, out double cost) && cost >= 0)
                     {
                         additionalCosts += cost;
@@ -741,7 +662,6 @@ namespace OKKT25
 
             finalCost += additionalCosts;
 
-            // Zsebpénz kezelés
             var pocketMoneyList = new List<double>();
             if (isPerPersonMode)
             {
@@ -768,7 +688,6 @@ namespace OKKT25
                 }
             }
 
-            // Eredmények megjelenítése
             DisplayResults(finalCost, participants, monthsLeft, pocketMoneyList);
         }
 
@@ -779,7 +698,6 @@ namespace OKKT25
             double costPerPerson = totalCost / participants;
             double monthlyPerPerson = costPerPerson / monthsLeft;
 
-            // Összefoglaló kártya
             var summaryCard = CreateResultCard("📊 Összefoglaló", "#1976D2");
             var summaryLabel = new Label
             {
@@ -799,7 +717,6 @@ namespace OKKT25
             ((VerticalStackLayout)summaryCard.Content).Add(summaryLabel);
             LayoutResults.Add(summaryCard);
 
-            // Egyéni elemzés
             var analysisCard = CreateResultCard("👥 Egyéni Elemzés", "#388E3C");
             var analysisLayout = new VerticalStackLayout { Padding = new Thickness(15), Spacing = 10 };
 
@@ -824,10 +741,10 @@ namespace OKKT25
                 var studentLabel = new Label
                 {
                     Text = $@"{statusIcon} {i + 1}. diák
-                            Havi zsebpénz: {FormatNumber(pocketMoney)} Ft
-                            Összesen {monthsLeft} hónap alatt: {FormatNumber(monthlyTotal)} Ft
-                            Fizetendő: {FormatNumber(costPerPerson)} Ft
-                            {(canPay ? "Fedezi a költséget! ✓" : $"Hiány: {FormatNumber(costPerPerson - monthlyTotal)} Ft")}",
+                                Havi zsebpénz: {FormatNumber(pocketMoney)} Ft
+                                Összesen {monthsLeft} hónap alatt: {FormatNumber(monthlyTotal)} Ft
+                                Fizetendő: {FormatNumber(costPerPerson)} Ft
+                                {(canPay ? "Fedezi a költséget! ✓" : $"Hiány: {FormatNumber(costPerPerson - monthlyTotal)} Ft")}",
                     TextColor = statusColor,
                     FontSize = 14
                 };
@@ -848,7 +765,6 @@ namespace OKKT25
             ((VerticalStackLayout)analysisCard.Content).Add(analysisLayout);
             LayoutResults.Add(analysisCard);
 
-            // Grafikon
             var chartCard = CreateResultCard("📈 Fedezettségi Diagram", "#F57C00");
             var chartView = new PieChartView(pocketMoneyList, costPerPerson, monthsLeft)
             {
@@ -858,7 +774,6 @@ namespace OKKT25
             ((VerticalStackLayout)chartCard.Content).Add(chartView);
             LayoutResults.Add(chartCard);
 
-            // Javaslatok vagy siker üzenet
             if (!allCanPay)
             {
                 var suggestionsCard = CreateResultCard("💡 Javaslatok", "#D32F2F");
@@ -876,7 +791,6 @@ namespace OKKT25
 
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#E0E0E0") });
 
-                // 1. Költségcsökkentés
                 double neededReduction = totalShortage;
                 suggestionsLayout.Add(new Label
                 {
@@ -889,28 +803,26 @@ namespace OKKT25
 
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#E0E0E0") });
 
-                // 2. Többiek fizetnek többet
                 double extraPerPerson = totalShortage / (participants - cantPayList.Count);
                 suggestionsLayout.Add(new Label
                 {
                     Text = $@"2️⃣ Többi diák fizet többet
-                            Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:
-                            Extra fejenként: {FormatNumber(extraPerPerson)} Ft
-                            Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft",
+                                Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:
+                                Extra fejenként: {FormatNumber(extraPerPerson)} Ft
+                                Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft",
                     FontSize = 14
                 });
 
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#E0E0E0") });
 
-                // 3. Hosszabb időtartam
                 int neededMonths = (int)Math.Ceiling(costPerPerson / pocketMoneyList.Min());
                 if (neededMonths > monthsLeft)
                 {
                     suggestionsLayout.Add(new Label
                     {
                         Text = $@"3️⃣ Több idő szükséges
-                                    Legalább {neededMonths} hónap kellene ahhoz, hogy mindenki össze tudja gyűjteni a pénzt.
-                                    (Még {neededMonths - monthsLeft} hónap)",
+                                Legalább {neededMonths} hónap kellene ahhoz, hogy mindenki össze tudja gyűjteni a pénzt.
+                                (Még {neededMonths - monthsLeft} hónap)",
                         FontSize = 14
                     });
                 }
@@ -972,7 +884,6 @@ namespace OKKT25
         {
             await DisplayAlert("Hiba", message, "OK");
 
-            // Rezgő animáció
             await BtnCalculate.TranslateTo(-15, 0, 50);
             await BtnCalculate.TranslateTo(15, 0, 50);
             await BtnCalculate.TranslateTo(-10, 0, 50);
@@ -994,18 +905,10 @@ namespace OKKT25
         }
     }
 
-    // Egyéni PieChart View
     public class PieChartView : GraphicsView
     {
-        private List<double> pocketMoneyList;
-        private double costPerPerson;
-        private int monthsLeft;
-
         public PieChartView(List<double> pocketMoney, double cost, int months)
         {
-            pocketMoneyList = pocketMoney;
-            costPerPerson = cost;
-            monthsLeft = months;
             Drawable = new PieChartDrawable(pocketMoney, cost, months);
         }
     }
@@ -1037,19 +940,15 @@ namespace OKKT25
             float canPayAngle = (canPayCount / (float)pocketMoneyList.Count) * 360f;
             float cantPayAngle = 360f - canPayAngle;
 
-            // Fedezi a költséget - zöld
             canvas.FillColor = Color.FromArgb("#4CAF50");
             canvas.FillArc(centerX - radius, centerY - radius, radius * 2, radius * 2, -90, canPayAngle, true);
 
-            // Nem fedezi - piros
             canvas.FillColor = Color.FromArgb("#F44336");
             canvas.FillArc(centerX - radius, centerY - radius, radius * 2, radius * 2, -90 + canPayAngle, cantPayAngle, true);
 
-            // Középső fehér kör (donut chart)
             canvas.FillColor = Colors.White;
             canvas.FillCircle(centerX, centerY, radius * 0.6f);
 
-            // Szövegek
             canvas.FontSize = 24;
             canvas.FontColor = Color.FromArgb("#4CAF50");
             canvas.DrawString($"{canPayCount} fő", centerX - 40, centerY - 20, 80, 30, HorizontalAlignment.Center, VerticalAlignment.Top);
@@ -1067,7 +966,5 @@ namespace OKKT25
                 canvas.DrawString("nem tudja", centerX - 60, centerY + 60, 120, 20, HorizontalAlignment.Center, VerticalAlignment.Top);
             }
         }
-
-
     }
 }
