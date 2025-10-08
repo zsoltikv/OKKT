@@ -14,7 +14,7 @@
                 if (e.Status == GestureStatus.Running)
                     FullImage.Scale *= e.Scale;
                 else if (e.Status == GestureStatus.Completed)
-                    FullImage.Scale = 1; // visszaállítja az alap méretet
+                    FullImage.Scale = 1;
             };
 
             FullImage.GestureRecognizers.Add(pinchGesture);
