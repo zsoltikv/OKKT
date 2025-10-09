@@ -27,6 +27,13 @@
                     TextColor="White"
                     CornerRadius="10"
                     Clicked="OnAddPhotoClicked"/>
+            
+            <Button Text="PDF exportálás"
+                    FontSize="16"
+                    BackgroundColor="#1976D2"
+                    TextColor="White"
+                    CornerRadius="10"
+                    Clicked="OnExportPdfClicked"/>
 
             <!-- Galéria megjelenítése -->
             <CollectionView x:Name="PhotosCollection"
