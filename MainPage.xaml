@@ -19,7 +19,7 @@
                            FontAttributes="Bold"/>
                     <Entry x:Name="TripName"
                             Placeholder="pl: Osztálykirándulás"
-                            Keyboard="Numeric"/>
+                            Keyboard="Text"/>
                     
                     <StackLayout Padding="20" Spacing="10">
 
