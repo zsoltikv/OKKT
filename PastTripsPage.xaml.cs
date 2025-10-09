@@ -1,22 +1,37 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text;
+using System.Windows.Input;
 
 namespace OKKT25
 {
     public partial class PastTripsPage : ContentPage
     {
-        private ObservableCollection<MainPage.TripSummary> trips = new ObservableCollection<MainPage.TripSummary>();
+        public ICommand TripTappedCommand { get; }
+
+        private ObservableCollection<MainPage.TripSummary> trips = new();
 
         public PastTripsPage()
         {
             InitializeComponent();
+            TripTappedCommand = new Command<MainPage.TripSummary>(async (trip) => await OpenTripAsync(trip));
+            BindingContext = this;
         }
 
-        protected override void OnAppearing()
+        private async Task OpenTripAsync(MainPage.TripSummary selectedTrip)
         {
-            base.OnAppearing();
-            LoadTrips();
+            try
+            {
+                var json = await File.ReadAllTextAsync(selectedTrip.FileName, Encoding.UTF8);
+                var tripData = JsonSerializer.Deserialize<MainPage.TripData>(json);
+
+                if (tripData != null)
+                    await Navigation.PushAsync(new TripDetailPage(tripData, selectedTrip.TripName));
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", $"Nem sikerült megnyitni: {ex.Message}", "OK");
+            }
         }
 
         private async void LoadTrips()

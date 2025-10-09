@@ -23,29 +23,33 @@
                            BackgroundColor="White"
                            Padding="15"
                            Margin="0,0,0,10">
-                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={x:Reference Name=TripsCollectionView}, Path=BindingContext.TripTappedCommand}"
+                              CommandParameter="{Binding}" />
+                        </Frame.GestureRecognizers>
 
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
                             <Label Text="{Binding TripName}" 
                                    FontSize="18"
                                    FontAttributes="Bold"
                                    TextColor="#1976D2"
                                    Grid.Row="0" Grid.Column="0"/>
 
-                            <Label Text="{Binding LastSaved, StringFormat='{0:yyyy.MM.dd HH:mm}'}" 
+                                                <Label Text="{Binding LastSaved, StringFormat='{0:yyyy.MM.dd HH:mm}'}" 
                                    FontSize="12"
                                    TextColor="#757575"
                                    Grid.Row="1" Grid.Column="0"/>
 
-                            <Label Text="{Binding Participants, StringFormat='{0} fő'}" 
+                                                <Label Text="{Binding Participants, StringFormat='{0} fő'}" 
                                    FontSize="14"
                                    TextColor="#424242"
                                    Grid.Row="2" Grid.Column="0"/>
 
-                            <Label Text=">" 
+                                            <Label Text=">" 
                                    FontSize="30"
                                    TextColor="#BDBDBD"
                                    VerticalOptions="Center"
-                                   Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"/>
+                                   Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"/>          
                         </Grid>
                     </Frame>
                 </DataTemplate>
