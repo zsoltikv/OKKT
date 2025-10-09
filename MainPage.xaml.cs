@@ -25,6 +25,9 @@ namespace OKKT25
             public double AveragePocketMoney { get; set; }
             public DateTime LastSaved { get; set; } = DateTime.Now;
             public List<string> PhotoPaths { get; set; } = new();
+            public string TripDestination { get; set; } = string.Empty;
+            public DateTime TripDateStart { get; set; } = DateTime.Now;
+            public DateTime TripDateEnd { get; set; } = DateTime.Now;
         }
         public class CostItem
         {
@@ -40,6 +43,9 @@ namespace OKKT25
         {
             public string FileName { get; set; }
             public string TripName { get; set; }
+            public string TripDestination { get; set; }
+            public DateTime TripDateStart { get; set; }
+            public DateTime TripDateEnd { get; set; }
             public DateTime LastSaved { get; set; }
             public int Participants { get; set; }
             public double TotalCost { get; set; }
@@ -67,6 +73,9 @@ namespace OKKT25
             currentTripData.IsPerPersonMode = isPerPersonMode;
             currentTripData.LastSaved = DateTime.Now;
             currentTripData.TripName = TripName.Text;
+            currentTripData.TripDestination = TripDestination.Text;
+            currentTripData.TripDateStart = TripDateStart.Date;
+            currentTripData.TripDateEnd = TripDateEnd.Date;
             currentTripData.PocketMoney.Clear();
             try
             {

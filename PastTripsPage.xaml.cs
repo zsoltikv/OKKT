@@ -16,6 +16,7 @@ namespace OKKT25
             InitializeComponent();
             TripTappedCommand = new Command<MainPage.TripSummary>(async (trip) => await OpenTripAsync(trip));
             BindingContext = this;
+            LoadTrips();
         }
 
         private async Task OpenTripAsync(MainPage.TripSummary selectedTrip)
@@ -63,7 +64,10 @@ namespace OKKT25
                                             : tripData.TripName,
                                 LastSaved = tripData.LastSaved,
                                 Participants = tripData.Participants,
-                                TotalCost = totalCost
+                                TotalCost = totalCost,
+                                TripDestination = tripData.TripDestination,
+                                TripDateStart = tripData.TripDateStart,
+                                TripDateEnd = tripData.TripDateEnd
                             });
                         }
                     }
@@ -82,27 +86,27 @@ namespace OKKT25
             }
         }
 
-        private async void OnTripSelected(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.CurrentSelection.FirstOrDefault() is MainPage.TripSummary selectedTrip)
-            {
-                try
-                {
-                    var json = await File.ReadAllTextAsync(selectedTrip.FileName, Encoding.UTF8);
-                    var tripData = JsonSerializer.Deserialize<MainPage.TripData>(json);
+        //private async void OnTripSelected(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (e.CurrentSelection.FirstOrDefault() is MainPage.TripSummary selectedTrip)
+        //    {
+        //        try
+        //        {
+        //            var json = await File.ReadAllTextAsync(selectedTrip.FileName, Encoding.UTF8);
+        //            var tripData = JsonSerializer.Deserialize<MainPage.TripData>(json);
 
-                    if (tripData != null)
-                    {
-                        await Navigation.PushAsync(new TripDetailPage(tripData, selectedTrip.TripName));
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await DisplayAlert("Hiba", $"Nem sikerült megnyitni: {ex.Message}", "OK");
-                }
+        //            if (tripData != null)
+        //            {
+        //                await Navigation.PushAsync(new TripDetailPage(tripData, selectedTrip.TripName));
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            await DisplayAlert("Hiba", $"Nem sikerült megnyitni: {ex.Message}", "OK");
+        //        }
 
-                ((CollectionView)sender).SelectedItem = null;
-            }
-        }
+        //        ((CollectionView)sender).SelectedItem = null;
+        //    }
+        //}
     }
 }

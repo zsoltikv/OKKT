@@ -20,7 +20,24 @@
                     <Entry x:Name="TripName"
                             Placeholder="pl: Osztálykirándulás"
                             Keyboard="Text"/>
-                    
+
+                    <Label Text="Kirándulás helyszíne:" 
+                            FontAttributes="Bold"/>
+                    <Entry x:Name="TripDestination"
+                            Placeholder="pl: Budapest"
+                            Keyboard="Text"/>
+
+                    <Label Text="Kirándulás dátuma:" 
+                            FontAttributes="Bold"/>
+                    <HorizontalStackLayout Spacing="10">
+                        <DatePicker x:Name="TripDateStart"
+                                MinimumDate="{Binding MinimumDate}"
+                                Date="{Binding Date}"/>
+                        <DatePicker x:Name="TripDateEnd"
+                                MinimumDate="{Binding MinimumDate}"
+                                Date="{Binding Date}"/>
+                    </HorizontalStackLayout>
+
                     <StackLayout Padding="20" Spacing="10">
 
                         <Label Text="Költségek:" 

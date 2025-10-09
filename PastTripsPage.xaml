@@ -14,42 +14,59 @@
                Margin="0,10,0,20"/>
 
         <CollectionView x:Name="TripsCollectionView"
-                        SelectionMode="Single"
-                        SelectionChanged="OnTripSelected">
+                SelectionMode="Single">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Frame CornerRadius="10" 
-                           HasShadow="True"
-                           BackgroundColor="White"
-                           Padding="15"
-                           Margin="0,0,0,10">
+                   HasShadow="True"
+                   BackgroundColor="White"
+                   Padding="15"
+                   Margin="0,0,0,10">
+
                         <Frame.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding Source={x:Reference Name=TripsCollectionView}, Path=BindingContext.TripTappedCommand}"
-                              CommandParameter="{Binding}" />
+                            <TapGestureRecognizer 
+                        Command="{Binding Source={x:Reference TripsCollectionView}, Path=BindingContext.TripTappedCommand}"
+                        CommandParameter="{Binding}" />
                         </Frame.GestureRecognizers>
 
-                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
-                            <Label Text="{Binding TripName}" 
-                                   FontSize="18"
-                                   FontAttributes="Bold"
-                                   TextColor="#1976D2"
-                                   Grid.Row="0" Grid.Column="0"/>
+                        <!-- Két oszlop: bal oldalon a szövegek, jobb oldalon a ">" -->
+                        <Grid ColumnDefinitions="*,Auto">
 
-                                                <Label Text="{Binding LastSaved, StringFormat='{0:yyyy.MM.dd HH:mm}'}" 
+                            <!-- Bal oldal: minden szöveg egymás alatt -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label Text="{Binding TripName}" 
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#1976D2"/>
+
+                                <Label Text="{Binding TripDestination, StringFormat='Úticél: {0}'}"
+                                       FontSize="14"
+                                       TextColor="#424242"/>
+
+                                <Label Text="{Binding TripDateStart, StringFormat='Indulás: {0:yyyy.MM.dd}'}" 
+                                   FontSize="13"
+                                   TextColor="#616161"/>
+
+                                <Label Text="{Binding TripDateEnd, StringFormat='Vége: {0:yyyy.MM.dd}'}" 
+                                   FontSize="13"
+                                   TextColor="#616161"/>
+
+                                <Label Text="{Binding LastSaved, StringFormat='Mentve: {0:yyyy.MM.dd HH:mm}'}" 
                                    FontSize="12"
-                                   TextColor="#757575"
-                                   Grid.Row="1" Grid.Column="0"/>
+                                   TextColor="#616161"/>
 
-                                                <Label Text="{Binding Participants, StringFormat='{0} fő'}" 
-                                   FontSize="14"
-                                   TextColor="#424242"
-                                   Grid.Row="2" Grid.Column="0"/>
+                                <Label Text="{Binding Participants, StringFormat='Résztvevők: {0} fő'}" 
+                                   FontSize="12"
+                                   TextColor="#424242"/>
+                            </VerticalStackLayout>
 
-                                            <Label Text=">" 
-                                   FontSize="30"
-                                   TextColor="#BDBDBD"
-                                   VerticalOptions="Center"
-                                   Grid.Row="0" Grid.Column="1" Grid.RowSpan="3"/>          
+                            <!-- Jobb oldal: nyíl -->
+                            <Label Text=">" 
+                           FontSize="30"
+                           TextColor="#BDBDBD"
+                           VerticalOptions="Center"
+                           HorizontalOptions="End"
+                           Grid.Column="1"/>
                         </Grid>
                     </Frame>
                 </DataTemplate>
