@@ -16,6 +16,12 @@ namespace OKKT25
             InitializeComponent();
             TripTappedCommand = new Command<MainPage.TripSummary>(async (trip) => await OpenTripAsync(trip));
             BindingContext = this;
+            this.Appearing += PastTripsPage_Appearing;
+
+        }
+
+        private void PastTripsPage_Appearing(object? sender, EventArgs e)
+        {
             LoadTrips();
         }
 
@@ -86,27 +92,7 @@ namespace OKKT25
             }
         }
 
-        //private async void OnTripSelected(object sender, SelectionChangedEventArgs e)
-        //{
-        //    if (e.CurrentSelection.FirstOrDefault() is MainPage.TripSummary selectedTrip)
-        //    {
-        //        try
-        //        {
-        //            var json = await File.ReadAllTextAsync(selectedTrip.FileName, Encoding.UTF8);
-        //            var tripData = JsonSerializer.Deserialize<MainPage.TripData>(json);
 
-        //            if (tripData != null)
-        //            {
-        //                await Navigation.PushAsync(new TripDetailPage(tripData, selectedTrip.TripName));
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            await DisplayAlert("Hiba", $"Nem sikerült megnyitni: {ex.Message}", "OK");
-        //        }
 
-        //        ((CollectionView)sender).SelectedItem = null;
-        //    }
-        //}
     }
 }

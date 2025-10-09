@@ -5,83 +5,54 @@
              Title="Korábbi kirándulások"
              BackgroundColor="#F5F5F5">
 
-    <VerticalStackLayout Padding="20" Spacing="15">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
 
-        <Label Text="Mentett kirándulások" 
-               FontSize="24" 
-               FontAttributes="Bold"
-               TextColor="#424242"
-               Margin="0,10,0,20"/>
+            <Label Text="Mentett kirándulások" 
+                   FontSize="24" 
+                   FontAttributes="Bold"
+                   TextColor="#424242"
+                   Margin="0,10,0,20"/>
 
-        <CollectionView x:Name="TripsCollectionView"
-                SelectionMode="Single">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Frame CornerRadius="10" 
-                           HasShadow="True"
-                           BackgroundColor="White"
-                           Padding="15"
-                           Margin="0,5">
+            <!-- CollectionView fix magassággal -->
+            <CollectionView x:Name="TripsCollectionView"
+                            SelectionMode="Single">
+                <!-- fix magasság -->
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame CornerRadius="10" HasShadow="True" BackgroundColor="White" Padding="15" Margin="0,5">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={x:Reference TripsCollectionView}, Path=BindingContext.TripTappedCommand}" CommandParameter="{Binding}" />
+                            </Frame.GestureRecognizers>
+                            <!-- Két oszlop: bal oldalon a szövegek, jobb oldalon a ">" -->
+                            <Grid ColumnDefinitions="*,Auto">
+                                <!-- Bal oldal: minden szöveg egymás alatt -->
+                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                    <Label Text="{Binding TripName}" FontSize="18" FontAttributes="Bold" TextColor="#1976D2"/>
+                                    <Label Text="{Binding TripDestination, StringFormat='Úticél: {0}'}" FontSize="14" TextColor="#424242"/>
+                                    <Label Text="{Binding TripDateStart, StringFormat='Indulás: {0:yyyy.MM.dd}'}" FontSize="13" TextColor="#616161"/>
+                                    <Label Text="{Binding TripDateEnd, StringFormat='Vége: {0:yyyy.MM.dd}'}" FontSize="13" TextColor="#616161"/>
+                                    <Label Text="{Binding LastSaved, StringFormat='Mentve: {0:yyyy.MM.dd HH:mm}'}" FontSize="12" TextColor="#616161"/>
+                                    <Label Text="{Binding Participants, StringFormat='Résztvevők: {0} fő'}" FontSize="12" TextColor="#424242"/>
+                                </VerticalStackLayout>
+                                <!-- Jobb oldal: nyíl -->
+                                <Label Text=">" FontSize="30" TextColor="#BDBDBD" VerticalOptions="Center" HorizontalOptions="End" Grid.Column="1"/>
+                            </Grid>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
 
-                        <Frame.GestureRecognizers>
-                            <TapGestureRecognizer 
-                        Command="{Binding Source={x:Reference TripsCollectionView}, Path=BindingContext.TripTappedCommand}"
-                        CommandParameter="{Binding}" />
-                        </Frame.GestureRecognizers>
+            <Label x:Name="EmptyStateLabel"
+                   Text="Még nincsenek mentett kirándulások"
+                   FontSize="16"
+                   TextColor="#9E9E9E"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   Margin="0,50,0,0"
+                   IsVisible="False"/>
 
-                        <!-- Két oszlop: bal oldalon a szövegek, jobb oldalon a ">" -->
-                        <Grid ColumnDefinitions="*,Auto">
-
-                            <!-- Bal oldal: minden szöveg egymás alatt -->
-                            <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                <Label Text="{Binding TripName}" 
-                                       FontSize="18"
-                                       FontAttributes="Bold"
-                                       TextColor="#1976D2"/>
-
-                                <Label Text="{Binding TripDestination, StringFormat='Úticél: {0}'}"
-                                       FontSize="14"
-                                       TextColor="#424242"/>
-
-                                <Label Text="{Binding TripDateStart, StringFormat='Indulás: {0:yyyy.MM.dd}'}" 
-                                   FontSize="13"
-                                   TextColor="#616161"/>
-
-                                <Label Text="{Binding TripDateEnd, StringFormat='Vége: {0:yyyy.MM.dd}'}" 
-                                   FontSize="13"
-                                   TextColor="#616161"/>
-
-                                <Label Text="{Binding LastSaved, StringFormat='Mentve: {0:yyyy.MM.dd HH:mm}'}" 
-                                   FontSize="12"
-                                   TextColor="#616161"/>
-
-                                <Label Text="{Binding Participants, StringFormat='Résztvevők: {0} fő'}" 
-                                   FontSize="12"
-                                   TextColor="#424242"/>
-                            </VerticalStackLayout>
-
-                            <!-- Jobb oldal: nyíl -->
-                            <Label Text=">" 
-                           FontSize="30"
-                           TextColor="#BDBDBD"
-                           VerticalOptions="Center"
-                           HorizontalOptions="End"
-                           Grid.Column="1"/>
-                        </Grid>
-                    </Frame>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-
-        <Label x:Name="EmptyStateLabel"
-               Text="Még nincsenek mentett kirándulások"
-               FontSize="16"
-               TextColor="#9E9E9E"
-               HorizontalOptions="Center"
-               VerticalOptions="Center"
-               Margin="0,50,0,0"
-               IsVisible="False"/>
-
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 
 </ContentPage>
