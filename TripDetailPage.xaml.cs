@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
 using PdfSharpCore.Drawing;
+using PdfSharpCore.Fonts;
 
 namespace OKKT25
 {
@@ -255,14 +256,16 @@ namespace OKKT25
                     .GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads)
                     .AbsolutePath;
                 filePath = Path.Combine(downloadsPath, pdfFileName);
-                #elif WINDOWS
+                        #elif WINDOWS
                         var downloadsPath = Path.Combine(
                             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                             "Downloads");
                         filePath = Path.Combine(downloadsPath, pdfFileName);
-                #else
+                        #else
                         filePath = Path.Combine(FileSystem.Current.AppDataDirectory, pdfFileName);
-                #endif
+                        #endif
+
+                GlobalFontSettings.FontResolver = new CustomFontResolver();
 
 
                 using (var document = new PdfSharpCore.Pdf.PdfDocument())
@@ -452,7 +455,6 @@ namespace OKKT25
                         gfx.DrawString("Trip Manager Pro", fontSmall, new XSolidBrush(colorSubText),
                             new XPoint(pageWidth - margin - 100, footerY));
                     }
-
                     document.Save(filePath);
                 }
 
