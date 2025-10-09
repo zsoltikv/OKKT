@@ -11,7 +11,20 @@ namespace OKKT25
         public TripDetailPage(MainPage.TripData data, string tripName)
         {
             InitializeComponent();
-            tripData = data;
+
+            string tripFileName = $"{tripName}.json";
+            string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, tripFileName);
+
+            if (File.Exists(filePath))
+            {
+                string json = File.ReadAllText(filePath);
+                tripData = System.Text.Json.JsonSerializer.Deserialize<MainPage.TripData>(json);
+            }
+            else
+            {
+                tripData = data;
+            }
+
             Title = tripName;
             DisplayTripDetails();
             PhotosCollection.ItemsSource = photoSources;
@@ -90,7 +103,6 @@ namespace OKKT25
 
                 if (result != null)
                 {
-                    // 🔹 Mentés az alkalmazás adatkönyvtárába
                     string targetPath = Path.Combine(FileSystem.Current.AppDataDirectory, Path.GetFileName(result.FullPath));
 
                     using (var sourceStream = await result.OpenReadAsync())
@@ -99,8 +111,13 @@ namespace OKKT25
                         await sourceStream.CopyToAsync(targetStream);
                     }
 
-                    // 🔹 Hozzáadjuk a képet az ObservableCollection-höz fájlelérési útként
                     photoSources.Add(ImageSource.FromFile(targetPath));
+
+                    // 🔹 Hozzáadjuk a képet az adott kiránduláshoz
+                    tripData.PhotoPaths.Add(targetPath);
+
+                    // 🔹 Mentjük a frissített adatokat fájlba
+                    await SaveTripDataAsync();
                 }
             }
             catch (Exception ex)
@@ -108,7 +125,23 @@ namespace OKKT25
                 await DisplayAlert("Hiba", $"Nem sikerült a művelet: {ex.Message}", "OK");
             }
         }
+        private async Task SaveTripDataAsync()
+        {
+            try
+            {
+                string json = System.Text.Json.JsonSerializer.Serialize(tripData,
+                    new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
 
+                string tripFileName = $"{tripData.TripName}.json";
+                string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, tripFileName);
+
+                await File.WriteAllTextAsync(filePath, json);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", $"Nem sikerült menteni az adatokat: {ex.Message}", "OK");
+            }
+        }
         private async void OnBackClicked(object sender, EventArgs e)
         {
             await Navigation.PopAsync();

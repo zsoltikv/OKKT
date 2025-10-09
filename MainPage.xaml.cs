@@ -95,7 +95,23 @@ namespace OKKT25
                 await DisplayAlert("Hiba", $"Nem sikerült menteni: {ex.Message}", "OK");
             }
         }
-       
+
+        private void OnEndDateChanged(object sender, DateChangedEventArgs e)
+        {
+            if (TripDateEnd.Date < TripDateStart.Date)
+            {
+                TripDateEnd.Date = TripDateStart.Date;
+            }
+        }
+
+        private void OnStartDateChanged(object sender, DateChangedEventArgs e)
+        {
+            if(TripDateStart.Date > TripDateEnd.Date)
+            {
+                TripDateStart.Date = TripDateEnd.Date;
+            }
+        }
+
         private void OnSaveClicked(object sender, EventArgs e)
         {
             SaveData();

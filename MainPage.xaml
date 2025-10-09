@@ -32,10 +32,12 @@
                     <HorizontalStackLayout Spacing="10">
                         <DatePicker x:Name="TripDateStart"
                                 MinimumDate="{Binding MinimumDate}"
-                                Date="{Binding Date}"/>
+                                Date="{Binding Date}"
+                                DateSelected="OnStartDateChanged"/>
                         <DatePicker x:Name="TripDateEnd"
                                 MinimumDate="{Binding MinimumDate}"
-                                Date="{Binding Date}"/>
+                                Date="{Binding Date}"
+                                DateSelected="OnEndDateChanged"/>
                     </HorizontalStackLayout>
 
                     <StackLayout Padding="20" Spacing="10">

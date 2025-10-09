@@ -18,10 +18,10 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Frame CornerRadius="10" 
-                   HasShadow="True"
-                   BackgroundColor="White"
-                   Padding="15"
-                   Margin="0,0,0,10">
+                           HasShadow="True"
+                           BackgroundColor="White"
+                           Padding="15"
+                           Margin="0,5">
 
                         <Frame.GestureRecognizers>
                             <TapGestureRecognizer 

@@ -5,15 +5,21 @@
              BackgroundColor="Black">
 
     <Grid>
-        <Image x:Name="FullImage"
-               Aspect="AspectFit"
-               VerticalOptions="Center"
-               HorizontalOptions="Center"/>
+        <ScrollView x:Name="ZoomScrollView"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill"
+                    BackgroundColor="Black">
+            <Image x:Name="FullImage"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+        </ScrollView>
 
-        <Button Text="X"
-                FontSize="28"
-                BackgroundColor="Transparent"
+        <!-- Bezárás gomb -->
+        <Button Text="✕"
+                FontSize="24"
                 TextColor="White"
+                BackgroundColor="Transparent"
                 Padding="10"
                 HorizontalOptions="End"
                 VerticalOptions="Start"
