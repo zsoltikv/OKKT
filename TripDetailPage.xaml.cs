@@ -458,7 +458,7 @@ namespace OKKT25
                     document.Save(filePath);
                 }
 
-                await DisplayAlert("✅ Siker", $"Luxus PDF elkészült!\n📁 {filePath}", "Rendben");
+                await DisplayAlert("✅ Siker", $"PDF elkészült!\n📁 {filePath}", "Rendben");
             }
             catch (Exception ex)
             {

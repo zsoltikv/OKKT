@@ -20,6 +20,7 @@ public class MainActivity : Microsoft.Maui.MauiAppCompatActivity
 {
     protected override void OnCreate(Bundle savedInstanceState)
     {
+        PdfSharpCore.Fonts.GlobalFontSettings.FontResolver = new CustomFontResolver();
         base.OnCreate(savedInstanceState);
         RequestedOrientation = ScreenOrientation.Portrait;
     }

@@ -1,13 +1,20 @@
 ﻿using PdfSharpCore.Fonts;
 using System.IO;
+using System.Reflection;
 
 public class CustomFontResolver : IFontResolver
 {
+    public string DefaultFontName => "Montserrat#";
+
     public byte[] GetFont(string faceName)
     {
-        // A Resources mappában elhelyezett fontot töltjük be
-        var assembly = typeof(CustomFontResolver).Assembly;
-        using var stream = assembly.GetManifestResourceStream("YourNamespace.Resources.YourFont.ttf");
+        var assembly = typeof(CustomFontResolver).GetTypeInfo().Assembly;
+        const string resourceName = "YourNamespace.Fonts.Montserrat-Regular.ttf"; // namespace + mappa + fájlnév
+
+        using var stream = assembly.GetManifestResourceStream(resourceName);
+        if (stream == null)
+            throw new FileNotFoundException($"Nem található a beágyazott font: {resourceName}");
+
         using var ms = new MemoryStream();
         stream.CopyTo(ms);
         return ms.ToArray();
@@ -15,7 +22,9 @@ public class CustomFontResolver : IFontResolver
 
     public FontResolverInfo ResolveTypeface(string familyName, bool isBold, bool isItalic)
     {
-        // Itt adhatod meg a default fontot
-        return new FontResolverInfo("Montserrat#");
+        if (string.Equals(familyName, "Montserrat", StringComparison.OrdinalIgnoreCase))
+            return new FontResolverInfo("Montserrat#");
+
+        return new FontResolverInfo(DefaultFontName);
     }
 }
