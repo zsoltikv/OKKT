@@ -27,7 +27,7 @@
             ContentTemplate="{DataTemplate local:MainPage}" />
 
         <ShellContent
-            Title="Korábbi"
+            Title="Tervezetek"
             Icon="folder.png"
             ContentTemplate="{DataTemplate local:PastTripsPage}" />
     </TabBar>
