@@ -5,9 +5,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:OKKT25"
     Shell.FlyoutBehavior="Disabled"
-    Title="OKKT25">
+    Title="OKKT25"
+    Shell.BackgroundColor="#1f1f1f"
+    Shell.TitleColor="#FFD700"
+    Shell.ForegroundColor="#FFD700"
+    Shell.NavBarHasShadow="False">
 
     <Shell.Resources>
+        <!-- TabBar stílus -->
         <Style TargetType="TabBar">
             <Setter Property="Shell.TabBarBackgroundColor" Value="#121212" />
             <Setter Property="Shell.TabBarTitleColor" Value="#FFD700" />
@@ -26,5 +31,4 @@
             Icon="folder.png"
             ContentTemplate="{DataTemplate local:PastTripsPage}" />
     </TabBar>
-
 </Shell>
