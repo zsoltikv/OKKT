@@ -367,8 +367,7 @@ namespace OKKT25
                     FontAttributes = FontAttributes.Bold,
                     FontFamily = "Arial",
                     FontSize = 14,
-                    TextColor = Color.FromArgb("#FFD700"),
-                    Margin = new Thickness(0, 10, 0, 0)
+                    TextColor = Color.FromArgb("#FFD700")
                 };
 
                 // Frame a stílushoz
@@ -723,37 +722,6 @@ Fizetendő: {FormatNumber(costPerPerson)} Ft
             card.Content = content;
             return card;
         }
-
-
-        private Frame CreateResultCard(string title, string colorHex)
-        {
-            var frame = new Frame
-            {
-                CornerRadius = 15,
-                HasShadow = true,
-                BackgroundColor = Colors.White,
-                Padding = 0,
-                Margin = new Thickness(0, 0, 0, 12)
-            };
-
-            var container = new VerticalStackLayout();
-
-            var titleLabel = new Label
-            {
-                Text = title,
-                FontSize = 18,
-                FontAttributes = FontAttributes.Bold,
-                TextColor = Colors.White,
-                BackgroundColor = Color.FromArgb(colorHex),
-                Padding = new Thickness(15, 12)
-            };
-
-            container.Add(titleLabel);
-            frame.Content = container;
-
-            return frame;
-        }
-
         private async Task ShowError(string message)
         {
             await DisplayAlert("Hiba", message, "OK");

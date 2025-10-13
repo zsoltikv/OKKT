@@ -560,8 +560,6 @@ namespace OKKT25
 
                 string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, safeFileName);
 
-                await DisplayAlert("Debug", $"JSON path: {filePath}", "OK");
-
                 // JSON fájl törlése
                 if (File.Exists(filePath))
                 {
