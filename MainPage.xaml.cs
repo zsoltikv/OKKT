@@ -248,7 +248,7 @@ namespace OKKT25
             var removeButton = new Button
             {
                 Text = "×",
-                BackgroundColor = Color.FromHex("#F5F5F5"),
+                BackgroundColor = Color.FromHex("#FF9800"),
                 TextColor = Color.FromHex("#424242"),
                 WidthRequest = 40,
                 HeightRequest = 40
