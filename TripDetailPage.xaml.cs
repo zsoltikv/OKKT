@@ -31,6 +31,15 @@ namespace OKKT25
             DisplayTripDetails();
             PhotosCollection.ItemsSource = photoSources;
             DisplayPhotos();
+            UpdatePhotosLabel();
+
+        }
+        private void UpdatePhotosLabel()
+        {
+            if (tripData.PhotoPaths != null)
+                PhotosLabel.Text = $"Fotók: {tripData.PhotoPaths.Count}";
+            else
+                PhotosLabel.Text = "Fotók: 0";
         }
 
         private void DisplayPhotos()
@@ -119,7 +128,9 @@ namespace OKKT25
                     tripData.PhotoPaths.Add(targetPath);
 
                     // 🔹 Mentjük a frissített adatokat fájlba
+                    UpdatePhotosLabel();
                     await SaveTripDataAsync();
+
                 }
             }
             catch (Exception ex)
@@ -307,9 +318,6 @@ namespace OKKT25
                         filePath = Path.Combine(FileSystem.Current.AppDataDirectory, pdfFileName);
                         #endif
 
-                GlobalFontSettings.FontResolver = new CustomFontResolver();
-
-
                 using (var document = new PdfSharpCore.Pdf.PdfDocument())
                 {
                     var pdfPage = document.AddPage();
@@ -358,7 +366,7 @@ namespace OKKT25
                         string locationText = !string.IsNullOrEmpty(tripData.TripDestination)
                             ? tripData.TripDestination
                             : "Nincs megadva";
-                        gfx.DrawString("📍 Helyszín:", fontBold, new XSolidBrush(colorPrimary),
+                        gfx.DrawString("Helyszín:", fontBold, new XSolidBrush(colorPrimary),
                             new XPoint(margin + 15, yPoint + 25));
                         gfx.DrawString(locationText, fontNormal, new XSolidBrush(colorText),
                             new XPoint(margin + 100, yPoint + 25));
@@ -366,7 +374,7 @@ namespace OKKT25
                         string dateText = tripData.TripDateStart != default
                             ? $"{tripData.TripDateStart:yyyy.MM.dd} - {tripData.TripDateEnd:yyyy.MM.dd}"
                             : "Nincs megadva";
-                        gfx.DrawString("📅 Időpont:", fontBold, new XSolidBrush(colorPrimary),
+                        gfx.DrawString("Időpont:", fontBold, new XSolidBrush(colorPrimary),
                             new XPoint(margin + 15, yPoint + 45));
                         gfx.DrawString(dateText, fontNormal, new XSolidBrush(colorText),
                             new XPoint(margin + 100, yPoint + 45));
@@ -388,7 +396,7 @@ namespace OKKT25
                         yPoint += cardHeight + 40;
 
                         // 💰 Zsebpénz infó
-                        gfx.DrawString("💰 ZSEBPÉNZ", fontHeader, new XSolidBrush(colorPrimary), new XPoint(margin, yPoint));
+                        gfx.DrawString("ZSEBPÉNZ", fontHeader, new XSolidBrush(colorPrimary), new XPoint(margin, yPoint));
                         yPoint += 25;
 
                         string pocketInfo = tripData.IsPerPersonMode
@@ -403,7 +411,7 @@ namespace OKKT25
                         yPoint += 80;
 
                         // 💵 Költségek táblázat
-                        gfx.DrawString("💵 KÖLTSÉGEK RÉSZLETESEN", fontHeader, new XSolidBrush(colorPrimary),
+                        gfx.DrawString("KÖLTSÉGEK RÉSZLETESEN", fontHeader, new XSolidBrush(colorPrimary),
                             new XPoint(margin, yPoint));
                         yPoint += 35;
 
@@ -532,5 +540,51 @@ namespace OKKT25
         {
             await ExportPageToPdf();
         }
+        private async void OnDeleteTripClicked(object sender, EventArgs e)
+        {
+            bool confirm = await DisplayAlert(
+                "Kirándulás törlése",
+                "Biztosan törölni szeretnéd ezt a kirándulást és az összes hozzá tartozó fotót?",
+                "Igen",
+                "Mégse");
+
+            if (!confirm)
+                return;
+
+            try
+            {
+                // JSON fájl elérési út ellenőrzése
+                string tripFileName = $"{tripData.TripName}.json";
+                string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, tripFileName);
+
+                await DisplayAlert("Debug", $"JSON path: {filePath}", "OK");
+
+                // JSON fájl törlése
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
+                // Fotók törlése
+                if (tripData.PhotoPaths != null)
+                {
+                    foreach (var photoPath in tripData.PhotoPaths)
+                    {
+                        if (File.Exists(photoPath))
+                            File.Delete(photoPath);
+                    }
+                }
+
+                await DisplayAlert("Siker", "A kirándulás törölve lett.", "OK");
+
+                // Visszalépés az előző oldalra
+                await Navigation.PopAsync();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", $"Nem sikerült törölni a kirándulást: {ex.Message}", "OK");
+            }
+        }
+
     }
 }

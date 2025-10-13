@@ -55,7 +55,6 @@
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
-		<AndroidAsset Include="Fonts\Montserrat-Regular.ttf" Alias="OpenSans" />
 
 		<!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
@@ -77,6 +76,12 @@
 	  <MauiXaml Update="TripDetailPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="AppShell.xaml.cs">
+	    <DependentUpon>appshell.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 </Project>

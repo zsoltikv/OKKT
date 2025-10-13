@@ -153,62 +153,82 @@ namespace OKKT25
             var costTypeEntry = new Entry
             {
                 Placeholder = "Költség típusa",
-                BackgroundColor = Color.FromHex("#F5F5F5"),
-                TextColor = Color.FromHex("#424242"),
+                BackgroundColor = Color.FromHex("#2D2D2D"),  // Frame háttérszíne
+                TextColor = Color.FromHex("#FFFFFF"),         // Entry szövegszíne
+                PlaceholderColor = Color.FromHex("#C8C8C8"),  // Placeholder színe
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                StyleId = "CostType"
+                StyleId = "CostType",
+                FontFamily = "Arial",
+                FontSize = 13,
+                CharacterSpacing = 1
             };
 
             var costAmountEntry = new Entry
             {
                 Placeholder = "Összeg (Ft)",
                 Keyboard = Keyboard.Numeric,
-                BackgroundColor = Color.FromHex("#F5F5F5"),
-                TextColor = Color.FromHex("#424242"),
+                BackgroundColor = Color.FromHex("#2D2D2D"),
+                TextColor = Color.FromHex("#FFFFFF"),
+                PlaceholderColor = Color.FromHex("#C8C8C8"),
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                StyleId = "FullCostAmount"
+                StyleId = "FullCostAmount",
+                FontFamily = "Arial",
+                FontSize = 13,
+                CharacterSpacing = 1
             };
 
             var numberOfFullCost = new Entry
             {
                 Placeholder = "Fő (db)",
                 Keyboard = Keyboard.Numeric,
-                BackgroundColor = Color.FromHex("#F5F5F5"),
-                TextColor = Color.FromHex("#424242"),
+                BackgroundColor = Color.FromHex("#2D2D2D"),
+                TextColor = Color.FromHex("#FFFFFF"),
+                PlaceholderColor = Color.FromHex("#C8C8C8"),
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                StyleId = "FullCostAmount"
+                StyleId = "FullCostAmount",
+                FontFamily = "Arial",
+                FontSize = 13,
+                CharacterSpacing = 1
             };
 
             var discountCostAmountEntry = new Entry
             {
                 Placeholder = "Kedvezményes összeg (Ft)",
                 Keyboard = Keyboard.Numeric,
-                BackgroundColor = Color.FromHex("#F5F5F5"),
-                TextColor = Color.FromHex("#424242"),
+                BackgroundColor = Color.FromHex("#2D2D2D"),  // Frame háttérszíne
+                TextColor = Color.FromHex("#FFFFFF"),         // Entry szövegszíne
+                PlaceholderColor = Color.FromHex("#C8C8C8"),  // Placeholder színe
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                StyleId = "DiscountCostAmount"
+                StyleId = "DiscountCostAmount",
+                FontFamily = "Arial",
+                FontSize = 13,
+                CharacterSpacing = 1
             };
 
             var numberOfDiscountCost = new Entry
             {
                 Placeholder = "Fő (db)",
                 Keyboard = Keyboard.Numeric,
-                BackgroundColor = Color.FromHex("#F5F5F5"),
-                TextColor = Color.FromHex("#424242"),
+                BackgroundColor = Color.FromHex("#2D2D2D"),  // Frame háttérszíne
+                TextColor = Color.FromHex("#FFFFFF"),         // Entry szövegszíne
+                PlaceholderColor = Color.FromHex("#C8C8C8"),  // Placeholder színe
                 HorizontalOptions = LayoutOptions.FillAndExpand,
-                StyleId = "DiscountCostAmount"
+                StyleId = "DiscountCostAmount",
+                FontFamily = "Arial",
+                FontSize = 13,
+                CharacterSpacing = 1
             };
 
             var isDiscountAvailable = new CheckBox
             {
-                Color = Color.FromHex("#424242")
+                Color = Color.FromHex("#FF9800")
             };
 
             var discountLabel = new Label
             {
                 Text = "Van kedvezmény?",
                 VerticalOptions = LayoutOptions.Center,
-                TextColor = Color.FromHex("#424242")
+                TextColor = Color.FromHex("#FFFFFF")
             };
 
             var checkBoxLayout = new StackLayout

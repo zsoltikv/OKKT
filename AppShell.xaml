@@ -7,7 +7,6 @@
     Shell.FlyoutBehavior="Disabled"
     Title="OKKT25">
 
-    <!-- 🌈 TabBar stílusok -->
     <Shell.Resources>
         <Style TargetType="TabBar">
             <Setter Property="Shell.TabBarBackgroundColor" Value="#121212" />
@@ -16,11 +15,10 @@
         </Style>
     </Shell.Resources>
 
-    <!-- 🔖 Lapok -->
     <TabBar>
         <ShellContent
             Title="Új kirándulás"
-            Icon="home.png"
+            Icon="travel.png"
             ContentTemplate="{DataTemplate local:MainPage}" />
 
         <ShellContent

@@ -5,213 +5,217 @@
              Title="🎒 Osztálykirándulás Tervező"
              BackgroundColor="#121212">
 
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+<ScrollView>
+    <VerticalStackLayout Padding="20" Spacing="15">
 
-            <!-- Beviteli kártya -->
-            <Frame CornerRadius="15"
+        <!-- Beviteli kártya -->
+        <Frame CornerRadius="15"
                    BackgroundColor="#1E1E1E"
                    BorderColor="#3C3C3C"
                    HasShadow="True"
                    Padding="20">
-                <VerticalStackLayout Spacing="12">
+            <VerticalStackLayout Spacing="12">
 
-                    <Label Text="Kirándulás neve:"
+                <Label Text="Kirándulás neve:"
                            FontAttributes="Bold"
                            FontFamily="Arial"
                            FontSize="14"
                            TextColor="#FFD700"/>
-                    <Frame CornerRadius="8"
+                <Frame CornerRadius="8"
                            BackgroundColor="#2D2D2D"
                            BorderColor="#3C3C3C"
                            HasShadow="False"
                            Padding="10">
-                        <Entry x:Name="TripName"
+                    <Entry x:Name="TripName"
                                Placeholder="pl: Osztálykirándulás"
                                Keyboard="Text"
                                BackgroundColor="Transparent"
                                TextColor="#FFFFFF"
                                PlaceholderColor="#C8C8C8"
                                FontFamily="Arial"
-                               FontSize="11"/>
-                    </Frame>
+                               FontSize="13"
+                               CharacterSpacing="1"/>
+                </Frame>
 
-                    <Label Text="Kirándulás helyszíne:"
+                <Label Text="Kirándulás helyszíne:"
                            FontAttributes="Bold"
                            FontFamily="Arial"
                            FontSize="14"
                            TextColor="#FFD700"/>
-                    <Frame CornerRadius="8"
+                <Frame CornerRadius="8"
                            BackgroundColor="#2D2D2D"
                            BorderColor="#3C3C3C"
                            HasShadow="False"
                            Padding="10">
-                        <Entry x:Name="TripDestination"
+                    <Entry x:Name="TripDestination"
                                Placeholder="pl: Budapest"
                                Keyboard="Text"
                                BackgroundColor="Transparent"
                                TextColor="#FFFFFF"
                                PlaceholderColor="#C8C8C8"
                                FontFamily="Arial"
-                               FontSize="11"/>
-                    </Frame>
+                               FontSize="13"
+                               CharacterSpacing="1"/>
+                </Frame>
 
-                    <Label Text="Kirándulás dátuma:"
+                <Label Text="Kirándulás dátuma:"
                            FontAttributes="Bold"
                            FontFamily="Arial"
                            FontSize="14"
                            TextColor="#FFD700"/>
-                    <HorizontalStackLayout Spacing="10">
-                        <Frame CornerRadius="8"
+                <HorizontalStackLayout Spacing="10">
+                    <Frame CornerRadius="8"
                                BackgroundColor="#2D2D2D"
                                BorderColor="#3C3C3C"
                                HasShadow="False"
                                Padding="10">
-                            <DatePicker x:Name="TripDateStart"
+                        <DatePicker x:Name="TripDateStart"
                                         BackgroundColor="Transparent"
                                         TextColor="#FFFFFF"
                                         FontFamily="Arial"
                                         FontSize="11"
                                         DateSelected="OnStartDateChanged"/>
-                        </Frame>
-                        <Frame CornerRadius="8"
+                    </Frame>
+                    <Frame CornerRadius="8"
                                BackgroundColor="#2D2D2D"
                                BorderColor="#3C3C3C"
                                HasShadow="False"
                                Padding="10">
-                            <DatePicker x:Name="TripDateEnd"
+                        <DatePicker x:Name="TripDateEnd"
                                         BackgroundColor="Transparent"
                                         TextColor="#FFFFFF"
                                         FontFamily="Arial"
                                         FontSize="11"
                                         DateSelected="OnEndDateChanged"/>
-                        </Frame>
-                    </HorizontalStackLayout>
+                    </Frame>
+                </HorizontalStackLayout>
 
-                    <!-- Költségek szekció -->
-                    <Frame CornerRadius="10"
+                <!-- Költségek szekció -->
+                <Frame CornerRadius="10"
                            BackgroundColor="#1E1E1E"
                            BorderColor="#3C3C3C"
                            HasShadow="False"
                            Padding="20"
                            Margin="0,10,0,0">
-                        <VerticalStackLayout Spacing="10">
-                            <Label Text="Költségek:"
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Költségek:"
                                    FontAttributes="Bold"
                                    FontFamily="Arial"
                                    FontSize="16"
                                    TextColor="#FFD700"/>
 
-                            <!-- Dinamikus költségekhez konténer -->
-                            <Frame CornerRadius="8"
+                        <!-- Dinamikus költségekhez konténer -->
+                        <Frame CornerRadius="8"
                                    BackgroundColor="#2D2D2D"
                                    BorderColor="#3C3C3C"
                                    HasShadow="False"
                                    Padding="10">
-                                <StackLayout x:Name="DynamicCostsLayout"
+                            <StackLayout x:Name="DynamicCostsLayout"
                                              Spacing="5"/>
-                            </Frame>
+                        </Frame>
 
-                            <!-- Plusz gomb -->
-                            <Button Text="+ Új költség"
+                        <!-- Plusz gomb -->
+                        <Button Text="+ Új költség"
                                     Clicked="OnAddCostClicked"
                                     BackgroundColor="#FF9800"
                                     TextColor="#121212"
                                     FontFamily="Arial"
-                                    FontSize="11"
+                                    FontSize="14"
                                     FontAttributes="Bold"
                                     CornerRadius="8"
                                     Padding="15,10"/>
-                        </VerticalStackLayout>
-                    </Frame>
+                    </VerticalStackLayout>
+                </Frame>
 
-                    <!-- Résztvevők száma -->
-                    <Label Text="Résztvevők száma:"
+                <!-- Résztvevők száma -->
+                <Label Text="Résztvevők száma:"
                            FontAttributes="Bold"
                            FontFamily="Arial"
                            FontSize="14"
                            TextColor="#FFD700"
                            Margin="0,10,0,0"/>
-                    <Frame CornerRadius="8"
+                <Frame CornerRadius="8"
                            BackgroundColor="#2D2D2D"
                            BorderColor="#3C3C3C"
                            HasShadow="False"
                            Padding="10">
-                        <Entry x:Name="EntryParticipants"
+                    <Entry x:Name="EntryParticipants"
                                Placeholder="pl. 25"
                                Keyboard="Numeric"
                                BackgroundColor="Transparent"
                                TextColor="#FFFFFF"
                                PlaceholderColor="#C8C8C8"
                                FontFamily="Arial"
-                               FontSize="11"
-                               TextChanged="OnParticipantsChanged"/>
-                    </Frame>
+                               FontSize="13"
+                               TextChanged="OnParticipantsChanged"
+                               CharacterSpacing="1"/>
+                </Frame>
 
-                    <!-- Hátralévő hónapok -->
-                    <Label Text="Hátralévő idő (hónapok):"
+                <!-- Hátralévő hónapok -->
+                <Label Text="Hátralévő idő (hónapok):"
                            FontAttributes="Bold"
                            FontFamily="Arial"
                            FontSize="14"
                            TextColor="#FFD700"
                            Margin="0,10,0,0"/>
-                    <Frame CornerRadius="8"
+                <Frame CornerRadius="8"
                            BackgroundColor="#2D2D2D"
                            BorderColor="#3C3C3C"
                            HasShadow="False"
                            Padding="10">
-                        <Entry x:Name="EntryMonthsLeft"
+                    <Entry x:Name="EntryMonthsLeft"
                                Placeholder="pl. 6"
                                Keyboard="Numeric"
                                BackgroundColor="Transparent"
                                TextColor="#FFFFFF"
                                PlaceholderColor="#C8C8C8"
                                FontFamily="Arial"
-                               FontSize="11"/>
-                    </Frame>
+                               FontSize="13"
+                               CharacterSpacing="1"/>
+                </Frame>
 
-                    <!-- Zsebpénz típus -->
-                    <Label Text="Zsebpénz megadása:"
+                <!-- Zsebpénz típus -->
+                <Label Text="Zsebpénz megadása:"
                            FontAttributes="Bold"
                            FontFamily="Arial"
                            FontSize="14"
                            TextColor="#FFD700"
                            Margin="0,5,0,0"/>
-                    <!-- kisebb felső margó -->
+                <!-- kisebb felső margó -->
 
-                    <HorizontalStackLayout Spacing="20"
-                       Margin="0,5,0,0">
-                        <!-- kis függőleges szünet -->
+                <HorizontalStackLayout Spacing="20"
+                       Margin="0,0,0,0">
+                    <!-- kis függőleges szünet -->
                         <RadioButton x:Name="RadioGrouped"
-                 Content="Csoportosan"
-                 GroupName="PocketMoneyType"
-                 IsChecked="True"
-                 TextColor="#FFFFFF"
-                 FontFamily="Arial"
-                 FontSize="11"
-                 CheckedChanged="OnPocketMoneyTypeChanged"/>
+                                     Content="Csoportosan"
+                                     GroupName="PocketMoneyType"
+                                     IsChecked="True"
+                                     TextColor="#FFFFFF"
+                                     FontFamily="Arial"
+                                     FontSize="11"
+                                     CheckedChanged="OnPocketMoneyTypeChanged"/>
                         <RadioButton x:Name="RadioPerPerson"
-                 Content="Személyenként"
-                 GroupName="PocketMoneyType"
-                 TextColor="#FFFFFF"
-                 FontFamily="Arial"
-                 FontSize="11"
-                 CheckedChanged="OnPocketMoneyTypeChanged"/>
-                    </HorizontalStackLayout>
+                                     Content="Személyenként"
+                                     GroupName="PocketMoneyType"
+                                     TextColor="#FFFFFF"
+                                     FontFamily="Arial"
+                                     FontSize="11"
+                                     CheckedChanged="OnPocketMoneyTypeChanged"/>
+                </HorizontalStackLayout>
 
 
-                    <!-- Zsebpénz bevitel dinamikus terület -->
-                    <Frame CornerRadius="10"
+                <!-- Zsebpénz bevitel dinamikus terület -->
+                <Frame CornerRadius="10"
                            BackgroundColor="#1E1E1E"
                            BorderColor="#3C3C3C"
                            HasShadow="False"
                            Padding="10"
                            Margin="0,10,0,0">
-                        <VerticalStackLayout x:Name="LayoutPocketMoney"
+                    <VerticalStackLayout x:Name="LayoutPocketMoney"
                          Spacing="10">
 
-                            <!-- Cím (egységes a Hátralévő idő Label-lel) -->
-                            <Label x:Name="LabelAveragePocketMoney"
+                        <!-- Cím (egységes a Hátralévő idő Label-lel) -->
+                        <Label x:Name="LabelAveragePocketMoney"
                                    Text="💰 Átlagos zsebpénz (Ft/fő):"
                                    FontAttributes="Bold"
                                    FontFamily="Arial"
@@ -220,55 +224,48 @@
                                    Margin="0,10,0,0"
                                    IsVisible="{Binding Source={x:Reference RadioGrouped}, Path=IsChecked}"/>
 
-                                                <!-- Beviteli mező (ugyanolyan stílus, mint a Hátralévő idő) -->
-                                                <Frame CornerRadius="8"
-                                   BackgroundColor="#2D2D2D"
-                                   BorderColor="#3C3C3C"
-                                   HasShadow="False"
-                                   Padding="10"
-                                   IsVisible="{Binding Source={x:Reference RadioGrouped}, Path=IsChecked}">
-                                                    <Entry x:Name="EntryAveragePocketMoney"
-                                       Placeholder="pl. 5000"
-                                       Keyboard="Numeric"
-                                       BackgroundColor="Transparent"
-                                       TextColor="#FFFFFF"
-                                       PlaceholderColor="#C8C8C8"
-                                       FontFamily="Arial"
-                                       FontSize="11"/>
-                            </Frame>
+                        <Entry x:Name="EntryAveragePocketMoney"
+                                        Placeholder="pl. 5000"
+                                        Keyboard="Numeric"
+                                        BackgroundColor="Transparent"
+                                        TextColor="#FFFFFF"
+                                        PlaceholderColor="#C8C8C8"
+                                        FontFamily="Arial"
+                                        FontSize="13"
+                                        CharacterSpacing="1"/>
 
-                        </VerticalStackLayout>
-                    </Frame>
-                </VerticalStackLayout>
-            </Frame>
+                    </VerticalStackLayout>
+                </Frame>
+            </VerticalStackLayout>
+        </Frame>
 
-            <!-- Számítás gomb -->
-            <Button x:Name="BtnCalculate"
+        <!-- Számítás gomb -->
+        <Button x:Name="BtnCalculate"
                     Text="Számítás"
-                    FontSize="18"
+                    FontSize="14"
                     FontAttributes="Bold"
                     FontFamily="Arial"
-                    BackgroundColor="#FFD700"
+                    BackgroundColor="#FFA500"
                     TextColor="#121212"
                     CornerRadius="10"
                     HeightRequest="50"
                     Margin="0,10,0,0"
                     Clicked="OnCalculateClicked"/>
 
-            <!-- Eredmények terület -->
-            <Frame CornerRadius="10"
+        <!-- Eredmények terület -->
+        <Frame CornerRadius="10"
                    BackgroundColor="#1E1E1E"
                    BorderColor="#3C3C3C"
                    HasShadow="True"
                    Padding="15"
                    Margin="0,10,0,0">
-                <VerticalStackLayout x:Name="LayoutResults"
+            <VerticalStackLayout x:Name="LayoutResults"
                                     IsVisible="False"
                                     Spacing="12"/>
-            </Frame>
+        </Frame>
 
-            <!-- Mentés gomb -->
-            <Button x:Name="BtnSave"
+        <!-- Mentés gomb -->
+        <Button x:Name="BtnSave"
                     Text="💾 Mentés"
                     Clicked="OnSaveClicked"
                     BackgroundColor="#FFA500"
@@ -280,6 +277,6 @@
                     HeightRequest="45"
                     Margin="0,10,0,0"/>
 
-        </VerticalStackLayout>
-    </ScrollView>
+    </VerticalStackLayout>
+</ScrollView>
 </ContentPage>
