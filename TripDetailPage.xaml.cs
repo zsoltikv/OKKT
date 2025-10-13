@@ -31,6 +31,15 @@ namespace OKKT25
             DisplayTripDetails();
             PhotosCollection.ItemsSource = photoSources;
             DisplayPhotos();
+            UpdatePhotosLabel();
+
+        }
+        private void UpdatePhotosLabel()
+        {
+            if (tripData.PhotoPaths != null)
+                PhotosLabel.Text = $"Fotók: {tripData.PhotoPaths.Count}";
+            else
+                PhotosLabel.Text = "Fotók: 0";
         }
 
         private void DisplayPhotos()
@@ -119,7 +128,9 @@ namespace OKKT25
                     tripData.PhotoPaths.Add(targetPath);
 
                     // 🔹 Mentjük a frissített adatokat fájlba
+                    UpdatePhotosLabel();
                     await SaveTripDataAsync();
+
                 }
             }
             catch (Exception ex)
@@ -529,7 +540,6 @@ namespace OKKT25
         {
             await ExportPageToPdf();
         }
-
         private async void OnDeleteTripClicked(object sender, EventArgs e)
         {
             bool confirm = await DisplayAlert(
@@ -543,10 +553,13 @@ namespace OKKT25
 
             try
             {
-                // JSON fájl törlése
+                // JSON fájl elérési út ellenőrzése
                 string tripFileName = $"{tripData.TripName}.json";
                 string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, tripFileName);
 
+                await DisplayAlert("Debug", $"JSON path: {filePath}", "OK");
+
+                // JSON fájl törlése
                 if (File.Exists(filePath))
                 {
                     File.Delete(filePath);

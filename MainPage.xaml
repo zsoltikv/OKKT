@@ -242,10 +242,10 @@
         <!-- Számítás gomb -->
         <Button x:Name="BtnCalculate"
                     Text="Számítás"
-                    FontSize="18"
+                    FontSize="14"
                     FontAttributes="Bold"
                     FontFamily="Arial"
-                    BackgroundColor="#FFD700"
+                    BackgroundColor="#FFA500"
                     TextColor="#121212"
                     CornerRadius="10"
                     HeightRequest="50"
