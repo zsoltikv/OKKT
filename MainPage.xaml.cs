@@ -28,6 +28,7 @@ namespace OKKT25
             public string TripDestination { get; set; } = string.Empty;
             public DateTime TripDateStart { get; set; } = DateTime.Now;
             public DateTime TripDateEnd { get; set; } = DateTime.Now;
+            public bool Calculated = false;
         }
         public class CostItem
         {
@@ -69,7 +70,11 @@ namespace OKKT25
 
         private async void SaveData()
         {
-
+            if(!currentTripData.Calculated)
+            {
+                await DisplayAlert("Hiba", "Kérlek először számold ki az adatokat!", "OK");
+                return;
+            }
             currentTripData.IsPerPersonMode = isPerPersonMode;
             currentTripData.LastSaved = DateTime.Now;
             currentTripData.TripName = TripName.Text;
@@ -365,15 +370,33 @@ namespace OKKT25
 
                     if (allEntries.Count > 1 && double.TryParse(allEntries[1].Text, out double amount))
                         costItem.Amount = amount;
+                    else
+                    {
+                        await ShowError("Kérlek adj meg érvényes költség összeget minden tételhez!");
+                        return;
+                    }
 
                     if (allEntries.Count > 2 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
                         costItem.NumberOfPeople = numberOfPeople;
+                    else
+                    {
+                        await ShowError("Kérlek adj meg érvényes fő számot minden tételhez!");
+                        return;
+                    }
 
                     if (allEntries.Count > 3 && double.TryParse(allEntries[3].Text, out double discountAmount))
                         costItem.DiscountAmount = discountAmount;
+                    else
+                    {
+                        costItem.DiscountAmount = 0;
+                    }
 
                     if (allEntries.Count > 4 && int.TryParse(allEntries[4].Text, out int discountPeople))
                         costItem.DiscountNumberOfPeople = discountPeople;
+                    else
+                    {
+                        costItem.DiscountNumberOfPeople = 0;
+                    }
 
                     costItem.HasDiscount = checkBox?.IsChecked ?? false;
 
@@ -439,6 +462,7 @@ namespace OKKT25
             double finalCost = currentTripData.Costs.Sum(c =>
                 c.Amount * c.NumberOfPeople + (c.HasDiscount ? c.DiscountAmount * c.DiscountNumberOfPeople : 0)
             );
+            currentTripData.Calculated = true;
             DisplayResults(finalCost, participants, monthsLeft, currentTripData.PocketMoney);
         }
 
@@ -666,9 +690,9 @@ namespace OKKT25
 
     public class PieChartDrawable : IDrawable
     {
-        private List<double> pocketMoneyList;
-        private double costPerPerson;
-        private int monthsLeft;
+        private readonly List<double> pocketMoneyList;
+        private readonly double costPerPerson;
+        private readonly int monthsLeft;
 
         public PieChartDrawable(List<double> pocketMoney, double cost, int months)
         {
@@ -679,43 +703,65 @@ namespace OKKT25
 
         public void Draw(ICanvas canvas, RectF dirtyRect)
         {
+            if (pocketMoneyList == null || pocketMoneyList.Count == 0)
+                return;
+
             int canPayCount = pocketMoneyList.Count(pm => pm * monthsLeft >= costPerPerson);
             int cantPayCount = pocketMoneyList.Count - canPayCount;
 
-            if (canPayCount == 0 && cantPayCount == 0) return;
+            float total = (float)pocketMoneyList.Count;
+            float canPayAngle = (canPayCount / total) * 360f;
+            float cantPayAngle = (cantPayCount / total) * 360f;
 
             float centerX = dirtyRect.Width / 2;
             float centerY = dirtyRect.Height / 2;
             float radius = Math.Min(centerX, centerY) * 0.7f;
 
-            float canPayAngle = (canPayCount / (float)pocketMoneyList.Count) * 360f;
-            float cantPayAngle = 360f - canPayAngle;
+            // Rajzoljunk szeleteket
+            DrawPieSlice(canvas, centerX, centerY, radius, -90, canPayAngle, Color.FromArgb("#4CAF50"));
+            DrawPieSlice(canvas, centerX, centerY, radius, -90 + canPayAngle, cantPayAngle, Color.FromArgb("#F44336"));
 
-            canvas.FillColor = Color.FromArgb("#4CAF50");
-            canvas.FillArc(centerX - radius, centerY - radius, radius * 2, radius * 2, -90, canPayAngle, true);
-
-            canvas.FillColor = Color.FromArgb("#F44336");
-            canvas.FillArc(centerX - radius, centerY - radius, radius * 2, radius * 2, -90 + canPayAngle, cantPayAngle, true);
-
+            // Fehér középső kör
             canvas.FillColor = Colors.White;
             canvas.FillCircle(centerX, centerY, radius * 0.6f);
 
-            canvas.FontSize = 24;
+            // Szövegek
             canvas.FontColor = Color.FromArgb("#4CAF50");
-            canvas.DrawString($"{canPayCount} fő", centerX - 40, centerY - 20, 80, 30, HorizontalAlignment.Center, VerticalAlignment.Top);
-
-            canvas.FontSize = 16;
-            canvas.DrawString("tudja fizetni", centerX - 60, centerY + 5, 120, 20, HorizontalAlignment.Center, VerticalAlignment.Top);
+            canvas.FontSize = radius * 0.16f;
+            canvas.DrawString($"{canPayCount} fő", centerX, centerY - radius * 0.08f, HorizontalAlignment.Center);
+            canvas.FontSize = radius * 0.12f;
+            canvas.DrawString("tudja fizetni", centerX, centerY + radius * 0.02f, HorizontalAlignment.Center);
 
             if (cantPayCount > 0)
             {
-                canvas.FontSize = 24;
                 canvas.FontColor = Color.FromArgb("#F44336");
-                canvas.DrawString($"{cantPayCount} fő", centerX - 40, centerY + 35, 80, 30, HorizontalAlignment.Center, VerticalAlignment.Top);
-
-                canvas.FontSize = 16;
-                canvas.DrawString("nem tudja", centerX - 60, centerY + 60, 120, 20, HorizontalAlignment.Center, VerticalAlignment.Top);
+                canvas.FontSize = radius * 0.16f;
+                canvas.DrawString($"{cantPayCount} fő", centerX, centerY + radius * 0.18f, HorizontalAlignment.Center);
+                canvas.FontSize = radius * 0.12f;
+                canvas.DrawString("nem tudja", centerX, centerY + radius * 0.28f, HorizontalAlignment.Center);
             }
+        }
+
+        private void DrawPieSlice(ICanvas canvas, float cx, float cy, float radius, float startAngle, float sweepAngle, Color color)
+        {
+            var path = new PathF();
+            path.MoveTo(cx, cy);
+
+            int steps = 100;
+            float angleStep = sweepAngle / steps;
+
+            for (int i = 0; i <= steps; i++)
+            {
+                float angle = (startAngle + i * angleStep) * (float)(Math.PI / 180);
+                float x = cx + radius * (float)Math.Cos(angle);
+                float y = cy + radius * (float)Math.Sin(angle);
+                path.LineTo(x, y);
+            }
+
+            path.Close();
+
+            canvas.FillColor = color;
+            canvas.FillPath(path);
         }
     }
 }
