@@ -7,8 +7,8 @@
     Shell.FlyoutBehavior="Disabled"
     Title="OKKT25"
     Shell.BackgroundColor="#1f1f1f"
-    Shell.TitleColor="#FFD700"
-    Shell.ForegroundColor="#FFD700"
+    Shell.TitleColor="#FF9800"
+    Shell.ForegroundColor="#FF9800"
     Shell.NavBarHasShadow="False">
 
     <Shell.Resources>
