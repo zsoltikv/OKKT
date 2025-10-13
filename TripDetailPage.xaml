@@ -6,16 +6,8 @@
              BackgroundColor="#F5F5F5">
 
     <ScrollView>
-        
-        <VerticalStackLayout Padding="20" Spacing="15">
 
-            <!-- Vissza nyíl gomb -->
-            <Button Text="Vissza"
-                    FontSize="18"
-                    BackgroundColor="Transparent"
-                    TextColor="#1976D2"
-                    HorizontalOptions="Start"
-                    Clicked="OnBackClicked"/>
+        <VerticalStackLayout Padding="20" Spacing="15">
 
             <!-- A részletes tartalom -->
             <VerticalStackLayout x:Name="DetailLayout" Padding="0" Spacing="15"/>
