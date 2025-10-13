@@ -1,54 +1,73 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="OKKT25.TripDetailPage"
-             Title="Kirándulus részletei"
-             BackgroundColor="#F5F5F5">
+             Title="Kirándulás részletei"
+             BackgroundColor="#121212">
 
     <ScrollView>
-
         <VerticalStackLayout Padding="20" Spacing="15">
 
-            <!-- A részletes tartalom -->
-            <VerticalStackLayout x:Name="DetailLayout" Padding="0" Spacing="15"/>
+            <VerticalStackLayout x:Name="DetailLayout"
+                             Padding="0"
+                             Spacing="15"/>
 
-            <!-- Fotó hozzáadása gomb -->
-            <Button Text="Fotó hozzáadása"
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10">
+                <Button Grid.Column="0"
+                    Grid.Row="0"
+                    Text="📸 Fotó hozzáadása"
                     FontSize="16"
-                    BackgroundColor="#1976D2"
-                    TextColor="White"
+                    BackgroundColor="#FF9800"
+                    TextColor="#121212"
+                    FontAttributes="Bold"
                     CornerRadius="10"
+                    HeightRequest="50"
                     Clicked="OnAddPhotoClicked"/>
-            
-            <Button Text="PDF exportálás"
+
+                <Button Grid.Column="1"
+                    Grid.Row="0"
+                    Text="📄 PDF exportálás"
                     FontSize="16"
-                    BackgroundColor="#1976D2"
-                    TextColor="White"
+                    BackgroundColor="#FF9800"
+                    TextColor="#121212"
+                    FontAttributes="Bold"
                     CornerRadius="10"
+                    HeightRequest="50"
                     Clicked="OnExportPdfClicked"/>
 
-            <!-- Galéria megjelenítése -->
+                <Button Grid.Column="0"
+                    Grid.Row="1"
+                    Grid.ColumnSpan="2"
+                    Text="🗑️ Kirándulás törlése"
+                    FontSize="16"
+                    BackgroundColor="#D32F2F"
+                    TextColor="#FFFFFF"
+                    CornerRadius="10"
+                    HeightRequest="50"
+                    Margin="0,10,0,0"/>
+            </Grid>
+
             <CollectionView x:Name="PhotosCollection"
-                            ItemsLayout="HorizontalList"
-                            HeightRequest="100"
-                            Margin="0,10,0,20">
-                
+                        ItemsLayout="HorizontalList"
+                        HeightRequest="100"
+                        Margin="0,10,0,20">
                 <CollectionView.ItemTemplate>
-                    
                     <DataTemplate>
-                        
-                        <Frame Padding="5" Margin="5" HasShadow="False">
-                            <Image Source="{Binding}" Aspect="AspectFill" WidthRequest="100" HeightRequest="100"/>
+                        <Frame Padding="5"
+                           Margin="5"
+                           HasShadow="False"
+                           BackgroundColor="#1E1E1E"
+                           BorderColor="#3C3C3C"
+                           CornerRadius="10">
+                            <Image Source="{Binding}"
+                               Aspect="AspectFill"
+                               WidthRequest="100"
+                               HeightRequest="100"/>
                         </Frame>
-                        
                     </DataTemplate>
-                    
                 </CollectionView.ItemTemplate>
-                
             </CollectionView>
 
         </VerticalStackLayout>
-        
     </ScrollView>
 
 </ContentPage>
