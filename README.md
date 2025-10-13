@@ -1,3 +1,2 @@
 - korabbi trip torlesenek javitasa
-- uj koltseg X gomb hatterszin allitas
 - pdf export javitas
