@@ -96,13 +96,48 @@ namespace OKKT25
                 string targetFile = Path.Combine(FileSystem.Current.AppDataDirectory, safeFileName);
                 await File.WriteAllTextAsync(targetFile, json, Encoding.UTF8);
 
-                await DisplayAlert("Sikeres mentés", "Az adataid el lettek mentve!", "OK");
+                await DisplayAlert("Sikeres mentés", "Az adatok el lettek mentve!", "OK");
+                ClearAllInputs();
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Hiba", $"Nem sikerült menteni: {ex.Message}", "OK");
             }
         }
+
+        private void ClearAllInputs()
+        {
+            // Alap mezők
+            TripName.Text = string.Empty;
+            TripDestination.Text = string.Empty;
+            EntryParticipants.Text = string.Empty;
+            EntryMonthsLeft.Text = string.Empty;
+
+            // Dátumok visszaállítása
+            TripDateStart.Date = DateTime.Now;
+            TripDateEnd.Date = DateTime.Now;
+
+            // Zsebpénz mezők törlése
+            foreach (var entry in pocketMoneyEntries)
+            {
+                entry.Text = string.Empty;
+            }
+
+            // Dinamikus költségek törlése
+            DynamicCostsLayout.Children.Clear();
+
+            // Eredmények törlése
+            LayoutResults.Clear();
+            LayoutResults.IsVisible = false;
+
+            // Állapot visszaállítása
+            currentTripData = new TripData();
+            isPerPersonMode = false;
+
+            // Zsebpénz layout frissítése (visszaáll az átlagos módra)
+            UpdatePocketMoneyLayout();
+        }
+
 
         private void OnEndDateChanged(object sender, DateChangedEventArgs e)
         {
