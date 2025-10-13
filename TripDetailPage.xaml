@@ -43,7 +43,8 @@
                     TextColor="#FFFFFF"
                     CornerRadius="10"
                     HeightRequest="50"
-                    Margin="0,10,0,0"/>
+                    Margin="0,10,0,0"
+                    Clicked="OnDeleteTripClicked"/>
             </Grid>
 
             <CollectionView x:Name="PhotosCollection"

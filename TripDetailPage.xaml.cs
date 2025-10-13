@@ -529,5 +529,49 @@ namespace OKKT25
         {
             await ExportPageToPdf();
         }
+
+        private async void OnDeleteTripClicked(object sender, EventArgs e)
+        {
+            bool confirm = await DisplayAlert(
+                "Kirándulás törlése",
+                "Biztosan törölni szeretnéd ezt a kirándulást és az összes hozzá tartozó fotót?",
+                "Igen",
+                "Mégse");
+
+            if (!confirm)
+                return;
+
+            try
+            {
+                // JSON fájl törlése
+                string tripFileName = $"{tripData.TripName}.json";
+                string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, tripFileName);
+
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+
+                // Fotók törlése
+                if (tripData.PhotoPaths != null)
+                {
+                    foreach (var photoPath in tripData.PhotoPaths)
+                    {
+                        if (File.Exists(photoPath))
+                            File.Delete(photoPath);
+                    }
+                }
+
+                await DisplayAlert("Siker", "A kirándulás törölve lett.", "OK");
+
+                // Visszalépés az előző oldalra
+                await Navigation.PopAsync();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Hiba", $"Nem sikerült törölni a kirándulást: {ex.Message}", "OK");
+            }
+        }
+
     }
 }
