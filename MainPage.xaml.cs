@@ -371,6 +371,7 @@ namespace OKKT25
                     Margin = new Thickness(0, 10, 0, 0)
                 };
 
+                // Frame a stílushoz
                 var frame = new Frame
                 {
                     CornerRadius = 8,
@@ -388,14 +389,14 @@ namespace OKKT25
                     TextColor = Color.FromArgb("#FFFFFF"),
                     PlaceholderColor = Color.FromArgb("#C8C8C8"),
                     FontFamily = "Arial",
-                    FontSize = 11
+                    FontSize = 13,        // ugyanaz, mint a többi Entry
+                    CharacterSpacing = 1  // ugyanolyan karakterköz
                 };
 
-                pocketMoneyEntries.Add(entry);
-                frame.Content = entry;
-
-                LayoutPocketMoney.Add(label);
-                LayoutPocketMoney.Add(frame);
+                frame.Content = entry;           // az Entry a Frame-be kerül
+                LayoutPocketMoney.Add(label);    // hozzáadjuk a labelt
+                LayoutPocketMoney.Add(frame);    // hozzáadjuk a keretes Entry-t
+                pocketMoneyEntries.Add(entry);   // lista a későbbi feldolgozáshoz
             }
 
             AnimateView(LayoutPocketMoney);
