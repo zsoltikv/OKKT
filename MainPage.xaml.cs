@@ -223,14 +223,14 @@ namespace OKKT25
 
             var isDiscountAvailable = new CheckBox
             {
-                Color = Color.FromHex("#FF9800")
+                Color = Color.FromHex("#FF9800"),
             };
 
             var discountLabel = new Label
             {
                 Text = "Van kedvezmény?",
                 VerticalOptions = LayoutOptions.Center,
-                TextColor = Color.FromHex("#FFFFFF")
+                TextColor = Color.FromHex("#C8C8C8")
             };
 
             var checkBoxLayout = new StackLayout
