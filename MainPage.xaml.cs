@@ -612,9 +612,9 @@ Fizetendő: {FormatNumber(costPerPerson)} Ft
                 suggestionsLayout.Add(new Label
                 {
                     Text = $@"1️⃣ Költségcsökkentés
-Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget,
-mindenki tudja fizetni a kirándulást.
-Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft",
+                    Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget,
+                    mindenki tudja fizetni a kirándulást.
+                    Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft",
                     FontSize = 12,
                     TextColor = Color.FromArgb("#FFFFFF")
                 });
@@ -625,9 +625,9 @@ mindenki tudja fizetni a kirándulást.
                 suggestionsLayout.Add(new Label
                 {
                     Text = $@"2️⃣ Többi diák fizet többet
-Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:
-Extra fejenként: {FormatNumber(extraPerPerson)} Ft
-Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft",
+                    Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:
+                    Extra fejenként: {FormatNumber(extraPerPerson)} Ft
+                    Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft",
                     FontSize = 12,
                     TextColor = Color.FromArgb("#FFFFFF")
                 });
@@ -640,8 +640,8 @@ Extra fejenként: {FormatNumber(extraPerPerson)} Ft
                     suggestionsLayout.Add(new Label
                     {
                         Text = $@"3️⃣ Több idő szükséges
-Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.
-(Még {neededMonths - monthsLeft} hónap szükséges)",
+                        Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.
+                        (Még {neededMonths - monthsLeft} hónap szükséges)",
                         FontSize = 12,
                         TextColor = Color.FromArgb("#FFFFFF")
                     });
@@ -657,8 +657,8 @@ Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.
                 {
                     Text = @"✨ Minden diák tudja fizetni a kirándulást!
 
-Az osztálykirándulás megvalósítható a megadott feltételekkel.
-Kezdjétek el gyűjteni a pénzt! 🎒",
+                    Az osztálykirándulás megvalósítható a megadott feltételekkel.
+                    Kezdjétek el gyűjteni a pénzt! 🎒",
                     FontSize = 13,
                     TextColor = Color.FromArgb("#FFFFFF"),
                     FontFamily = "Arial",
@@ -797,9 +797,11 @@ Kezdjétek el gyűjteni a pénzt! 🎒",
             DrawPieSlice(canvas, centerX, centerY, radius, -90, canPayAngle, Color.FromArgb("#4CAF50"));
             DrawPieSlice(canvas, centerX, centerY, radius, -90 + canPayAngle, cantPayAngle, Color.FromArgb("#F44336"));
 
-            // Fehér középső kör
-            canvas.FillColor = Colors.White;
+            // Fehér vagy fekete középső kör a témától függően
+            bool isDarkMode = Application.Current?.RequestedTheme == AppTheme.Dark;
+            canvas.FillColor = isDarkMode ? Colors.Black : Colors.White;
             canvas.FillCircle(centerX, centerY, radius * 0.6f);
+
 
             // Szövegek
             canvas.FontColor = Color.FromArgb("#4CAF50");
