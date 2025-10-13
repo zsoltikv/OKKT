@@ -140,7 +140,7 @@
                         </VerticalStackLayout>
                     </Frame>
 
-                    <!-- Résztvevők száma -->
+                    <!-- Résztvevők száma --><!--
                     <Label Text="Résztvevők száma:"
                            FontAttributes="Bold"
                            FontFamily="Arial"
@@ -162,7 +162,7 @@
                                FontSize="13"
                                TextChanged="OnParticipantsChanged"
                                CharacterSpacing="1"/>
-                    </Frame>
+                    </Frame>-->
 
                     <!-- Hátralévő hónapok -->
                     <Label Text="Hátralévő idő (hónapok):"

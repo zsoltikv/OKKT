@@ -110,7 +110,6 @@ namespace OKKT25
             // Alap mezők
             TripName.Text = string.Empty;
             TripDestination.Text = string.Empty;
-            EntryParticipants.Text = string.Empty;
             EntryMonthsLeft.Text = string.Empty;
 
             // Dátumok visszaállítása
@@ -343,18 +342,22 @@ namespace OKKT25
 
             if (isPerPersonMode)
             {
-                if (!int.TryParse(EntryParticipants.Text, out int participants) ||
-                    participants <= 0 || participants > 100)
+                int participants = currentTripData.Costs.Any()
+                ? currentTripData.Costs.Max(c => c.NumberOfPeople + (c.HasDiscount ? c.DiscountNumberOfPeople : 0))
+                : 0;
+
+                if (participants <= 0 || participants > 100)
                 {
                     var warningLabel = new Label
                     {
-                        Text = "⚠️ Először add meg a résztvevők számát (1-100)!",
+                        Text = "⚠️ Add meg a költségek menüpontban, hányan mennek (a fő mezőkben)!",
                         TextColor = Colors.Orange,
                         FontAttributes = FontAttributes.Bold
                     };
                     LayoutPocketMoney.Add(warningLabel);
                     return;
                 }
+
 
                 for (int i = 1; i <= participants; i++)
                 {
@@ -495,17 +498,17 @@ namespace OKKT25
                 }
             }
 
-            currentTripData.Participants = 0;
-            if (!int.TryParse(EntryParticipants.Text, out int participants) ||
-                participants <= 0 || participants > 100)
+            int participants = currentTripData.Costs.Any()
+                                ? currentTripData.Costs.Max(c => c.NumberOfPeople + (c.HasDiscount ? c.DiscountNumberOfPeople : 0))
+                                : 0;
+
+            if (participants <= 0)
             {
-                await ShowError("Kérlek adj meg érvényes résztvevő számot (1-100)!");
+                await ShowError("Nem adtál meg érvényes létszámot a költségek mezőknél!");
                 return;
             }
-            else
-            {
-                currentTripData.Participants = participants;
-            }
+
+            currentTripData.Participants = participants;
 
             currentTripData.MonthsLeft = 0;
             if (!int.TryParse(EntryMonthsLeft.Text, out int monthsLeft) ||
@@ -560,7 +563,6 @@ namespace OKKT25
         private void DisplayResults(double totalCost, int participants, int monthsLeft, List<double> pocketMoneyList)
         {
             LayoutResults.Clear();
-
             double costPerPerson = totalCost / participants;
             double monthlyPerPerson = costPerPerson / monthsLeft;
 
