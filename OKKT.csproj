@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#121212" BaseSize="128,128" />
 
     <MauiImage Include="Resources\Images\*" />
     <MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
@@ -41,11 +41,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Resources\AppIcon\apkbg.png" />
+    <None Remove="Resources\AppIcon\appicon.svg" />
   </ItemGroup>
 
   <ItemGroup>
-    <MauiIcon Include="Resources\AppIcon\apkbg.png" />
+    <MauiIcon Include="Resources\AppIcon\appicon.svg" />
   </ItemGroup>
 
   <ItemGroup>
