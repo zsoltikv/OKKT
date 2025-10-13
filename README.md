@@ -1,2 +1,1 @@
-- korabbi trip torlesenek javitasa
 - pdf export javitas
