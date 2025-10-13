@@ -33,7 +33,8 @@
                                TextColor="#FFFFFF"
                                PlaceholderColor="#C8C8C8"
                                FontFamily="Arial"
-                               FontSize="11"/>
+                               FontSize="13"
+                               CharacterSpacing="1"/>
                     </Frame>
 
                     <Label Text="Kirándulás helyszíne:"
@@ -53,7 +54,8 @@
                                TextColor="#FFFFFF"
                                PlaceholderColor="#C8C8C8"
                                FontFamily="Arial"
-                               FontSize="11"/>
+                               FontSize="13"
+                               CharacterSpacing="1"/>
                     </Frame>
 
                     <Label Text="Kirándulás dátuma:"
@@ -144,8 +146,9 @@
                                TextColor="#FFFFFF"
                                PlaceholderColor="#C8C8C8"
                                FontFamily="Arial"
-                               FontSize="11"
-                               TextChanged="OnParticipantsChanged"/>
+                               FontSize="13"
+                               TextChanged="OnParticipantsChanged"
+                               CharacterSpacing="1"/>
                     </Frame>
 
                     <!-- Hátralévő hónapok -->
@@ -167,7 +170,8 @@
                                TextColor="#FFFFFF"
                                PlaceholderColor="#C8C8C8"
                                FontFamily="Arial"
-                               FontSize="11"/>
+                               FontSize="13"
+                               CharacterSpacing="1"/>
                     </Frame>
 
                     <!-- Zsebpénz típus -->
@@ -180,23 +184,23 @@
                     <!-- kisebb felső margó -->
 
                     <HorizontalStackLayout Spacing="20"
-                       Margin="0,5,0,0">
+                       Margin="0,0,0,0">
                         <!-- kis függőleges szünet -->
                         <RadioButton x:Name="RadioGrouped"
-                 Content="Csoportosan"
-                 GroupName="PocketMoneyType"
-                 IsChecked="True"
-                 TextColor="#FFFFFF"
-                 FontFamily="Arial"
-                 FontSize="11"
-                 CheckedChanged="OnPocketMoneyTypeChanged"/>
+                                     Content="Csoportosan"
+                                     GroupName="PocketMoneyType"
+                                     IsChecked="True"
+                                     TextColor="#FFFFFF"
+                                     FontFamily="Arial"
+                                     FontSize="11"
+                                     CheckedChanged="OnPocketMoneyTypeChanged"/>
                         <RadioButton x:Name="RadioPerPerson"
-                 Content="Személyenként"
-                 GroupName="PocketMoneyType"
-                 TextColor="#FFFFFF"
-                 FontFamily="Arial"
-                 FontSize="11"
-                 CheckedChanged="OnPocketMoneyTypeChanged"/>
+                                     Content="Személyenként"
+                                     GroupName="PocketMoneyType"
+                                     TextColor="#FFFFFF"
+                                     FontFamily="Arial"
+                                     FontSize="11"
+                                     CheckedChanged="OnPocketMoneyTypeChanged"/>
                     </HorizontalStackLayout>
 
 
@@ -220,22 +224,15 @@
                                    Margin="0,10,0,0"
                                    IsVisible="{Binding Source={x:Reference RadioGrouped}, Path=IsChecked}"/>
 
-                                                <!-- Beviteli mező (ugyanolyan stílus, mint a Hátralévő idő) -->
-                                                <Frame CornerRadius="8"
-                                   BackgroundColor="#2D2D2D"
-                                   BorderColor="#3C3C3C"
-                                   HasShadow="False"
-                                   Padding="10"
-                                   IsVisible="{Binding Source={x:Reference RadioGrouped}, Path=IsChecked}">
-                                                    <Entry x:Name="EntryAveragePocketMoney"
-                                       Placeholder="pl. 5000"
-                                       Keyboard="Numeric"
-                                       BackgroundColor="Transparent"
-                                       TextColor="#FFFFFF"
-                                       PlaceholderColor="#C8C8C8"
-                                       FontFamily="Arial"
-                                       FontSize="11"/>
-                            </Frame>
+                            <Entry x:Name="EntryAveragePocketMoney"
+                                        Placeholder="pl. 5000"
+                                        Keyboard="Numeric"
+                                        BackgroundColor="Transparent"
+                                        TextColor="#FFFFFF"
+                                        PlaceholderColor="#C8C8C8"
+                                        FontFamily="Arial"
+                                        FontSize="13"
+                                        CharacterSpacing="1"/>
 
                         </VerticalStackLayout>
                     </Frame>
