@@ -553,14 +553,10 @@ namespace OKKT25
 
             try
             {
-                // JSON fájl elérési út ellenőrzése
+                // A fájl neve most csak a tripName
                 string tripNameSafe = string.Join("_", tripData.TripName.Split(Path.GetInvalidFileNameChars()));
-                string timestamp = tripData.LastSaved.ToString("yyyyMMdd_HHmmss");
-                string safeFileName = $"{tripNameSafe}_{timestamp}.json";
+                string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{tripNameSafe}.json");
 
-                string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, safeFileName);
-
-                // JSON fájl törlése
                 if (File.Exists(filePath))
                 {
                     File.Delete(filePath);
@@ -578,7 +574,6 @@ namespace OKKT25
 
                 await DisplayAlert("Siker", "A kirándulás törölve lett.", "OK");
 
-                // Visszalépés az előző oldalra
                 await Navigation.PopAsync();
             }
             catch (Exception ex)

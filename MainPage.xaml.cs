@@ -89,12 +89,13 @@ namespace OKKT25
                     WriteIndented = true
                 });
 
+                // A fájl neve csak a trip neve lesz
                 string tripNameSafe = string.Join("_", currentTripData.TripName.Split(Path.GetInvalidFileNameChars()));
-                string timestamp = currentTripData.LastSaved.ToString("yyyyMMdd_HHmmss");
-                string safeFileName = $"{tripNameSafe}_{timestamp}.json";
+                string safeFileName = $"{tripNameSafe}.json";
 
-                string targetFile = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, safeFileName);
-                await System.IO.File.WriteAllTextAsync(targetFile, json, Encoding.UTF8);
+                string targetFile = Path.Combine(FileSystem.Current.AppDataDirectory, safeFileName);
+                await File.WriteAllTextAsync(targetFile, json, Encoding.UTF8);
+
                 await DisplayAlert("Sikeres mentés", "Az adataid el lettek mentve!", "OK");
             }
             catch (Exception ex)
