@@ -307,9 +307,6 @@ namespace OKKT25
                         filePath = Path.Combine(FileSystem.Current.AppDataDirectory, pdfFileName);
                         #endif
 
-                GlobalFontSettings.FontResolver = new CustomFontResolver();
-
-
                 using (var document = new PdfSharpCore.Pdf.PdfDocument())
                 {
                     var pdfPage = document.AddPage();
@@ -358,7 +355,7 @@ namespace OKKT25
                         string locationText = !string.IsNullOrEmpty(tripData.TripDestination)
                             ? tripData.TripDestination
                             : "Nincs megadva";
-                        gfx.DrawString("📍 Helyszín:", fontBold, new XSolidBrush(colorPrimary),
+                        gfx.DrawString("Helyszín:", fontBold, new XSolidBrush(colorPrimary),
                             new XPoint(margin + 15, yPoint + 25));
                         gfx.DrawString(locationText, fontNormal, new XSolidBrush(colorText),
                             new XPoint(margin + 100, yPoint + 25));
@@ -366,7 +363,7 @@ namespace OKKT25
                         string dateText = tripData.TripDateStart != default
                             ? $"{tripData.TripDateStart:yyyy.MM.dd} - {tripData.TripDateEnd:yyyy.MM.dd}"
                             : "Nincs megadva";
-                        gfx.DrawString("📅 Időpont:", fontBold, new XSolidBrush(colorPrimary),
+                        gfx.DrawString("Időpont:", fontBold, new XSolidBrush(colorPrimary),
                             new XPoint(margin + 15, yPoint + 45));
                         gfx.DrawString(dateText, fontNormal, new XSolidBrush(colorText),
                             new XPoint(margin + 100, yPoint + 45));
@@ -388,7 +385,7 @@ namespace OKKT25
                         yPoint += cardHeight + 40;
 
                         // 💰 Zsebpénz infó
-                        gfx.DrawString("💰 ZSEBPÉNZ", fontHeader, new XSolidBrush(colorPrimary), new XPoint(margin, yPoint));
+                        gfx.DrawString("ZSEBPÉNZ", fontHeader, new XSolidBrush(colorPrimary), new XPoint(margin, yPoint));
                         yPoint += 25;
 
                         string pocketInfo = tripData.IsPerPersonMode
@@ -403,7 +400,7 @@ namespace OKKT25
                         yPoint += 80;
 
                         // 💵 Költségek táblázat
-                        gfx.DrawString("💵 KÖLTSÉGEK RÉSZLETESEN", fontHeader, new XSolidBrush(colorPrimary),
+                        gfx.DrawString("KÖLTSÉGEK RÉSZLETESEN", fontHeader, new XSolidBrush(colorPrimary),
                             new XPoint(margin, yPoint));
                         yPoint += 35;
 
