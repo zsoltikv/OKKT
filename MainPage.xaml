@@ -63,32 +63,45 @@
                            FontFamily="Arial"
                            FontSize="14"
                            TextColor="#FFD700"/>
-                    <HorizontalStackLayout Spacing="10">
-                        <Frame CornerRadius="8"
-                               BackgroundColor="#2D2D2D"
-                               BorderColor="#3C3C3C"
-                               HasShadow="False"
-                               Padding="10">
-                            <DatePicker x:Name="TripDateStart"
-                                        BackgroundColor="Transparent"
-                                        TextColor="#FFFFFF"
-                                        FontFamily="Arial"
-                                        FontSize="11"
-                                        DateSelected="OnStartDateChanged"/>
-                        </Frame>
-                        <Frame CornerRadius="8"
-                               BackgroundColor="#2D2D2D"
-                               BorderColor="#3C3C3C"
-                               HasShadow="False"
-                               Padding="10">
-                            <DatePicker x:Name="TripDateEnd"
-                                        BackgroundColor="Transparent"
-                                        TextColor="#FFFFFF"
-                                        FontFamily="Arial"
-                                        FontSize="11"
-                                        DateSelected="OnEndDateChanged"/>
-                        </Frame>
-                    </HorizontalStackLayout>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <Frame Grid.Column="0"
+               CornerRadius="8"
+               BackgroundColor="#2D2D2D"
+               BorderColor="#3C3C3C"
+               HasShadow="False"
+               Padding="10"
+               HorizontalOptions="FillAndExpand">
+                                <DatePicker x:Name="TripDateStart"
+                        BackgroundColor="Transparent"
+                        TextColor="#FFFFFF"
+                        FontFamily="Arial"
+                        FontSize="11"
+                        HorizontalOptions="FillAndExpand"/>
+                            </Frame>
+
+                            <Frame Grid.Column="1"
+               CornerRadius="8"
+               BackgroundColor="#2D2D2D"
+               BorderColor="#3C3C3C"
+               HasShadow="False"
+               Padding="10"
+               HorizontalOptions="FillAndExpand">
+                                <DatePicker x:Name="TripDateEnd"
+                        BackgroundColor="Transparent"
+                        TextColor="#FFFFFF"
+                        FontFamily="Arial"
+                        FontSize="11"
+                        HorizontalOptions="FillAndExpand"/>
+                            </Frame>
+                        </Grid>
+                    </VerticalStackLayout>
+
 
                     <!-- Költségek szekció -->
                     <Frame CornerRadius="10"
