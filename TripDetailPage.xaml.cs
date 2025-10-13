@@ -554,8 +554,11 @@ namespace OKKT25
             try
             {
                 // JSON fájl elérési út ellenőrzése
-                string tripFileName = $"{tripData.TripName}.json";
-                string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, tripFileName);
+                string tripNameSafe = string.Join("_", tripData.TripName.Split(Path.GetInvalidFileNameChars()));
+                string timestamp = tripData.LastSaved.ToString("yyyyMMdd_HHmmss");
+                string safeFileName = $"{tripNameSafe}_{timestamp}.json";
+
+                string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, safeFileName);
 
                 await DisplayAlert("Debug", $"JSON path: {filePath}", "OK");
 

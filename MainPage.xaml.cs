@@ -89,8 +89,10 @@ namespace OKKT25
                     WriteIndented = true
                 });
 
-                string tripName = string.IsNullOrWhiteSpace(TripName.Text) ? "Unnamed_Trip" : TripName.Text;
-                string safeFileName = string.Join("_", tripName.Split(Path.GetInvalidFileNameChars())) + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".json";
+                string tripNameSafe = string.Join("_", currentTripData.TripName.Split(Path.GetInvalidFileNameChars()));
+                string timestamp = currentTripData.LastSaved.ToString("yyyyMMdd_HHmmss");
+                string safeFileName = $"{tripNameSafe}_{timestamp}.json";
+
                 string targetFile = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, safeFileName);
                 await System.IO.File.WriteAllTextAsync(targetFile, json, Encoding.UTF8);
                 await DisplayAlert("Sikeres mentés", "Az adataid el lettek mentve!", "OK");
