@@ -304,21 +304,37 @@ namespace OKKT25
                     {
                         Text = $"{i}. diák zsebpénze (Ft):",
                         FontAttributes = FontAttributes.Bold,
-                        TextColor = Color.FromArgb("#424242"),
+                        FontFamily = "Arial",
+                        FontSize = 14,
+                        TextColor = Color.FromArgb("#FFD700"),
                         Margin = new Thickness(0, i > 1 ? 10 : 0, 0, 0)
+                    };
+
+                    var frame = new Frame
+                    {
+                        CornerRadius = 8,
+                        BackgroundColor = Color.FromArgb("#2D2D2D"),
+                        BorderColor = Color.FromArgb("#3C3C3C"),
+                        HasShadow = false,
+                        Padding = 10
                     };
 
                     var entry = new Entry
                     {
                         Placeholder = "pl. 3000",
                         Keyboard = Keyboard.Numeric,
-                        TextColor = Color.FromArgb("#424242"),
-                        BackgroundColor = Color.FromArgb("#F5F5F5")
+                        BackgroundColor = Colors.Transparent,
+                        TextColor = Color.FromArgb("#FFFFFF"),
+                        PlaceholderColor = Color.FromArgb("#C8C8C8"),
+                        FontFamily = "Arial",
+                        FontSize = 11
                     };
 
                     pocketMoneyEntries.Add(entry);
+                    frame.Content = entry;
+
                     LayoutPocketMoney.Add(label);
-                    LayoutPocketMoney.Add(entry);
+                    LayoutPocketMoney.Add(frame);
                 }
             }
             else
@@ -327,20 +343,37 @@ namespace OKKT25
                 {
                     Text = "Átlagos zsebpénz fejenként (Ft):",
                     FontAttributes = FontAttributes.Bold,
-                    TextColor = Color.FromArgb("#424242")
+                    FontFamily = "Arial",
+                    FontSize = 14,
+                    TextColor = Color.FromArgb("#FFD700"),
+                    Margin = new Thickness(0, 10, 0, 0)
+                };
+
+                var frame = new Frame
+                {
+                    CornerRadius = 8,
+                    BackgroundColor = Color.FromArgb("#2D2D2D"),
+                    BorderColor = Color.FromArgb("#3C3C3C"),
+                    HasShadow = false,
+                    Padding = 10
                 };
 
                 var entry = new Entry
                 {
                     Placeholder = "pl. 3000",
                     Keyboard = Keyboard.Numeric,
-                    TextColor = Color.FromArgb("#424242"),
-                    BackgroundColor = Color.FromArgb("#F5F5F5")
+                    BackgroundColor = Colors.Transparent,
+                    TextColor = Color.FromArgb("#FFFFFF"),
+                    PlaceholderColor = Color.FromArgb("#C8C8C8"),
+                    FontFamily = "Arial",
+                    FontSize = 11
                 };
 
                 pocketMoneyEntries.Add(entry);
+                frame.Content = entry;
+
                 LayoutPocketMoney.Add(label);
-                LayoutPocketMoney.Add(entry);
+                LayoutPocketMoney.Add(frame);
             }
 
             AnimateView(LayoutPocketMoney);
@@ -473,27 +506,31 @@ namespace OKKT25
             double costPerPerson = totalCost / participants;
             double monthlyPerPerson = costPerPerson / monthsLeft;
 
-            var summaryCard = CreateResultCard("📊 Összefoglaló", "#1976D2");
+            // --- ÖSSZEFOGLALÓ KÁRTYA ---
+            var summaryCard = CreateDarkCard("📊 Összefoglaló", "#FFD700");
             var summaryLabel = new Label
             {
                 Text = $@"Teljes költség: {FormatNumber(totalCost)} Ft
-                            Résztvevők: {participants} fő
-                            Hátralévő idő: {monthsLeft} hónap
+Résztvevők: {participants} fő
+Hátralévő idő: {monthsLeft} hónap
 
-                            ───────────────────────
+───────────────────────
 
-                            💰 Fejenként fizetendő:
-                            Összesen: {FormatNumber(costPerPerson)} Ft
-                            Havonta: {FormatNumber(monthlyPerPerson)} Ft",
-                FontSize = 16,
-                TextColor = Color.FromArgb("#212121"),
-                Padding = new Thickness(15)
+💰 Fejenként fizetendő:
+Összesen: {FormatNumber(costPerPerson)} Ft
+Havonta: {FormatNumber(monthlyPerPerson)} Ft",
+                FontSize = 13,
+                TextColor = Color.FromArgb("#FFFFFF"),
+                FontFamily = "Arial",
+                Padding = new Thickness(10)
             };
             ((VerticalStackLayout)summaryCard.Content).Add(summaryLabel);
             LayoutResults.Add(summaryCard);
 
-            var analysisCard = CreateResultCard("👥 Egyéni Elemzés", "#388E3C");
-            var analysisLayout = new VerticalStackLayout { Padding = new Thickness(15), Spacing = 10 };
+
+            // --- EGYÉNI ELEMZÉS ---
+            var analysisCard = CreateDarkCard("👥 Egyéni elemzés", "#FFD700");
+            var analysisLayout = new VerticalStackLayout { Padding = new Thickness(10), Spacing = 10 };
 
             bool allCanPay = true;
             var cantPayList = new List<(int studentNum, double shortage)>();
@@ -516,12 +553,13 @@ namespace OKKT25
                 var studentLabel = new Label
                 {
                     Text = $@"{statusIcon} {i + 1}. diák
-                                Havi zsebpénz: {FormatNumber(pocketMoney)} Ft
-                                Összesen {monthsLeft} hónap alatt: {FormatNumber(monthlyTotal)} Ft
-                                Fizetendő: {FormatNumber(costPerPerson)} Ft
-                                {(canPay ? "Fedezi a költséget! ✓" : $"Hiány: {FormatNumber(costPerPerson - monthlyTotal)} Ft")}",
+Havi zsebpénz: {FormatNumber(pocketMoney)} Ft
+Összesen {monthsLeft} hónap alatt: {FormatNumber(monthlyTotal)} Ft
+Fizetendő: {FormatNumber(costPerPerson)} Ft
+{(canPay ? "Fedezi a költséget! ✓" : $"Hiány: {FormatNumber(costPerPerson - monthlyTotal)} Ft")}",
                     TextColor = statusColor,
-                    FontSize = 14
+                    FontSize = 12,
+                    FontFamily = "Arial"
                 };
 
                 analysisLayout.Add(studentLabel);
@@ -531,64 +569,70 @@ namespace OKKT25
                     analysisLayout.Add(new BoxView
                     {
                         HeightRequest = 1,
-                        BackgroundColor = Color.FromArgb("#E0E0E0"),
+                        BackgroundColor = Color.FromArgb("#3C3C3C"),
                         Margin = new Thickness(0, 5)
                     });
                 }
             }
 
-            ((VerticalStackLayout)analysisCard.Content).Add(analysisLayout);
+    ((VerticalStackLayout)analysisCard.Content).Add(analysisLayout);
             LayoutResults.Add(analysisCard);
 
-            var chartCard = CreateResultCard("📈 Fedezettségi Diagram", "#F57C00");
+
+            // --- DIAGRAM KÁRTYA ---
+            var chartCard = CreateDarkCard("📈 Fedezettségi diagram", "#FFD700");
             var chartView = new PieChartView(pocketMoneyList, costPerPerson, monthsLeft)
             {
                 HeightRequest = 300,
-                Margin = new Thickness(15)
+                Margin = new Thickness(10)
             };
             ((VerticalStackLayout)chartCard.Content).Add(chartView);
             LayoutResults.Add(chartCard);
 
+
+            // --- JAVASLATOK / SIKER ---
             if (!allCanPay)
             {
-                var suggestionsCard = CreateResultCard("💡 Javaslatok", "#D32F2F");
-                var suggestionsLayout = new VerticalStackLayout { Padding = new Thickness(15), Spacing = 12 };
+                var suggestionsCard = CreateDarkCard("💡 Javaslatok", "#FFD700");
+                var suggestionsLayout = new VerticalStackLayout { Padding = new Thickness(10), Spacing = 10 };
 
                 double totalShortage = cantPayList.Sum(x => x.shortage);
 
                 suggestionsLayout.Add(new Label
                 {
                     Text = $"⚠️ {cantPayList.Count} diák nem tudja fedezni a költséget!",
-                    FontSize = 16,
+                    FontSize = 13,
                     FontAttributes = FontAttributes.Bold,
-                    TextColor = Color.FromArgb("#D32F2F")
+                    TextColor = Color.FromArgb("#FF6B6B")
                 });
 
-                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#E0E0E0") });
+                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
                 double neededReduction = totalShortage;
                 suggestionsLayout.Add(new Label
                 {
                     Text = $@"1️⃣ Költségcsökkentés
-                            Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget,
-                            mindenki tudja fizetni a kirándulást.
-                            Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft",
-                    FontSize = 14
+Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget,
+mindenki tudja fizetni a kirándulást.
+Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft",
+                    FontSize = 12,
+                    TextColor = Color.FromArgb("#FFFFFF")
                 });
 
-                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#E0E0E0") });
+                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
                 double extraPerPerson = totalShortage / (participants - cantPayList.Count);
                 suggestionsLayout.Add(new Label
                 {
                     Text = $@"2️⃣ Többi diák fizet többet
-                                Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:
-                                Extra fejenként: {FormatNumber(extraPerPerson)} Ft
-                                Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft",
-                    FontSize = 14
+Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:
+Extra fejenként: {FormatNumber(extraPerPerson)} Ft
+Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft",
+                    FontSize = 12,
+                    TextColor = Color.FromArgb("#FFFFFF")
                 });
 
-                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#E0E0E0") });
+                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
                 int neededMonths = (int)Math.Ceiling(costPerPerson / pocketMoneyList.Min());
                 if (neededMonths > monthsLeft)
@@ -596,9 +640,10 @@ namespace OKKT25
                     suggestionsLayout.Add(new Label
                     {
                         Text = $@"3️⃣ Több idő szükséges
-                                Legalább {neededMonths} hónap kellene ahhoz, hogy mindenki össze tudja gyűjteni a pénzt.
-                                (Még {neededMonths - monthsLeft} hónap)",
-                        FontSize = 14
+Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.
+(Még {neededMonths - monthsLeft} hónap szükséges)",
+                        FontSize = 12,
+                        TextColor = Color.FromArgb("#FFFFFF")
                     });
                 }
 
@@ -607,16 +652,17 @@ namespace OKKT25
             }
             else
             {
-                var successCard = CreateResultCard("🎉 Szuper Hír!", "#4CAF50");
+                var successCard = CreateDarkCard("🎉 Szuper hír!", "#4CAF50");
                 var successLabel = new Label
                 {
                     Text = @"✨ Minden diák tudja fizetni a kirándulást!
 
-                                Az osztálykirándulás megvalósítható a megadott feltételekkel.
-                                Kezdjétek el gyűjteni a pénzt! 🎒",
-                    FontSize = 16,
-                    TextColor = Color.FromArgb("#1B5E20"),
-                    Padding = new Thickness(15)
+Az osztálykirándulás megvalósítható a megadott feltételekkel.
+Kezdjétek el gyűjteni a pénzt! 🎒",
+                    FontSize = 13,
+                    TextColor = Color.FromArgb("#FFFFFF"),
+                    FontFamily = "Arial",
+                    Padding = new Thickness(10)
                 };
                 ((VerticalStackLayout)successCard.Content).Add(successLabel);
                 LayoutResults.Add(successCard);
@@ -625,6 +671,36 @@ namespace OKKT25
             LayoutResults.IsVisible = true;
             AnimateView(LayoutResults);
         }
+
+        private Frame CreateDarkCard(string title, string accentColor)
+        {
+            var card = new Frame
+            {
+                CornerRadius = 10,
+                BackgroundColor = Color.FromArgb("#1E1E1E"),
+                BorderColor = Color.FromArgb("#3C3C3C"),
+                HasShadow = false,
+                Padding = 10,
+                Margin = new Thickness(0, 10)
+            };
+
+            var titleLabel = new Label
+            {
+                Text = title,
+                FontAttributes = FontAttributes.Bold,
+                FontFamily = "Arial",
+                FontSize = 14,
+                TextColor = Color.FromArgb(accentColor),
+                Margin = new Thickness(0, 0, 0, 5)
+            };
+
+            var content = new VerticalStackLayout { Spacing = 5 };
+            content.Add(titleLabel);
+
+            card.Content = content;
+            return card;
+        }
+
 
         private Frame CreateResultCard(string title, string colorHex)
         {

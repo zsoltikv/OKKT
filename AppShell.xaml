@@ -7,16 +7,26 @@
     Shell.FlyoutBehavior="Disabled"
     Title="OKKT25">
 
+    <!-- 🌈 TabBar stílusok -->
+    <Shell.Resources>
+        <Style TargetType="TabBar">
+            <Setter Property="Shell.TabBarBackgroundColor" Value="#121212" />
+            <Setter Property="Shell.TabBarTitleColor" Value="#FFD700" />
+            <Setter Property="Shell.TabBarUnselectedColor" Value="#888888" />
+        </Style>
+    </Shell.Resources>
+
+    <!-- 🔖 Lapok -->
     <TabBar>
         <ShellContent
-        Title="Új kirándulás"
-        Icon="home.png"
-        ContentTemplate="{DataTemplate local:MainPage}" />
+            Title="Új kirándulás"
+            Icon="home.png"
+            ContentTemplate="{DataTemplate local:MainPage}" />
 
         <ShellContent
-        Title="Korábbi"
-        Icon="folder.png"
-        ContentTemplate="{DataTemplate local:PastTripsPage}" />
+            Title="Korábbi"
+            Icon="folder.png"
+            ContentTemplate="{DataTemplate local:PastTripsPage}" />
     </TabBar>
 
 </Shell>

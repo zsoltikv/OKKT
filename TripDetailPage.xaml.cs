@@ -153,12 +153,13 @@ namespace OKKT25
         {
             DetailLayout.Clear();
 
+            // Kirándulás címe
             var titleLabel = new Label
             {
                 Text = Title,
-                FontSize = 24,
+                FontSize = 26,
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#1976D2"),
+                TextColor = Color.FromArgb("#FFD700"),
                 Margin = new Thickness(0, 0, 0, 20)
             };
             DetailLayout.Add(titleLabel);
@@ -167,48 +168,88 @@ namespace OKKT25
                 (c.Amount * c.NumberOfPeople) +
                 (c.DiscountAmount * c.DiscountNumberOfPeople));
 
-            var summaryCard = CreateCard("📊 Összefoglaló", "#1976D2");
-            var summaryText = new Label
-            {
-                Text = $@"Teljes költség: {FormatNumber(totalCost)} Ft
-                            Résztvevők: {tripData.Participants} fő
-                            Hátralévő idő: {tripData.MonthsLeft} hónap
-                            Mentve: {tripData.LastSaved:yyyy.MM.dd HH:mm}",
-                FontSize = 16,
-                TextColor = Color.FromArgb("#212121"),
-                Padding = new Thickness(15)
-            };
-            ((VerticalStackLayout)summaryCard.Content).Add(summaryText);
+            // Összefoglaló kártya
+            var summaryCard = CreateCard("📊 Összefoglaló", "#FF9800");
+            var summaryLayout = new VerticalStackLayout { Padding = 15, Spacing = 6 };
+
+            summaryLayout.Add(new Label { Text = $"Teljes költség: {FormatNumber(totalCost)} Ft", FontSize = 16, TextColor = Color.FromArgb("#FFFFFF") });
+            summaryLayout.Add(new Label { Text = $"Résztvevők: {tripData.Participants} fő", FontSize = 16, TextColor = Color.FromArgb("#FFFFFF") });
+            summaryLayout.Add(new Label { Text = $"Hátralévő idő: {tripData.MonthsLeft} hónap", FontSize = 16, TextColor = Color.FromArgb("#FFFFFF") });
+            summaryLayout.Add(new Label { Text = $"Mentve: {tripData.LastSaved:yyyy.MM.dd HH:mm}", FontSize = 14, TextColor = Color.FromArgb("#C8C8C8") });
+
+            ((VerticalStackLayout)summaryCard.Content).Add(summaryLayout);
             DetailLayout.Add(summaryCard);
 
-            var costsCard = CreateCard("💰 Költségek", "#388E3C");
-            var costsLayout = new VerticalStackLayout { Padding = new Thickness(15), Spacing = 8 };
+            // Költségek kártya
+            var costsCard = CreateCard("💰 Költségek részletezve", "#FF9800");
+            var costsLayout = new VerticalStackLayout { Padding = 15, Spacing = 8 };
 
-            foreach (var cost in tripData.Costs)
+            if (tripData.Costs.Count == 0)
             {
-                var costLabel = new Label
-                {
-                    Text = $"• {cost.Type}: {FormatNumber(cost.Amount)} Ft × {cost.NumberOfPeople} fő" +
-                           (cost.HasDiscount ? $"\n  Kedvezmény: {FormatNumber(cost.DiscountAmount)} Ft × {cost.DiscountNumberOfPeople} fő" : ""),
-                    FontSize = 14,
-                    TextColor = Color.FromArgb("#424242")
-                };
-                costsLayout.Add(costLabel);
+                costsLayout.Add(new Label { Text = "Nincsenek rögzített költségek.", FontSize = 14, TextColor = Color.FromArgb("#C8C8C8") });
             }
-            ((VerticalStackLayout)costsCard.Content).Add(costsLayout);
+            else
+            {
+                foreach (var cost in tripData.Costs)
+                {
+                    var costHeader = new Label
+                    {
+                        Text = $"{cost.Type} (×{cost.NumberOfPeople} fő)",
+                        FontSize = 15,
+                        FontAttributes = FontAttributes.Bold,
+                        TextColor = Color.FromArgb("#FFD700")
+                    };
+                    costsLayout.Add(costHeader);
+
+                    var costAmount = new Label
+                    {
+                        Text = $"• Ár/fő: {FormatNumber(cost.Amount)} Ft",
+                        FontSize = 14,
+                        TextColor = Color.FromArgb("#FFFFFF")
+                    };
+                    costsLayout.Add(costAmount);
+
+                    if (cost.HasDiscount)
+                    {
+                        var discountLabel = new Label
+                        {
+                            Text = $"• Kedvezmény: {FormatNumber(cost.DiscountAmount)} Ft × {cost.DiscountNumberOfPeople} fő",
+                            FontSize = 14,
+                            TextColor = Color.FromArgb("#FF9800")
+                        };
+                        costsLayout.Add(discountLabel);
+                    }
+
+                    var totalForCost = new Label
+                    {
+                        Text = $"• Összesen: {FormatNumber((cost.Amount * cost.NumberOfPeople) + (cost.DiscountAmount * cost.DiscountNumberOfPeople))} Ft",
+                        FontSize = 14,
+                        FontAttributes = FontAttributes.Bold,
+                        TextColor = Color.FromArgb("#FFD700")
+                    };
+                    costsLayout.Add(totalForCost);
+
+                    costsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C"), Margin = new Thickness(0, 5, 0, 5) });
+                }
+            }
+
+    ((VerticalStackLayout)costsCard.Content).Add(costsLayout);
             DetailLayout.Add(costsCard);
 
-            var pocketMoneyCard = CreateCard("💵 Zsebpénz", "#F57C00");
-            var pocketMoneyText = new Label
+            // Zsebpénz kártya
+            var pocketMoneyCard = CreateCard("💵 Zsebpénz", "#FF9800");
+            var pocketMoneyLayout = new VerticalStackLayout { Padding = 15, Spacing = 6 };
+
+            pocketMoneyLayout.Add(new Label
             {
                 Text = tripData.IsPerPersonMode
-                    ? $"Személyenként megadva\n{tripData.PocketMoney.Count} diák adatai mentve"
+                    ? $"Személyenként megadva ({tripData.PocketMoney.Count} diák adatai mentve)"
                     : $"Átlagos zsebpénz: {FormatNumber(tripData.AveragePocketMoney)} Ft/fő",
                 FontSize = 14,
-                TextColor = Color.FromArgb("#424242"),
-                Padding = new Thickness(15)
-            };
-            ((VerticalStackLayout)pocketMoneyCard.Content).Add(pocketMoneyText);
+                TextColor = Color.FromArgb("#FFFFFF")
+            });
+
+            ((VerticalStackLayout)pocketMoneyCard.Content).Add(pocketMoneyLayout);
             DetailLayout.Add(pocketMoneyCard);
         }
 
@@ -218,7 +259,8 @@ namespace OKKT25
             {
                 CornerRadius = 15,
                 HasShadow = true,
-                BackgroundColor = Colors.White,
+                BackgroundColor = Color.FromArgb("#1E1E1E"),
+                BorderColor = Color.FromArgb("#3C3C3C"),
                 Padding = 0,
                 Margin = new Thickness(0, 0, 0, 12)
             };
@@ -229,7 +271,7 @@ namespace OKKT25
                 Text = title,
                 FontSize = 18,
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Colors.White,
+                TextColor = Color.FromArgb("#FFFFFF"),
                 BackgroundColor = Color.FromArgb(colorHex),
                 Padding = new Thickness(15, 12)
             };
