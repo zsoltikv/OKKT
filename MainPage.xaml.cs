@@ -159,6 +159,7 @@ namespace OKKT25
             SaveData();
         }
 
+        [Obsolete]
         private void OnAddCostClicked(object sender, EventArgs e)
         {
             var newCostLayout = new StackLayout
@@ -828,7 +829,8 @@ Fizetendő: {FormatNumber(costPerPerson)} Ft
 
             // Fehér vagy fekete középső kör a témától függően
             bool isDarkMode = Application.Current?.RequestedTheme == AppTheme.Dark;
-            canvas.FillColor = isDarkMode ? Colors.Black : Colors.White;
+            Application.Current.Resources.TryGetValue("BlackBg", out var blackBg);
+            canvas.FillColor = isDarkMode ? (Color)blackBg : Colors.White;
             canvas.FillCircle(centerX, centerY, radius * 0.6f);
 
 
