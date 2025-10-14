@@ -332,6 +332,7 @@ namespace OKKT25
             if (sender is RadioButton radioButton && radioButton.IsChecked)
             {
                 isPerPersonMode = radioButton == RadioPerPerson;
+
                 UpdatePocketMoneyLayout();
             }
         }
@@ -343,9 +344,33 @@ namespace OKKT25
 
             if (isPerPersonMode)
             {
-                int participants = currentTripData.Costs.Any()
-                ? currentTripData.Costs.Max(c => c.NumberOfPeople + (c.HasDiscount ? c.DiscountNumberOfPeople : 0))
-                : 0;
+                // Az első költségmezőből olvassuk ki a résztvevők számát
+                int participants = 0;
+                var firstCostLayout = DynamicCostsLayout.Children.OfType<StackLayout>().FirstOrDefault();
+                if (firstCostLayout != null)
+                {
+                    var allEntries = firstCostLayout.Children
+                        .OfType<StackLayout>()
+                        .SelectMany(sl => sl.Children.OfType<Entry>())
+                        .ToList();
+
+                    var checkBox = firstCostLayout.Children
+                        .OfType<StackLayout>()
+                        .SelectMany(sl => sl.Children.OfType<CheckBox>())
+                        .FirstOrDefault();
+
+                    // Ellenőrizzük, hogy az első költségmezőben megadták-e a szükséges adatokat
+                    if (allEntries.Count >= 3 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
+                    {
+                        participants = numberOfPeople;
+
+                        // Ha van kedvezmény, hozzáadjuk a kedvezményes létszámot
+                        if (checkBox?.IsChecked == true && allEntries.Count >= 5 && int.TryParse(allEntries[4].Text, out int discountNumberOfPeople))
+                        {
+                            participants += discountNumberOfPeople;
+                        }
+                    }
+                }
 
                 if (participants <= 0 || participants > 100)
                 {
@@ -358,7 +383,6 @@ namespace OKKT25
                     LayoutPocketMoney.Add(warningLabel);
                     return;
                 }
-
 
                 for (int i = 1; i <= participants; i++)
                 {
@@ -410,7 +434,6 @@ namespace OKKT25
                     TextColor = Color.FromArgb("#FFD700")
                 };
 
-                // Frame a stílushoz
                 var frame = new Frame
                 {
                     CornerRadius = 8,
@@ -428,14 +451,14 @@ namespace OKKT25
                     TextColor = Color.FromArgb("#FFFFFF"),
                     PlaceholderColor = Color.FromArgb("#C8C8C8"),
                     FontFamily = "Arial",
-                    FontSize = 13,        // ugyanaz, mint a többi Entry
-                    CharacterSpacing = 1  // ugyanolyan karakterköz
+                    FontSize = 13,
+                    CharacterSpacing = 1
                 };
 
-                frame.Content = entry;           // az Entry a Frame-be kerül
-                LayoutPocketMoney.Add(label);    // hozzáadjuk a labelt
-                LayoutPocketMoney.Add(frame);    // hozzáadjuk a keretes Entry-t
-                pocketMoneyEntries.Add(entry);   // lista a későbbi feldolgozáshoz
+                frame.Content = entry;
+                LayoutPocketMoney.Add(label);
+                LayoutPocketMoney.Add(frame);
+                pocketMoneyEntries.Add(entry);
             }
 
             AnimateView(LayoutPocketMoney);
