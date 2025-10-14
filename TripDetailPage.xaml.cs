@@ -369,12 +369,12 @@ namespace OKKT25
                         var colorHighlight = XColor.FromArgb(255, 165, 0);     // extra narancs kiemelés
 
                         // Fontok
-                        var fontTitle = new XFont("Arial Black", 28, XFontStyle.Bold);
-                        var fontHeader = new XFont("Arial", 16, XFontStyle.Bold);
-                        var fontSubHeader = new XFont("Arial", 14, XFontStyle.Bold);
-                        var fontNormal = new XFont("Arial", 11, XFontStyle.Regular);
-                        var fontBold = new XFont("Arial", 11, XFontStyle.Bold);
-                        var fontSmall = new XFont("Arial", 9, XFontStyle.Regular);
+                        var fontTitle = new XFont("Helvetica", 28, XFontStyle.Bold);
+                        var fontHeader = new XFont("Helvetica", 16, XFontStyle.Bold);
+                        var fontSubHeader = new XFont("Helvetica", 14, XFontStyle.Bold);
+                        var fontNormal = new XFont("Helvetica", 11, XFontStyle.Regular);
+                        var fontBold = new XFont("Helvetica", 11, XFontStyle.Bold);
+                        var fontSmall = new XFont("Helvetica", 9, XFontStyle.Regular);
 
                         // 🖤 Háttér
                         gfx.DrawRectangle(new XSolidBrush(colorBackground), 0, 0, pageWidth, pdfPage.Height);
