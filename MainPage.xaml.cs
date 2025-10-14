@@ -611,7 +611,7 @@ namespace OKKT25
 
                             new Span { Text = "───────────────────────\n\n", FontSize = 12, TextColor = Color.FromArgb("#CCCCCC") },
 
-                            new Span { Text = "💰 Fejenként fizetendő\n", FontAttributes = FontAttributes.Bold, FontSize = 14 },
+                            new Span { Text = "💰 Fejenként fizetendő\n\n", FontAttributes = FontAttributes.Bold, FontSize = 14 },
 
                             new Span { Text = "Összesen: ", FontAttributes = FontAttributes.Bold },
                             new Span { Text = $"{FormatNumber(costPerPerson)} Ft\n" },
