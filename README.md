@@ -1,1 +1,2 @@
-- pdf export javitas
+- resztvevok szamanak visszaallitasa (entry)
+- valuta kiirasa a label mellett
