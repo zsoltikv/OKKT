@@ -392,12 +392,12 @@ namespace OKKT25
                     .AbsolutePath;
                 filePath = Path.Combine(downloadsPath, pdfFileName);
 #elif WINDOWS
-                var downloadsPath = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                    "Downloads");
-                filePath = Path.Combine(downloadsPath, pdfFileName);
+        var downloadsPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            "Downloads");
+        filePath = Path.Combine(downloadsPath, pdfFileName);
 #else
-                filePath = Path.Combine(FileSystem.Current.AppDataDirectory, pdfFileName);
+        filePath = Path.Combine(FileSystem.Current.AppDataDirectory, pdfFileName);
 #endif
 
                 using (var document = new PdfSharpCore.Pdf.PdfDocument())
@@ -477,134 +477,147 @@ namespace OKKT25
             {
                 WidthRequest = width,
                 HeightRequest = height,
-                BackgroundColor = Color.FromArgb("#121212")
+                BackgroundColor = Color.FromArgb("#1A1A1A"),
+                Spacing = 0,
+                Padding = 0
             };
 
             double totalCost = tripData.Costs.Sum(c => (c.Amount * c.NumberOfPeople) + (c.DiscountAmount * c.DiscountNumberOfPeople));
             double costPerPerson = tripData.Participants > 0 ? totalCost / tripData.Participants : 0;
 
-            // 📌 Fejléc
-            mainLayout.Add(new BoxView
+            // 📌 Fejléc szekció
+            var headerLayout = new VerticalStackLayout
             {
-                HeightRequest = 120,
-                BackgroundColor = Color.FromArgb("#FFD700")
-            });
+                BackgroundColor = Color.FromArgb("#FF8C00"),
+                HeightRequest = 110, // Magasabb fejléc a cím és a térköz miatt
+                Spacing = 10,
+                Padding = new Thickness(40, 20, 40, 20) // Padding a fejlécen belül
+            };
 
+            // Cím
             var titleLabel = new Label
             {
                 Text = tripData.TripName.ToUpper(),
-                FontSize = 42,
+                FontSize = 48,
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#121212"),
-                Margin = new Thickness(40, -100, 40, 0)
+                TextColor = Colors.Black,
+                HorizontalTextAlignment = TextAlignment.Center
+                // Negatív margó eltávolítva, a headerLayout paddingja kezeli a pozíciót
             };
-            mainLayout.Add(titleLabel);
+            headerLayout.Add(titleLabel);
 
-            mainLayout.Add(new BoxView { HeightRequest = 40, BackgroundColor = Colors.Transparent });
+            mainLayout.Add(headerLayout);
 
             // 📍 Helyszín és időpont
             var infoBox = new Frame
             {
-                BackgroundColor = Color.FromArgb("#1E1E1E"),
-                BorderColor = Color.FromArgb("#3C3C3C"),
-                CornerRadius = 10,
-                Padding = 20,
-                Margin = new Thickness(40, 0),
+                BackgroundColor = Color.FromArgb("#2A2A2A"),
+                BorderColor = Color.FromArgb("#FF8C00"),
+                HasShadow = false,
+                CornerRadius = 12,
+                Padding = 25,
+                Margin = new Thickness(50, 30, 50, 20), // Nagyobb felső margó (30)
                 Content = new VerticalStackLayout
                 {
-                    Spacing = 10,
+                    Spacing = 15,
                     Children =
+            {
+                new Label
+                {
+                    FormattedText = new FormattedString
                     {
-                        new Label
+                        Spans =
                         {
-                            FormattedText = new FormattedString
-                            {
-                                Spans =
-                                {
-                                    new Span { Text = "Helyszín: ", FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#FFD700"), FontSize = 18 },
-                                    new Span { Text = tripData.TripDestination ?? "Nincs megadva", TextColor = Colors.White, FontSize = 18 }
-                                }
-                            }
-                        },
-                        new Label
-                        {
-                            FormattedText = new FormattedString
-                            {
-                                Spans =
-                                {
-                                    new Span { Text = "Időpont: ", FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#FFD700"), FontSize = 18 },
-                                    new Span { Text = tripData.TripDateStart != default ? $"{tripData.TripDateStart:yyyy.MM.dd} - {tripData.TripDateEnd:yyyy.MM.dd}" : "Nincs megadva", TextColor = Colors.White, FontSize = 18 }
-                                }
-                            }
+                            new Span { Text = "📍 Helyszín: ", FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#FF8C00"), FontSize = 20 },
+                            new Span { Text = tripData.TripDestination ?? "Nincs megadva", TextColor = Colors.White, FontSize = 20 }
                         }
                     }
+                },
+                new Label
+                {
+                    FormattedText = new FormattedString
+                    {
+                        Spans =
+                        {
+                            new Span { Text = "📅 Időpont: ", FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#FF8C00"), FontSize = 20 },
+                            new Span { Text = tripData.TripDateStart != default ? $"{tripData.TripDateStart:yyyy.MM.dd} - {tripData.TripDateEnd:yyyy.MM.dd}" : "Nincs megadva", TextColor = Colors.White, FontSize = 20 }
+                        }
+                    }
+                }
+            }
                 }
             };
             mainLayout.Add(infoBox);
 
-            mainLayout.Add(new BoxView { HeightRequest = 30, BackgroundColor = Colors.Transparent });
-
             // 📊 Összesítő kártyák
             var cardsLayout = new HorizontalStackLayout
             {
-                Spacing = 15,
-                Margin = new Thickness(40, 0),
+                Spacing = 20,
+                Margin = new Thickness(50, 0, 50, 25),
+                HorizontalOptions = LayoutOptions.Center,
                 Children =
-                {
-                    CreateSummaryCard("RÉSZTVEVŐK", $"{tripData.Participants} fő", "#FF9800"),
-                    CreateSummaryCard("TELJES KÖLTSÉG", $"{totalCost:N0} Ft", "#FFD700"),
-                    CreateSummaryCard("FEJENKÉNT", $"{costPerPerson:N0} Ft", "#FFA500")
-                }
+        {
+            CreateSummaryCard("RÉSZTVEVŐK", $"{tripData.Participants} fő", "#FF6B00"),
+            CreateSummaryCard("TELJES KÖLTSÉG", $"{totalCost:N0} Ft", "#FF8C00"),
+            CreateSummaryCard("FEJENKÉNT", $"{costPerPerson:N0} Ft", "#FFA500")
+        }
             };
             mainLayout.Add(cardsLayout);
 
-            mainLayout.Add(new BoxView { HeightRequest = 40, BackgroundColor = Colors.Transparent });
-
-            // 💰 Zsebpénz
-            mainLayout.Add(new Label
+            // 💰 Zsebpénz szekció
+            var pocketMoneySection = new VerticalStackLayout
             {
-                Text = "ZSEBPÉNZ",
-                FontSize = 24,
+                Spacing = 12,
+                Margin = new Thickness(50, 0, 50, 25)
+            };
+
+            pocketMoneySection.Add(new Label
+            {
+                Text = "💰 ZSEBPÉNZ",
+                FontSize = 28,
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#FFD700"),
-                Margin = new Thickness(40, 0)
+                TextColor = Color.FromArgb("#FF8C00")
             });
 
             string pocketInfo = tripData.IsPerPersonMode
                 ? $"Személyenkénti beállítás: {tripData.PocketMoney.Count} diák"
                 : $"Átlagos zsebpénz: {tripData.AveragePocketMoney:N0} Ft/fő";
 
-            mainLayout.Add(new Frame
+            pocketMoneySection.Add(new Frame
             {
-                BackgroundColor = Color.FromArgb("#1E1E1E"),
-                BorderColor = Color.FromArgb("#3C3C3C"),
-                CornerRadius = 10,
+                BackgroundColor = Color.FromArgb("#2A2A2A"),
+                BorderColor = Color.FromArgb("#FF8C00"),
+                HasShadow = false,
+                CornerRadius = 12,
                 Padding = 20,
-                Margin = new Thickness(40, 10, 40, 0),
                 Content = new Label
                 {
                     Text = pocketInfo,
-                    FontSize = 16,
+                    FontSize = 18,
                     TextColor = Colors.White
                 }
             });
 
-            mainLayout.Add(new BoxView { HeightRequest = 40, BackgroundColor = Colors.Transparent });
+            mainLayout.Add(pocketMoneySection);
 
-            // 💵 Költségek
-            mainLayout.Add(new Label
+            // 💵 Költségek szekció
+            var costsSection = new VerticalStackLayout
             {
-                Text = "KÖLTSÉGEK RÉSZLETESEN",
-                FontSize = 24,
+                Spacing = 12,
+                Margin = new Thickness(50, 0, 50, 25)
+            };
+
+            costsSection.Add(new Label
+            {
+                Text = "💵 KÖLTSÉGEK RÉSZLETESEN",
+                FontSize = 28,
                 FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#FFD700"),
-                Margin = new Thickness(40, 0)
+                TextColor = Color.FromArgb("#FF8C00")
             });
 
             var costsStack = new VerticalStackLayout
             {
-                Spacing = 8,
-                Margin = new Thickness(40, 10, 40, 0)
+                Spacing = 12
             };
 
             foreach (var cost in tripData.Costs)
@@ -613,75 +626,88 @@ namespace OKKT25
 
                 costsStack.Add(new Frame
                 {
-                    BackgroundColor = Color.FromArgb("#1E1E1E"),
-                    BorderColor = Color.FromArgb("#3C3C3C"),
-                    CornerRadius = 8,
-                    Padding = 15,
+                    BackgroundColor = Color.FromArgb("#2A2A2A"),
+                    BorderColor = Color.FromArgb("#3A3A3A"),
+                    HasShadow = false,
+                    CornerRadius = 10,
+                    Padding = 20,
                     Content = new VerticalStackLayout
                     {
-                        Spacing = 5,
+                        Spacing = 8,
                         Children =
-                        {
-                            new Label
-                            {
-                                Text = $"{cost.Type} (×{cost.NumberOfPeople} fő)",
-                                FontSize = 18,
-                                FontAttributes = FontAttributes.Bold,
-                                TextColor = Color.FromArgb("#FFD700")
-                            },
-                            new Label
-                            {
-                                Text = $"Ár/fő: {cost.Amount:N0} Ft",
-                                FontSize = 16,
-                                TextColor = Colors.White
-                            },
-                            new Label
-                            {
-                                Text = $"Összesen: {sum:N0} Ft",
-                                FontSize = 16,
-                                FontAttributes = FontAttributes.Bold,
-                                TextColor = Color.FromArgb("#FF9800")
-                            }
-                        }
+                {
+                    new Label
+                    {
+                        Text = $"{cost.Type} (×{cost.NumberOfPeople} fő)",
+                        FontSize = 20,
+                        FontAttributes = FontAttributes.Bold,
+                        TextColor = Color.FromArgb("#FF8C00")
+                    },
+                    new Label
+                    {
+                        Text = $"Ár/fő: {cost.Amount:N0} Ft",
+                        FontSize = 18,
+                        TextColor = Color.FromArgb("#CCCCCC")
+                    },
+                    new Label
+                    {
+                        Text = $"Összesen: {sum:N0} Ft",
+                        FontSize = 18,
+                        FontAttributes = FontAttributes.Bold,
+                        TextColor = Colors.White
+                    }
+                }
                     }
                 });
             }
 
-            mainLayout.Add(costsStack);
-
-            mainLayout.Add(new BoxView { HeightRequest = 30, BackgroundColor = Colors.Transparent });
+            costsSection.Add(costsStack);
+            mainLayout.Add(costsSection);
 
             // Végösszeg
-            mainLayout.Add(new Frame
+            var totalGrid = new Grid
             {
-                BackgroundColor = Color.FromArgb("#FFD700"),
-                CornerRadius = 10,
-                Padding = 20,
-                Margin = new Thickness(40, 0),
-                Content = new HorizontalStackLayout
-                {
-                    HorizontalOptions = LayoutOptions.FillAndExpand,
-                    Children =
-                    {
-                        new Label
-                        {
-                            Text = "VÉGÖSSZEG",
-                            FontSize = 24,
-                            FontAttributes = FontAttributes.Bold,
-                            TextColor = Color.FromArgb("#121212"),
-                            HorizontalOptions = LayoutOptions.Start
-                        },
-                        new Label
-                        {
-                            Text = $"{totalCost:N0} Ft",
-                            FontSize = 24,
-                            FontAttributes = FontAttributes.Bold,
-                            TextColor = Color.FromArgb("#121212"),
-                            HorizontalOptions = LayoutOptions.End
-                        }
-                    }
-                }
-            });
+                ColumnDefinitions =
+        {
+            new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+            new ColumnDefinition { Width = GridLength.Auto }
+        }
+            };
+
+            var totalLabel = new Label
+            {
+                Text = "VÉGÖSSZEG",
+                FontSize = 28,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Colors.Black,
+                VerticalTextAlignment = TextAlignment.Center
+            };
+            Grid.SetColumn(totalLabel, 0);
+            totalGrid.Add(totalLabel);
+
+            var totalValueLabel = new Label
+            {
+                Text = $"{totalCost:N0} Ft",
+                FontSize = 28,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Colors.Black,
+                VerticalTextAlignment = TextAlignment.Center,
+                HorizontalTextAlignment = TextAlignment.End
+            };
+            Grid.SetColumn(totalValueLabel, 1);
+            totalGrid.Add(totalValueLabel);
+
+            var totalFrame = new Frame
+            {
+                BackgroundColor = Color.FromArgb("#FF8C00"),
+                BorderColor = Colors.Transparent,
+                HasShadow = false,
+                CornerRadius = 12,
+                Padding = 25,
+                Margin = new Thickness(50, 0, 50, 40),
+                Content = totalGrid
+            };
+            mainLayout.Add(totalFrame);
 
             // Render kikényszerítése
             await Task.Delay(100);
@@ -693,34 +719,40 @@ namespace OKKT25
         {
             return new Frame
             {
-                WidthRequest = 350,
-                HeightRequest = 120,
+                WidthRequest = 340,
+                HeightRequest = 130,
                 BackgroundColor = Color.FromArgb(colorHex),
+                BorderColor = Colors.Transparent,
+                HasShadow = false,
                 CornerRadius = 12,
                 Padding = 20,
                 Content = new VerticalStackLayout
                 {
-                    Spacing = 8,
+                    Spacing = 10,
+                    VerticalOptions = LayoutOptions.Center,
                     Children =
-                    {
-                        new Label
-                        {
-                            Text = title,
-                            FontSize = 16,
-                            FontAttributes = FontAttributes.Bold,
-                            TextColor = Colors.White
-                        },
-                        new Label
-                        {
-                            Text = value,
-                            FontSize = 24,
-                            FontAttributes = FontAttributes.Bold,
-                            TextColor = Colors.White
-                        }
-                    }
+            {
+                new Label
+                {
+                    Text = title,
+                    FontSize = 16,
+                    FontAttributes = FontAttributes.Bold,
+                    TextColor = Colors.Black,
+                    HorizontalTextAlignment = TextAlignment.Center
+                },
+                new Label
+                {
+                    Text = value,
+                    FontSize = 28,
+                    FontAttributes = FontAttributes.Bold,
+                    TextColor = Colors.Black,
+                    HorizontalTextAlignment = TextAlignment.Center
+                }
+            }
                 }
             };
         }
+
         private async void OnExportPdfClicked(object sender, EventArgs e)
         {
             await ExportPageToPdf();
