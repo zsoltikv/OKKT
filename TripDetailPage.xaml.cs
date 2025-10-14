@@ -344,6 +344,43 @@ namespace OKKT25
         {
             try
             {
+                // 🎨 Létrehozunk egy szép PDF-szerű nézetet programatikusan
+                var pdfView = await CreatePdfViewAsync();
+
+                // Ideiglenesen hozzáadjuk az oldalhoz (láthatatlanul, képernyőn kívül)
+                var rootLayout = (this.Content as ScrollView)?.Content as Layout;
+                if (rootLayout == null)
+                {
+                    await DisplayAlert("Hiba", "Nem található a főlayout", "OK");
+                    return;
+                }
+
+                // Elmentjük az eredeti pozíciót és láthatatlanná tesszük
+                pdfView.TranslationY = 10000; // Képernyőn kívülre tesszük
+                rootLayout.Add(pdfView);
+
+                // Várunk egy kicsit, hogy renderelődjön
+                await Task.Delay(300);
+
+                // 📸 Képernyőkép készítése a nézetről
+                var screenshot = await pdfView.CaptureAsync();
+
+                // Eltávolítjuk a view-t
+                rootLayout.Remove(pdfView);
+
+                if (screenshot == null)
+                {
+                    await DisplayAlert("Hiba", "Nem sikerült képernyőképet készíteni", "OK");
+                    return;
+                }
+
+                // Ideiglenes fájlba mentés
+                string tempImagePath = Path.Combine(FileSystem.Current.CacheDirectory, $"temp_pdf_{Guid.NewGuid()}.png");
+                using (var stream = await screenshot.OpenReadAsync())
+                using (var fileStream = File.Create(tempImagePath))
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
 
                 string pdfFileName = $"{tripData.TripName}.pdf";
                 string filePath = "";
@@ -355,215 +392,334 @@ namespace OKKT25
                     .AbsolutePath;
                 filePath = Path.Combine(downloadsPath, pdfFileName);
 #elif WINDOWS
-                        var downloadsPath = Path.Combine(
-                            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                            "Downloads");
-                        filePath = Path.Combine(downloadsPath, pdfFileName);
+                var downloadsPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "Downloads");
+                filePath = Path.Combine(downloadsPath, pdfFileName);
 #else
-                        filePath = Path.Combine(FileSystem.Current.AppDataDirectory, pdfFileName);
+                filePath = Path.Combine(FileSystem.Current.AppDataDirectory, pdfFileName);
 #endif
 
                 using (var document = new PdfSharpCore.Pdf.PdfDocument())
                 {
-                    var pdfPage = document.AddPage();
-                    pdfPage.Size = PdfSharpCore.PageSize.A4;
+                    var page = document.AddPage();
+                    page.Size = PdfSharpCore.PageSize.A4;
 
-                    using (var gfx = PdfSharpCore.Drawing.XGraphics.FromPdfPage(pdfPage))
+                    using (var gfx = XGraphics.FromPdfPage(page))
+                    using (var xImage = XImage.FromFile(tempImagePath))
                     {
-                        double margin = 50;
-                        double yPoint = margin;
-                        double pageWidth = pdfPage.Width.Point;
-                        double contentWidth = pageWidth - (2 * margin);
+                        double pageWidth = page.Width.Point;
+                        double pageHeight = page.Height.Point;
 
-                        // 🎨 Fekete–arany színséma
-                        var colorBackground = XColor.FromArgb(18, 18, 18);     // háttér
-                        var colorCard = XColor.FromArgb(30, 30, 30);           // kártyák
-                        var colorPrimary = XColor.FromArgb(255, 215, 0);       // arany
-                        var colorAccent = XColor.FromArgb(255, 152, 0);        // narancs
-                        var colorText = XColor.FromArgb(255, 255, 255);        // fehér
-                        var colorSubText = XColor.FromArgb(200, 200, 200);     // világosszürke
-                        var colorBorder = XColor.FromArgb(60, 60, 60);         // finom keret
-                        var colorHighlight = XColor.FromArgb(255, 165, 0);     // extra narancs kiemelés
+                        // Teljes oldal kitöltése
+                        gfx.DrawImage(xImage, 0, 0, pageWidth, pageHeight);
+                    }
 
-                        // Fontok
-                        var fontTitle = new XFont("Calibri", 28, XFontStyle.Bold);
-                        var fontHeader = new XFont("Calibri", 16, XFontStyle.Bold);
-                        var fontSubHeader = new XFont("Calibri", 14, XFontStyle.Bold);
-                        var fontNormal = new XFont("Calibri", 11, XFontStyle.Regular);
-                        var fontBold = new XFont("Calibri", 11, XFontStyle.Bold);
-                        var fontSmall = new XFont("Calibri", 9, XFontStyle.Regular);
-
-                        // 🖤 Háttér
-                        gfx.DrawRectangle(new XSolidBrush(colorBackground), 0, 0, pageWidth, pdfPage.Height);
-
-                        // Fejléc
-                        gfx.DrawRectangle(new XSolidBrush(colorPrimary), 0, 0, pageWidth, 80);
-                        gfx.DrawString(tripData.TripName.ToUpper(), fontTitle, new XSolidBrush(colorBackground),
-                            new XPoint(margin, 50));
-
-                        yPoint = 110;
-
-                        // 📍 Helyszín és időpont kártya
-                        double infoBoxHeight = 60;
-                        gfx.DrawRectangle(new XSolidBrush(colorCard), margin, yPoint, contentWidth, infoBoxHeight);
-                        gfx.DrawRectangle(new XPen(colorBorder, 1.5), margin, yPoint, contentWidth, infoBoxHeight);
-
-                        string locationText = !string.IsNullOrEmpty(tripData.TripDestination)
-                            ? tripData.TripDestination
-                            : "Nincs megadva";
-                        gfx.DrawString("Helyszín:", fontBold, new XSolidBrush(colorPrimary),
-                            new XPoint(margin + 15, yPoint + 25));
-                        gfx.DrawString(locationText, fontNormal, new XSolidBrush(colorText),
-                            new XPoint(margin + 100, yPoint + 25));
-
-                        string dateText = tripData.TripDateStart != default
-                            ? $"{tripData.TripDateStart:yyyy.MM.dd} - {tripData.TripDateEnd:yyyy.MM.dd}"
-                            : "Nincs megadva";
-                        gfx.DrawString("Időpont:", fontBold, new XSolidBrush(colorPrimary),
-                            new XPoint(margin + 15, yPoint + 45));
-                        gfx.DrawString(dateText, fontNormal, new XSolidBrush(colorText),
-                            new XPoint(margin + 100, yPoint + 45));
-
-                        yPoint += infoBoxHeight + 25;
-
-                        // 📊 Összesítő kártyák
-                        double totalCost = tripData.Costs.Sum(c => (c.Amount * c.NumberOfPeople) + (c.DiscountAmount * c.DiscountNumberOfPeople));
-                        double costPerPerson = tripData.Participants > 0 ? totalCost / tripData.Participants : 0;
-
-                        double cardWidth = (contentWidth - 20) / 3;
-                        double cardHeight = 80;
-                        double cardSpacing = 10;
-
-                        DrawInfoCard(gfx, margin, yPoint, cardWidth, cardHeight, "RÉSZTVEVŐK", tripData.Participants + " fő", colorAccent, fontSubHeader, fontHeader);
-                        DrawInfoCard(gfx, margin + cardWidth + cardSpacing, yPoint, cardWidth, cardHeight, "TELJES KÖLTSÉG", $"{totalCost:N0} Ft", colorPrimary, fontSubHeader, fontHeader);
-                        DrawInfoCard(gfx, margin + 2 * (cardWidth + cardSpacing), yPoint, cardWidth, cardHeight, "FEJENKÉNT", $"{costPerPerson:N0} Ft", colorHighlight, fontSubHeader, fontHeader);
-
-                        yPoint += cardHeight + 40;
-
-                        // 💰 Zsebpénz infó
-                        gfx.DrawString("ZSEBPÉNZ", fontHeader, new XSolidBrush(colorPrimary), new XPoint(margin, yPoint));
-                        yPoint += 25;
-
-                        string pocketInfo = tripData.IsPerPersonMode
-                            ? $"Személyenkénti beállítás: {tripData.PocketMoney.Count} diák"
-                            : $"Átlagos zsebpénz: {tripData.AveragePocketMoney:N0} Ft/fő";
-
-                        gfx.DrawRectangle(new XSolidBrush(colorCard), margin, yPoint, contentWidth, 50);
-                        gfx.DrawRectangle(new XPen(colorBorder, 1), margin, yPoint, contentWidth, 50);
-                        gfx.DrawString(pocketInfo, fontNormal, new XSolidBrush(colorText),
-                            new XPoint(margin + 15, yPoint + 30));
-
-                        yPoint += 80;
-
-                        // 💵 Költségek táblázat
-                        gfx.DrawString("KÖLTSÉGEK RÉSZLETESEN", fontHeader, new XSolidBrush(colorPrimary),
-                            new XPoint(margin, yPoint));
-                        yPoint += 35;
-
-                        double rowHeight = 30;
-                        double col1 = margin;
-                        double col2 = margin + contentWidth * 0.35;
-                        double col3 = margin + contentWidth * 0.55;
-                        double col4 = margin + contentWidth * 0.75;
-
-                        // Fejléc
-                        gfx.DrawRectangle(new XSolidBrush(colorAccent), margin, yPoint, contentWidth, rowHeight);
-                        gfx.DrawString("Típus", fontBold, new XSolidBrush(colorText), new XPoint(col1 + 10, yPoint + 20));
-                        gfx.DrawString("Ár/fő", fontBold, new XSolidBrush(colorText), new XPoint(col2 + 10, yPoint + 20));
-                        gfx.DrawString("Létszám", fontBold, new XSolidBrush(colorText), new XPoint(col3 + 10, yPoint + 20));
-                        gfx.DrawString("Összesen", fontBold, new XSolidBrush(colorText), new XPoint(col4 + 10, yPoint + 20));
-
-                        yPoint += rowHeight;
-
-                        foreach (var cost in tripData.Costs)
+                    // 📸 Fotók hozzáadása külön oldalakra (ha vannak)
+                    if (tripData.PhotoPaths != null && tripData.PhotoPaths.Count > 0)
+                    {
+                        foreach (var photoPath in tripData.PhotoPaths)
                         {
-                            gfx.DrawRectangle(new XSolidBrush(colorCard), margin, yPoint, contentWidth, rowHeight);
-                            gfx.DrawRectangle(new XPen(colorBorder, 0.5), margin, yPoint, contentWidth, rowHeight);
+                            if (!File.Exists(photoPath)) continue;
 
-
-
-                            double sum = (cost.Amount * cost.NumberOfPeople);
-                            gfx.DrawString(cost.Type, fontNormal, new XSolidBrush(colorText), new XPoint(col1 + 10, yPoint + 20));
-                            gfx.DrawString($"{cost.Amount:N0} Ft", fontNormal, new XSolidBrush(colorText), new XPoint(col2 + 10, yPoint + 20));
-                            gfx.DrawString($"{cost.NumberOfPeople} fő", fontNormal, new XSolidBrush(colorText), new XPoint(col3 + 10, yPoint + 20));
-                            gfx.DrawString($"{sum:N0} Ft", fontBold, new XSolidBrush(colorPrimary), new XPoint(col4 + 10, yPoint + 20));
-
-                            yPoint += rowHeight;
-                        }
-
-                        gfx.DrawRectangle(new XSolidBrush(colorPrimary), margin, yPoint, contentWidth, rowHeight + 5);
-                        gfx.DrawString("VÉGÖSSZEG", fontHeader, new XSolidBrush(colorBackground), new XPoint(col1 + 10, yPoint + 23));
-                        gfx.DrawString($"{totalCost:N0} Ft", fontHeader, new XSolidBrush(colorBackground), new XPoint(col4 + 10, yPoint + 23));
-
-                        yPoint += 50;
-
-
-
-                        // 📸 Fotógaléria (ha van)
-                        if (tripData.PhotoPaths != null && tripData.PhotoPaths.Count > 0)
-                        {
                             var photoPage = document.AddPage();
                             photoPage.Size = PdfSharpCore.PageSize.A4;
 
                             using (var photoGfx = XGraphics.FromPdfPage(photoPage))
+                            using (var photoImage = XImage.FromFile(photoPath))
                             {
-                                photoGfx.DrawRectangle(new XSolidBrush(colorBackground), 0, 0, pageWidth, photoPage.Height);
-                                photoGfx.DrawString("📸 FOTÓGALÉRIA", fontTitle, new XSolidBrush(colorPrimary),
-                                    new XPoint(margin, 50));
+                                double pageWidth = photoPage.Width.Point;
+                                double pageHeight = photoPage.Height.Point;
+                                double margin = 40;
 
-                                double photoY = 110;
-                                double imgMax = 160, spacing = 20;
-                                double x = margin;
-                                int perRow = 3, index = 0;
+                                double availableWidth = pageWidth - (2 * margin);
+                                double availableHeight = pageHeight - (2 * margin);
 
-                                foreach (var path in tripData.PhotoPaths)
-                                {
-                                    if (!File.Exists(path)) continue;
-                                    using (var img = XImage.FromFile(path))
-                                    {
-                                        double scale = Math.Min(imgMax / img.PixelWidth, imgMax / img.PixelHeight);
-                                        double w = img.PixelWidth * scale;
-                                        double h = img.PixelHeight * scale;
+                                double scale = Math.Min(
+                                    availableWidth / photoImage.PixelWidth,
+                                    availableHeight / photoImage.PixelHeight
+                                );
 
-                                        if (index % perRow == 0 && index > 0)
-                                        {
-                                            x = margin;
-                                            photoY += imgMax + spacing + 25;
-                                        }
+                                double width = photoImage.PixelWidth * scale;
+                                double height = photoImage.PixelHeight * scale;
 
-                                        if (photoY + h > photoPage.Height.Point - 60)
-                                            break;
+                                double x = (pageWidth - width) / 2;
+                                double y = (pageHeight - height) / 2;
 
-                                        photoGfx.DrawRectangle(new XSolidBrush(colorCard), x, photoY, w + 6, h + 6);
-                                        photoGfx.DrawRectangle(new XPen(colorBorder, 1), x, photoY, w + 6, h + 6);
-                                        photoGfx.DrawImage(img, x + 3, photoY + 3, w, h);
-                                        photoGfx.DrawString($"#{index + 1}", fontSmall, new XSolidBrush(colorSubText),
-                                            new XPoint(x + w / 2, photoY + h + 20));
-
-                                        x += imgMax + spacing;
-                                        index++;
-                                    }
-                                }
+                                photoGfx.DrawImage(photoImage, x, y, width, height);
                             }
                         }
-
-                        // Lábléc
-                        double footerY = pdfPage.Height.Point - 30;
-                        gfx.DrawString($"Oldal 1 | Készült: {DateTime.Now:yyyy.MM.dd HH:mm}", fontSmall, new XSolidBrush(colorSubText),
-                            new XPoint(margin, footerY));
-                        gfx.DrawString("Trip Manager Pro", fontSmall, new XSolidBrush(colorSubText),
-                            new XPoint(pageWidth - margin - 100, footerY));
                     }
 
                     document.Save(filePath);
                 }
 
+                // Temp file törlése
+                if (File.Exists(tempImagePath))
+                    File.Delete(tempImagePath);
+
                 await DisplayAlert("✅ Siker", $"PDF elkészült!\n📁 {filePath}", "Rendben");
             }
             catch (Exception ex)
             {
-
+                await DisplayAlert("Hiba", $"PDF készítés sikertelen: {ex.Message}", "OK");
             }
+        }
+
+        private async Task<View> CreatePdfViewAsync()
+        {
+            // A4 arány: 595x842 pont (72 DPI-nél)
+            // Mobilon 2x-es felbontással: 1190x1684 px
+            double width = 1190;
+            double height = 1684;
+
+            var mainLayout = new VerticalStackLayout
+            {
+                WidthRequest = width,
+                HeightRequest = height,
+                BackgroundColor = Color.FromArgb("#121212")
+            };
+
+            double totalCost = tripData.Costs.Sum(c => (c.Amount * c.NumberOfPeople) + (c.DiscountAmount * c.DiscountNumberOfPeople));
+            double costPerPerson = tripData.Participants > 0 ? totalCost / tripData.Participants : 0;
+
+            // 📌 Fejléc
+            mainLayout.Add(new BoxView
+            {
+                HeightRequest = 120,
+                BackgroundColor = Color.FromArgb("#FFD700")
+            });
+
+            var titleLabel = new Label
+            {
+                Text = tripData.TripName.ToUpper(),
+                FontSize = 42,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#121212"),
+                Margin = new Thickness(40, -100, 40, 0)
+            };
+            mainLayout.Add(titleLabel);
+
+            mainLayout.Add(new BoxView { HeightRequest = 40, BackgroundColor = Colors.Transparent });
+
+            // 📍 Helyszín és időpont
+            var infoBox = new Frame
+            {
+                BackgroundColor = Color.FromArgb("#1E1E1E"),
+                BorderColor = Color.FromArgb("#3C3C3C"),
+                CornerRadius = 10,
+                Padding = 20,
+                Margin = new Thickness(40, 0),
+                Content = new VerticalStackLayout
+                {
+                    Spacing = 10,
+                    Children =
+                    {
+                        new Label
+                        {
+                            FormattedText = new FormattedString
+                            {
+                                Spans =
+                                {
+                                    new Span { Text = "Helyszín: ", FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#FFD700"), FontSize = 18 },
+                                    new Span { Text = tripData.TripDestination ?? "Nincs megadva", TextColor = Colors.White, FontSize = 18 }
+                                }
+                            }
+                        },
+                        new Label
+                        {
+                            FormattedText = new FormattedString
+                            {
+                                Spans =
+                                {
+                                    new Span { Text = "Időpont: ", FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#FFD700"), FontSize = 18 },
+                                    new Span { Text = tripData.TripDateStart != default ? $"{tripData.TripDateStart:yyyy.MM.dd} - {tripData.TripDateEnd:yyyy.MM.dd}" : "Nincs megadva", TextColor = Colors.White, FontSize = 18 }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+            mainLayout.Add(infoBox);
+
+            mainLayout.Add(new BoxView { HeightRequest = 30, BackgroundColor = Colors.Transparent });
+
+            // 📊 Összesítő kártyák
+            var cardsLayout = new HorizontalStackLayout
+            {
+                Spacing = 15,
+                Margin = new Thickness(40, 0),
+                Children =
+                {
+                    CreateSummaryCard("RÉSZTVEVŐK", $"{tripData.Participants} fő", "#FF9800"),
+                    CreateSummaryCard("TELJES KÖLTSÉG", $"{totalCost:N0} Ft", "#FFD700"),
+                    CreateSummaryCard("FEJENKÉNT", $"{costPerPerson:N0} Ft", "#FFA500")
+                }
+            };
+            mainLayout.Add(cardsLayout);
+
+            mainLayout.Add(new BoxView { HeightRequest = 40, BackgroundColor = Colors.Transparent });
+
+            // 💰 Zsebpénz
+            mainLayout.Add(new Label
+            {
+                Text = "ZSEBPÉNZ",
+                FontSize = 24,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#FFD700"),
+                Margin = new Thickness(40, 0)
+            });
+
+            string pocketInfo = tripData.IsPerPersonMode
+                ? $"Személyenkénti beállítás: {tripData.PocketMoney.Count} diák"
+                : $"Átlagos zsebpénz: {tripData.AveragePocketMoney:N0} Ft/fő";
+
+            mainLayout.Add(new Frame
+            {
+                BackgroundColor = Color.FromArgb("#1E1E1E"),
+                BorderColor = Color.FromArgb("#3C3C3C"),
+                CornerRadius = 10,
+                Padding = 20,
+                Margin = new Thickness(40, 10, 40, 0),
+                Content = new Label
+                {
+                    Text = pocketInfo,
+                    FontSize = 16,
+                    TextColor = Colors.White
+                }
+            });
+
+            mainLayout.Add(new BoxView { HeightRequest = 40, BackgroundColor = Colors.Transparent });
+
+            // 💵 Költségek
+            mainLayout.Add(new Label
+            {
+                Text = "KÖLTSÉGEK RÉSZLETESEN",
+                FontSize = 24,
+                FontAttributes = FontAttributes.Bold,
+                TextColor = Color.FromArgb("#FFD700"),
+                Margin = new Thickness(40, 0)
+            });
+
+            var costsStack = new VerticalStackLayout
+            {
+                Spacing = 8,
+                Margin = new Thickness(40, 10, 40, 0)
+            };
+
+            foreach (var cost in tripData.Costs)
+            {
+                double sum = (cost.Amount * cost.NumberOfPeople) + (cost.DiscountAmount * cost.DiscountNumberOfPeople);
+
+                costsStack.Add(new Frame
+                {
+                    BackgroundColor = Color.FromArgb("#1E1E1E"),
+                    BorderColor = Color.FromArgb("#3C3C3C"),
+                    CornerRadius = 8,
+                    Padding = 15,
+                    Content = new VerticalStackLayout
+                    {
+                        Spacing = 5,
+                        Children =
+                        {
+                            new Label
+                            {
+                                Text = $"{cost.Type} (×{cost.NumberOfPeople} fő)",
+                                FontSize = 18,
+                                FontAttributes = FontAttributes.Bold,
+                                TextColor = Color.FromArgb("#FFD700")
+                            },
+                            new Label
+                            {
+                                Text = $"Ár/fő: {cost.Amount:N0} Ft",
+                                FontSize = 16,
+                                TextColor = Colors.White
+                            },
+                            new Label
+                            {
+                                Text = $"Összesen: {sum:N0} Ft",
+                                FontSize = 16,
+                                FontAttributes = FontAttributes.Bold,
+                                TextColor = Color.FromArgb("#FF9800")
+                            }
+                        }
+                    }
+                });
+            }
+
+            mainLayout.Add(costsStack);
+
+            mainLayout.Add(new BoxView { HeightRequest = 30, BackgroundColor = Colors.Transparent });
+
+            // Végösszeg
+            mainLayout.Add(new Frame
+            {
+                BackgroundColor = Color.FromArgb("#FFD700"),
+                CornerRadius = 10,
+                Padding = 20,
+                Margin = new Thickness(40, 0),
+                Content = new HorizontalStackLayout
+                {
+                    HorizontalOptions = LayoutOptions.FillAndExpand,
+                    Children =
+                    {
+                        new Label
+                        {
+                            Text = "VÉGÖSSZEG",
+                            FontSize = 24,
+                            FontAttributes = FontAttributes.Bold,
+                            TextColor = Color.FromArgb("#121212"),
+                            HorizontalOptions = LayoutOptions.Start
+                        },
+                        new Label
+                        {
+                            Text = $"{totalCost:N0} Ft",
+                            FontSize = 24,
+                            FontAttributes = FontAttributes.Bold,
+                            TextColor = Color.FromArgb("#121212"),
+                            HorizontalOptions = LayoutOptions.End
+                        }
+                    }
+                }
+            });
+
+            // Render kikényszerítése
+            await Task.Delay(100);
+
+            return mainLayout;
+        }
+
+        private Frame CreateSummaryCard(string title, string value, string colorHex)
+        {
+            return new Frame
+            {
+                WidthRequest = 350,
+                HeightRequest = 120,
+                BackgroundColor = Color.FromArgb(colorHex),
+                CornerRadius = 12,
+                Padding = 20,
+                Content = new VerticalStackLayout
+                {
+                    Spacing = 8,
+                    Children =
+                    {
+                        new Label
+                        {
+                            Text = title,
+                            FontSize = 16,
+                            FontAttributes = FontAttributes.Bold,
+                            TextColor = Colors.White
+                        },
+                        new Label
+                        {
+                            Text = value,
+                            FontSize = 24,
+                            FontAttributes = FontAttributes.Bold,
+                            TextColor = Colors.White
+                        }
+                    }
+                }
+            };
         }
         private async void OnExportPdfClicked(object sender, EventArgs e)
         {
