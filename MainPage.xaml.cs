@@ -571,19 +571,36 @@ namespace OKKT25
             var summaryCard = CreateDarkCard("📊 Összefoglaló", "#FFD700");
             var summaryLabel = new Label
             {
-                Text = $@"Teljes költség: {FormatNumber(totalCost)} Ft
-Résztvevők: {participants} fő
-Hátralévő idő: {monthsLeft} hónap
+                FormattedText = new FormattedString
+                {
+                    Spans =
+                        {
+                            new Span { Text = "📊 Összegzés\n\n", FontAttributes = FontAttributes.Bold, FontSize = 15 },
 
-───────────────────────
+                            new Span { Text = "Teljes költség: ", FontAttributes = FontAttributes.Bold },
+                            new Span { Text = $"{FormatNumber(totalCost)} Ft\n" },
 
-💰 Fejenként fizetendő:
-Összesen: {FormatNumber(costPerPerson)} Ft
-Havonta: {FormatNumber(monthlyPerPerson)} Ft",
-                FontSize = 13,
+                            new Span { Text = "Résztvevők: ", FontAttributes = FontAttributes.Bold },
+                            new Span { Text = $"{participants} fő\n" },
+
+                            new Span { Text = "Hátralévő idő: ", FontAttributes = FontAttributes.Bold },
+                            new Span { Text = $"{monthsLeft} hónap\n\n" },
+
+                            new Span { Text = "───────────────────────\n\n", FontSize = 12, TextColor = Color.FromArgb("#CCCCCC") },
+
+                            new Span { Text = "💰 Fejenként fizetendő\n", FontAttributes = FontAttributes.Bold, FontSize = 14 },
+
+                            new Span { Text = "Összesen: ", FontAttributes = FontAttributes.Bold },
+                            new Span { Text = $"{FormatNumber(costPerPerson)} Ft\n" },
+
+                            new Span { Text = "Havonta: ", FontAttributes = FontAttributes.Bold },
+                            new Span { Text = $"{FormatNumber(monthlyPerPerson)} Ft" }
+                        }
+                },
                 TextColor = Color.FromArgb("#FFFFFF"),
                 FontFamily = "Arial",
-                Padding = new Thickness(10)
+                Padding = new Thickness(10),
+                LineHeight = 1.3
             };
             ((VerticalStackLayout)summaryCard.Content).Add(summaryLabel);
             LayoutResults.Add(summaryCard);
@@ -613,14 +630,32 @@ Havonta: {FormatNumber(monthlyPerPerson)} Ft",
 
                 var studentLabel = new Label
                 {
-                    Text = $@"{statusIcon} {i + 1}. diák
-Havi zsebpénz: {FormatNumber(pocketMoney)} Ft
-Összesen {monthsLeft} hónap alatt: {FormatNumber(monthlyTotal)} Ft
-Fizetendő: {FormatNumber(costPerPerson)} Ft
-{(canPay ? "Fedezi a költséget! ✓" : $"Hiány: {FormatNumber(costPerPerson - monthlyTotal)} Ft")}",
+                    FormattedText = new FormattedString
+                    {
+                        Spans =
+                            {
+                                new Span { Text = $"{statusIcon} {i + 1}. diák\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
+
+                                new Span { Text = "💵 Havi zsebpénz: ", FontAttributes = FontAttributes.Bold },
+                                new Span { Text = $"{FormatNumber(pocketMoney)} Ft\n" },
+
+                                new Span { Text = "📅 Összesen ", FontAttributes = FontAttributes.Bold },
+                                new Span { Text = $"{monthsLeft} hónap alatt: ", FontAttributes = FontAttributes.None },
+                                new Span { Text = $"{FormatNumber(monthlyTotal)} Ft\n" },
+
+                                new Span { Text = "💰 Fizetendő: ", FontAttributes = FontAttributes.Bold },
+                                new Span { Text = $"{FormatNumber(costPerPerson)} Ft\n\n" },
+
+                                canPay
+                                    ? new Span { Text = "✅ Fedezi a költséget!", FontAttributes = FontAttributes.Bold }
+                                    : new Span { Text = $"⚠️ Hiány: {FormatNumber(costPerPerson - monthlyTotal)} Ft", FontAttributes = FontAttributes.Bold }
+                            }
+                    },
                     TextColor = statusColor,
                     FontSize = 12,
-                    FontFamily = "Arial"
+                    FontFamily = "Arial",
+                    LineHeight = 1.3,
+                    Padding = new Thickness(5, 3)
                 };
 
                 analysisLayout.Add(studentLabel);
@@ -659,50 +694,76 @@ Fizetendő: {FormatNumber(costPerPerson)} Ft
 
                 double totalShortage = cantPayList.Sum(x => x.shortage);
 
+                // Figyelmeztetés
                 suggestionsLayout.Add(new Label
                 {
-                    Text = $"⚠️ {cantPayList.Count} diák nem tudja fedezni a költséget!",
-                    FontSize = 13,
-                    FontAttributes = FontAttributes.Bold,
-                    TextColor = Color.FromArgb("#FF6B6B")
+                    FormattedText = new FormattedString
+                    {
+                        Spans =
+            {
+                new Span { Text = $"⚠️ {cantPayList.Count} diák nem tudja fedezni a költséget!",
+                           FontAttributes = FontAttributes.Bold,
+                           TextColor = Color.FromArgb("#FF6B6B"), FontSize = 13 }
+            }
+                    }
                 });
 
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
+                // 1️⃣ Költségcsökkentés
                 double neededReduction = totalShortage;
                 suggestionsLayout.Add(new Label
                 {
-                    Text = $@"1️⃣ Költségcsökkentés
-                    Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget,
-                    mindenki tudja fizetni a kirándulást.
-                    Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft",
+                    FormattedText = new FormattedString
+                    {
+                        Spans =
+            {
+                new Span { Text = "1️⃣ Költségcsökkentés\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
+                new Span { Text = $"Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget, mindenki tudja fizetni a kirándulást.\n" },
+                new Span { Text = $"Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft", FontAttributes = FontAttributes.Bold }
+            }
+                    },
                     FontSize = 12,
                     TextColor = Color.FromArgb("#FFFFFF")
                 });
 
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
+                // 2️⃣ Többi diák fizet többet
                 double extraPerPerson = totalShortage / (participants - cantPayList.Count);
                 suggestionsLayout.Add(new Label
                 {
-                    Text = $@"2️⃣ Többi diák fizet többet
-                    Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:
-                    Extra fejenként: {FormatNumber(extraPerPerson)} Ft
-                    Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft",
+                    FormattedText = new FormattedString
+                    {
+                        Spans =
+            {
+                new Span { Text = "2️⃣ Többi diák fizet többet\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
+                new Span { Text = $"Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:\n" },
+                new Span { Text = $"Extra fejenként: {FormatNumber(extraPerPerson)} Ft\n", FontAttributes = FontAttributes.Bold },
+                new Span { Text = $"Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft", FontAttributes = FontAttributes.Bold }
+            }
+                    },
                     FontSize = 12,
                     TextColor = Color.FromArgb("#FFFFFF")
                 });
 
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
+                // 3️⃣ Több idő szükséges
                 int neededMonths = (int)Math.Ceiling(costPerPerson / pocketMoneyList.Min());
                 if (neededMonths > monthsLeft)
                 {
                     suggestionsLayout.Add(new Label
                     {
-                        Text = $@"3️⃣ Több idő szükséges
-                        Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.
-                        (Még {neededMonths - monthsLeft} hónap szükséges)",
+                        FormattedText = new FormattedString
+                        {
+                            Spans =
+                {
+                    new Span { Text = "3️⃣ Több idő szükséges\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
+                    new Span { Text = $"Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.\n" },
+                    new Span { Text = $"(Még {neededMonths - monthsLeft} hónap szükséges)", FontAttributes = FontAttributes.Bold }
+                }
+                        },
                         FontSize = 12,
                         TextColor = Color.FromArgb("#FFFFFF")
                     });
@@ -716,14 +777,20 @@ Fizetendő: {FormatNumber(costPerPerson)} Ft
                 var successCard = CreateDarkCard("🎉 Szuper hír!", "#4CAF50");
                 var successLabel = new Label
                 {
-                    Text = @"✨ Minden diák tudja fizetni a kirándulást!
-
-                    Az osztálykirándulás megvalósítható a megadott feltételekkel.
-                    Kezdjétek el gyűjteni a pénzt! 🎒",
+                    FormattedText = new FormattedString
+                    {
+                        Spans =
+            {
+                new Span { Text = "✨ Minden diák tudja fizetni a kirándulást!\n\n", FontAttributes = FontAttributes.Bold, FontSize = 14 },
+                new Span { Text = "Az osztálykirándulás megvalósítható a megadott feltételekkel.\n" },
+                new Span { Text = "Kezdjétek el gyűjteni a pénzt! 🎒", FontAttributes = FontAttributes.Bold }
+            }
+                    },
                     FontSize = 13,
                     TextColor = Color.FromArgb("#FFFFFF"),
                     FontFamily = "Arial",
-                    Padding = new Thickness(10)
+                    Padding = new Thickness(10),
+                    LineHeight = 1.3
                 };
                 ((VerticalStackLayout)successCard.Content).Add(successLabel);
                 LayoutResults.Add(successCard);

@@ -154,98 +154,150 @@ namespace OKKT25
         {
             DetailLayout.Clear();
 
-            // Kirándulás címe
-            var titleLabel = new Label
-            {
-                Text = Title,
-                FontSize = 26,
-                FontAttributes = FontAttributes.Bold,
-                TextColor = Color.FromArgb("#FFD700"),
-                Margin = new Thickness(0, 0, 0, 20)
-            };
-            DetailLayout.Add(titleLabel);
-
             double totalCost = tripData.Costs.Sum(c =>
                 (c.Amount * c.NumberOfPeople) +
                 (c.DiscountAmount * c.DiscountNumberOfPeople));
 
-            // Összefoglaló kártya
+            // --- Összefoglaló kártya ---
             var summaryCard = CreateCard("📊 Összefoglaló", "#FF9800");
             var summaryLayout = new VerticalStackLayout { Padding = 15, Spacing = 6 };
 
-            summaryLayout.Add(new Label { Text = $"Teljes költség: {FormatNumber(totalCost)} Ft", FontSize = 16, TextColor = Color.FromArgb("#FFFFFF") });
-            summaryLayout.Add(new Label { Text = $"Résztvevők: {tripData.Participants} fő", FontSize = 16, TextColor = Color.FromArgb("#FFFFFF") });
-            summaryLayout.Add(new Label { Text = $"Hátralévő idő: {tripData.MonthsLeft} hónap", FontSize = 16, TextColor = Color.FromArgb("#FFFFFF") });
-            summaryLayout.Add(new Label { Text = $"Mentve: {tripData.LastSaved:yyyy.MM.dd HH:mm}", FontSize = 14, TextColor = Color.FromArgb("#C8C8C8") });
+            summaryLayout.Add(new Label
+            {
+                FormattedText = new FormattedString
+                {
+                    Spans =
+            {
+                new Span { Text = "Teljes költség: ", FontAttributes = FontAttributes.Bold },
+                new Span { Text = $"{FormatNumber(totalCost)} Ft" }
+            }
+                },
+                FontSize = 16,
+                TextColor = Color.FromArgb("#FFFFFF")
+            });
+
+            summaryLayout.Add(new Label
+            {
+                FormattedText = new FormattedString
+                {
+                    Spans =
+            {
+                new Span { Text = "Résztvevők: ", FontAttributes = FontAttributes.Bold },
+                new Span { Text = $"{tripData.Participants} fő" }
+            }
+                },
+                FontSize = 16,
+                TextColor = Color.FromArgb("#FFFFFF")
+            });
+
+            summaryLayout.Add(new Label
+            {
+                FormattedText = new FormattedString
+                {
+                    Spans =
+            {
+                new Span { Text = "Hátralévő idő: ", FontAttributes = FontAttributes.Bold },
+                new Span { Text = $"{tripData.MonthsLeft} hónap" }
+            }
+                },
+                FontSize = 16,
+                TextColor = Color.FromArgb("#FFFFFF")
+            });
+
+            summaryLayout.Add(new Label
+            {
+                FormattedText = new FormattedString
+                {
+                    Spans =
+            {
+                new Span { Text = "Mentve: ", FontAttributes = FontAttributes.Bold },
+                new Span { Text = $"{tripData.LastSaved:yyyy.MM.dd HH:mm}" }
+            }
+                },
+                FontSize = 14,
+                TextColor = Color.FromArgb("#C8C8C8")
+            });
 
             ((VerticalStackLayout)summaryCard.Content).Add(summaryLayout);
             DetailLayout.Add(summaryCard);
 
-            // Költségek kártya
+            // --- Költségek kártya ---
             var costsCard = CreateCard("💰 Költségek részletezve", "#FF9800");
             var costsLayout = new VerticalStackLayout { Padding = 15, Spacing = 8 };
 
             if (tripData.Costs.Count == 0)
             {
-                costsLayout.Add(new Label { Text = "Nincsenek rögzített költségek.", FontSize = 14, TextColor = Color.FromArgb("#C8C8C8") });
+                costsLayout.Add(new Label
+                {
+                    Text = "Nincsenek rögzített költségek.",
+                    FontSize = 14,
+                    TextColor = Color.FromArgb("#C8C8C8")
+                });
             }
             else
             {
                 foreach (var cost in tripData.Costs)
                 {
-                    var costHeader = new Label
+                    costsLayout.Add(new Label
                     {
-                        Text = $"{cost.Type} (×{cost.NumberOfPeople} fő)",
-                        FontSize = 15,
-                        FontAttributes = FontAttributes.Bold,
-                        TextColor = Color.FromArgb("#FFD700")
-                    };
-                    costsLayout.Add(costHeader);
+                        FormattedText = new FormattedString
+                        {
+                            Spans =
+                    {
+                        new Span { Text = $"{cost.Type} ", FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#FFD700") },
+                        new Span { Text = $"(×{cost.NumberOfPeople} fő)", TextColor = Color.FromArgb("#FFD700") }
+                    }
+                        },
+                        FontSize = 15
+                    });
 
-                    var costAmount = new Label
+                    costsLayout.Add(new Label
                     {
                         Text = $"• Ár/fő: {FormatNumber(cost.Amount)} Ft",
                         FontSize = 14,
                         TextColor = Color.FromArgb("#FFFFFF")
-                    };
-                    costsLayout.Add(costAmount);
+                    });
 
                     if (cost.HasDiscount)
                     {
-                        var discountLabel = new Label
+                        costsLayout.Add(new Label
                         {
                             Text = $"• Kedvezmény: {FormatNumber(cost.DiscountAmount)} Ft × {cost.DiscountNumberOfPeople} fő",
                             FontSize = 14,
                             TextColor = Color.FromArgb("#FF9800")
-                        };
-                        costsLayout.Add(discountLabel);
+                        });
                     }
 
-                    var totalForCost = new Label
+                    costsLayout.Add(new Label
                     {
                         Text = $"• Összesen: {FormatNumber((cost.Amount * cost.NumberOfPeople) + (cost.DiscountAmount * cost.DiscountNumberOfPeople))} Ft",
                         FontSize = 14,
                         FontAttributes = FontAttributes.Bold,
                         TextColor = Color.FromArgb("#FFD700")
-                    };
-                    costsLayout.Add(totalForCost);
+                    });
 
                     costsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C"), Margin = new Thickness(0, 5, 0, 5) });
                 }
             }
 
-            ((VerticalStackLayout)costsCard.Content).Add(costsLayout);
+    ((VerticalStackLayout)costsCard.Content).Add(costsLayout);
             DetailLayout.Add(costsCard);
 
-            // Zsebpénz kártya
+            // --- Zsebpénz kártya ---
             var pocketMoneyCard = CreateCard("💵 Zsebpénz", "#FF9800");
             var pocketMoneyLayout = new VerticalStackLayout { Padding = 15, Spacing = 6 };
 
             pocketMoneyLayout.Add(new Label
             {
-                Text = tripData.IsPerPersonMode
-                    ? $"Személyenként megadva ({tripData.PocketMoney.Count} diák adatai mentve)"
-                    : $"Átlagos zsebpénz: {FormatNumber(tripData.AveragePocketMoney)} Ft/fő",
+                FormattedText = new FormattedString
+                {
+                    Spans =
+            {
+                tripData.IsPerPersonMode
+                    ? new Span { Text = $"Személyenként megadva ({tripData.PocketMoney.Count} diák adatai mentve)", FontAttributes = FontAttributes.Bold }
+                    : new Span { Text = $"Átlagos zsebpénz: {FormatNumber(tripData.AveragePocketMoney)} Ft/fő", FontAttributes = FontAttributes.Bold }
+            }
+                },
                 FontSize = 14,
                 TextColor = Color.FromArgb("#FFFFFF")
             });
@@ -253,6 +305,7 @@ namespace OKKT25
             ((VerticalStackLayout)pocketMoneyCard.Content).Add(pocketMoneyLayout);
             DetailLayout.Add(pocketMoneyCard);
         }
+
 
         private Frame CreateCard(string title, string colorHex)
         {
@@ -287,46 +340,10 @@ namespace OKKT25
             return number.ToString("N0", new CultureInfo("hu-HU"));
         }
 
-        private async Task<string> CaptureContentAsImage()
-        {
-            try
-            {
-                // Képernyőkép készítése a teljes oldalról
-                var screenshot = await this.CaptureAsync();
-
-                if (screenshot == null)
-                    return null;
-
-                // Elmentjük ideiglenes fájlba
-                string tempPath = Path.Combine(FileSystem.Current.CacheDirectory, $"temp_export_{Guid.NewGuid()}.png");
-
-                using (var stream = await screenshot.OpenReadAsync())
-                using (var fileStream = File.Create(tempPath))
-                {
-                    await stream.CopyToAsync(fileStream);
-                }
-
-                return tempPath;
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Hiba", $"Képernyőkép hiba: {ex.Message}", "OK");
-                return null;
-            }
-        }
-
         private async Task ExportPageToPdf()
         {
             try
             {
-
-
-
-
-
-
-
-
 
                 string pdfFileName = $"{tripData.TripName}.pdf";
                 string filePath = "";
