@@ -386,12 +386,12 @@ namespace OKKT25
                         var colorHighlight = XColor.FromArgb(255, 165, 0);     // extra narancs kiemelés
 
                         // Fontok
-                        var fontTitle = new XFont("Helvetica", 28, XFontStyle.Bold);
-                        var fontHeader = new XFont("Helvetica", 16, XFontStyle.Bold);
-                        var fontSubHeader = new XFont("Helvetica", 14, XFontStyle.Bold);
-                        var fontNormal = new XFont("Helvetica", 11, XFontStyle.Regular);
-                        var fontBold = new XFont("Helvetica", 11, XFontStyle.Bold);
-                        var fontSmall = new XFont("Helvetica", 9, XFontStyle.Regular);
+                        var fontTitle = new XFont("Calibri", 28, XFontStyle.Bold);
+                        var fontHeader = new XFont("Calibri", 16, XFontStyle.Bold);
+                        var fontSubHeader = new XFont("Calibri", 14, XFontStyle.Bold);
+                        var fontNormal = new XFont("Calibri", 11, XFontStyle.Regular);
+                        var fontBold = new XFont("Calibri", 11, XFontStyle.Bold);
+                        var fontSmall = new XFont("Calibri", 9, XFontStyle.Regular);
 
                         // 🖤 Háttér
                         gfx.DrawRectangle(new XSolidBrush(colorBackground), 0, 0, pageWidth, pdfPage.Height);
