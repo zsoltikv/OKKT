@@ -1,7 +1,7 @@
 ﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="OKKT25.PastTripsPage"
-             Title="Korábbi kirándulások"
+             Title="📫 Tervezett kirándulások"
              BackgroundColor="#121212">
 
     <VerticalStackLayout Padding="20" Spacing="10">
