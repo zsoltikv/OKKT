@@ -56,17 +56,16 @@ namespace OKKT25
         private List<Entry> pocketMoneyEntries = new List<Entry>();
         private bool isPerPersonMode = false;
         private TripData currentTripData = new TripData();
-
-        DatePicker datePicker = new DatePicker()
-        {
-            MinimumDate = DateTime.Now,
-            Date = DateTime.Now,
-        };
+        
 
         public MainPage()
         {
             InitializeComponent();
             UpdatePocketMoneyLayout();
+            TripDateStart.MinimumDate = DateTime.Now;
+            TripDateEnd.MinimumDate = TripDateStart.Date;
+            TripDateStart.MaximumDate = DateTime.Now.AddYears(6);
+            TripDateEnd.MaximumDate = TripDateStart.Date.AddYears(6);
 
             TripName.RemoveUnderline();
             TripDestination.RemoveUnderline();
@@ -118,7 +117,6 @@ namespace OKKT25
             // Alap mezők
             TripName.Text = string.Empty;
             TripDestination.Text = string.Empty;
-            EntryMonthsLeft.Text = string.Empty;
 
             // Dátumok visszaállítása
             TripDateStart.Date = DateTime.Now;
@@ -156,10 +154,7 @@ namespace OKKT25
 
         private void OnStartDateChanged(object sender, DateChangedEventArgs e)
         {
-            if(TripDateStart.Date > TripDateEnd.Date)
-            {
-                TripDateStart.Date = TripDateEnd.Date;
-            }
+            TripDateEnd.Date = TripDateStart.Date;
         }
 
         private void OnSaveClicked(object sender, EventArgs e)
@@ -478,6 +473,11 @@ namespace OKKT25
 
         private async void OnCalculateClicked(object sender, EventArgs e)
         {
+
+            currentTripData.MonthsLeft = 0;
+            currentTripData.MonthsLeft = TripDateStart.Date.Month - DateTime.Now.Month +
+                                          12 * (TripDateStart.Date.Year - DateTime.Now.Year);
+            
             currentTripData.Costs.Clear();
             foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
             {
@@ -546,17 +546,7 @@ namespace OKKT25
 
             currentTripData.Participants = participants;
 
-            currentTripData.MonthsLeft = 0;
-            if (!int.TryParse(EntryMonthsLeft.Text, out int monthsLeft) ||
-                monthsLeft <= 0 || monthsLeft > 24)
-            {
-                await ShowError("Kérlek adj meg érvényes hónapok számát (1-24)!");
-                return;
-            }
-            else
-            {
-                currentTripData.MonthsLeft = monthsLeft;
-            }
+
 
             currentTripData.PocketMoney.Clear();
             if (isPerPersonMode)
@@ -593,7 +583,7 @@ namespace OKKT25
                 c.Amount * c.NumberOfPeople + (c.HasDiscount ? c.DiscountAmount * c.DiscountNumberOfPeople : 0)
             );
             currentTripData.Calculated = true;
-            DisplayResults(finalCost, participants, monthsLeft, currentTripData.PocketMoney);
+            DisplayResults(finalCost, participants, currentTripData.MonthsLeft, currentTripData.PocketMoney);
         }
 
         private void DisplayResults(double totalCost, int participants, int monthsLeft, List<double> pocketMoneyList)

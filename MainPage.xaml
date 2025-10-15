@@ -77,27 +77,30 @@
                HasShadow="False"
                Padding="10"
                HorizontalOptions="FillAndExpand">
-                                <DatePicker x:Name="TripDateStart"
-                        BackgroundColor="Transparent"
-                        TextColor="#FFFFFF"
-                        FontFamily="Arial"
-                        FontSize="11"
-                        HorizontalOptions="FillAndExpand"/>
+                                <DatePicker 
+                                    x:Name="TripDateStart"
+                                    DateSelected="OnStartDateChanged"
+                                    BackgroundColor="Transparent"
+                                    TextColor="#FFFFFF"
+                                    FontFamily="Arial"
+                                    FontSize="11"
+                                    HorizontalOptions="FillAndExpand"/>
                             </Frame>
 
                             <Frame Grid.Column="1"
-               CornerRadius="8"
-               BackgroundColor="#2D2D2D"
-               BorderColor="#3C3C3C"
-               HasShadow="False"
-               Padding="10"
-               HorizontalOptions="FillAndExpand">
+                               CornerRadius="8"
+                               BackgroundColor="#2D2D2D"
+                               BorderColor="#3C3C3C"
+                               HasShadow="False"
+                               Padding="10"
+                               HorizontalOptions="FillAndExpand">
                                 <DatePicker x:Name="TripDateEnd"
-                        BackgroundColor="Transparent"
-                        TextColor="#FFFFFF"
-                        FontFamily="Arial"
-                        FontSize="11"
-                        HorizontalOptions="FillAndExpand"/>
+                                DateSelected="OnEndDateChanged"
+                                BackgroundColor="Transparent"
+                                TextColor="#FFFFFF"
+                                FontFamily="Arial"
+                                FontSize="11"
+                                HorizontalOptions="FillAndExpand"/>
                             </Frame>
                         </Grid>
                     </VerticalStackLayout>
@@ -165,7 +168,7 @@
                     </Frame>-->
 
                     <!-- Hátralévő hónapok -->
-                    <Label Text="Hátralévő idő (hónapok):"
+                    <!--<Label Text="Hátralévő idő (hónapok):"
                            FontAttributes="Bold"
                            FontFamily="Arial"
                            FontSize="14"
@@ -185,7 +188,7 @@
                                FontFamily="Arial"
                                FontSize="13"
                                CharacterSpacing="1"/>
-                    </Frame>
+                    </Frame>-->
 
                     <!-- Zsebpénz típus -->
                     <Label Text="Zsebpénz megadása:"
