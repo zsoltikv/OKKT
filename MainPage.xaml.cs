@@ -62,9 +62,9 @@ namespace OKKT25
             InitializeComponent();
             UpdatePocketMoneyLayout();
             TripDateStart.MinimumDate = DateTime.Now;
-            TripDateEnd.MinimumDate = DateTime.Now;
+            TripDateEnd.MinimumDate = TripDateStart.Date;
             TripDateStart.MaximumDate = DateTime.Now.AddYears(6);
-            TripDateEnd.MaximumDate = DateTime.Now.AddYears(6);
+            TripDateEnd.MaximumDate = TripDateStart.Date.AddYears(1);
         }
 
         private async void SaveData()
@@ -146,10 +146,9 @@ namespace OKKT25
 
         private void OnStartDateChanged(object sender, DateChangedEventArgs e)
         {
-            if(TripDateStart.Date > TripDateEnd.Date)
-            {
-                TripDateStart.Date = TripDateEnd.Date;
-            }
+            TripDateEnd.MinimumDate = TripDateStart.Date;
+            if (TripDateStart.Date > TripDateEnd.Date) TripDateEnd.Date = TripDateStart.Date;
+
         }
 
         private void OnSaveClicked(object sender, EventArgs e)
