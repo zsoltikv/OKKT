@@ -64,7 +64,7 @@ namespace OKKT25
             TripDateStart.MinimumDate = DateTime.Now;
             TripDateEnd.MinimumDate = TripDateStart.Date;
             TripDateStart.MaximumDate = DateTime.Now.AddYears(6);
-            TripDateEnd.MaximumDate = TripDateStart.Date.AddYears(1);
+            TripDateEnd.MaximumDate = TripDateStart.Date.AddYears(6);
         }
 
         private async void SaveData()
@@ -146,9 +146,7 @@ namespace OKKT25
 
         private void OnStartDateChanged(object sender, DateChangedEventArgs e)
         {
-            TripDateEnd.MinimumDate = TripDateStart.Date;
-            if (TripDateStart.Date > TripDateEnd.Date) TripDateEnd.Date = TripDateStart.Date;
-
+            TripDateEnd.Date = TripDateStart.Date;
         }
 
         private void OnSaveClicked(object sender, EventArgs e)

@@ -79,7 +79,6 @@
                HorizontalOptions="FillAndExpand">
                                 <DatePicker 
                                     x:Name="TripDateStart"
-                                    MinimumDate="{Binding minDate}"
                                     DateSelected="OnStartDateChanged"
                                     BackgroundColor="Transparent"
                                     TextColor="#FFFFFF"
@@ -96,7 +95,6 @@
                                Padding="10"
                                HorizontalOptions="FillAndExpand">
                                 <DatePicker x:Name="TripDateEnd"
-                                MinimumDate="{Binding minDate}"
                                 DateSelected="OnEndDateChanged"
                                 BackgroundColor="Transparent"
                                 TextColor="#FFFFFF"
