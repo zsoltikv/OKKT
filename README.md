@@ -1,3 +1,2 @@
-- valuta kiirasa a label mellett
-- entry focus color atallitasa
-- radiogomb szinenek atallitasa
+- entry focus color fix
+- pdf foto export ????
