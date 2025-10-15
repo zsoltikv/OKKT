@@ -1,1 +1,3 @@
 - valuta kiirasa a label mellett
+- entry focus color atallitasa
+- radiogomb szinenek atallitasa
