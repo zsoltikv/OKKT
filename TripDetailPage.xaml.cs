@@ -415,38 +415,82 @@ namespace OKKT25
                         gfx.DrawImage(xImage, 0, 0, pageWidth, pageHeight);
                     }
 
-                    // 📸 Fotók hozzáadása külön oldalakra (ha vannak)
+                    // 📸 Fotók hozzáadása két oszlopos elrendezésben, középre igazítva, annyi sorral, amennyi kifér
                     if (tripData.PhotoPaths != null && tripData.PhotoPaths.Count > 0)
                     {
-                        foreach (var photoPath in tripData.PhotoPaths)
-                        {
-                            if (!File.Exists(photoPath)) continue;
+                        const double margin = 40;
+                        const double spacing = 20; // Képek közötti vízszintes távolság
+                        const double rowSpacing = 20; // Sorok közötti távolság
+                        const double border = 4; // Narancssárga keret vastagsága
+                        const double pageWidth = 595; // A4 szélesség pontokban
+                        const double pageHeight = 842; // A4 magasság pontokban
+                        double imgWidth = (pageWidth - 2 * margin - spacing) / 2; // Kép szélessége oszloponként, középre igazításhoz igazítva
 
+                        // Kiszámítjuk a maximum sorok számát a képek magassága alapján
+                        double maxImgHeight = 0;
+                        foreach (var photoPath in tripData.PhotoPaths.Take(Math.Min(tripData.PhotoPaths.Count, 10))) // Korlátozás 10 képre a ciklusidő miatt
+                        {
+                            if (File.Exists(photoPath))
+                            {
+                                using (var img = XImage.FromFile(photoPath))
+                                {
+                                    double scale = imgWidth / img.PixelWidth;
+                                    maxImgHeight = Math.Max(maxImgHeight, img.PixelHeight * scale);
+                                }
+                            }
+                        }
+
+                        // Maximum sorok száma: (teljes magasság - margók - (n-1)*rowSpacing) / n
+                        int maxRows = Math.Max(1, (int)Math.Floor((pageHeight - 2 * margin + rowSpacing) / (maxImgHeight + rowSpacing)));
+
+                        for (int i = 0; i < tripData.PhotoPaths.Count; i += 2 * maxRows) // Soronként 2 kép
+                        {
                             var photoPage = document.AddPage();
                             photoPage.Size = PdfSharpCore.PageSize.A4;
 
-                            using (var photoGfx = XGraphics.FromPdfPage(photoPage))
-                            using (var photoImage = XImage.FromFile(photoPath))
+                            using (var gfx = XGraphics.FromPdfPage(photoPage))
                             {
-                                double pageWidth = photoPage.Width.Point;
-                                double pageHeight = photoPage.Height.Point;
-                                double margin = 40;
+                                // Sötétszürke háttér (#2A2A2A)
+                                gfx.DrawRectangle(new XSolidBrush(XColor.FromArgb(42, 42, 42)), 0, 0, photoPage.Width.Point, photoPage.Height.Point);
 
-                                double availableWidth = pageWidth - (2 * margin);
-                                double availableHeight = pageHeight - (2 * margin);
+                                // Sorok és képek hozzáadása
+                                for (int row = 0; row < maxRows && i + row * 2 < tripData.PhotoPaths.Count; row++)
+                                {
+                                    double y = margin + row * (maxImgHeight + rowSpacing); // Sor pozíciója felülről
+                                    double leftX = (pageWidth - (2 * imgWidth + spacing)) / 2; // Középre igazítás
 
-                                double scale = Math.Min(
-                                    availableWidth / photoImage.PixelWidth,
-                                    availableHeight / photoImage.PixelHeight
-                                );
+                                    // Bal oldali kép
+                                    if (i + row * 2 < tripData.PhotoPaths.Count && File.Exists(tripData.PhotoPaths[i + row * 2]))
+                                    {
+                                        using (var img = XImage.FromFile(tripData.PhotoPaths[i + row * 2]))
+                                        {
+                                            double scale = Math.Min(imgWidth / img.PixelWidth, maxImgHeight / img.PixelHeight);
+                                            double w = img.PixelWidth * scale;
+                                            double h = img.PixelHeight * scale;
+                                            double x = leftX;
 
-                                double width = photoImage.PixelWidth * scale;
-                                double height = photoImage.PixelHeight * scale;
+                                            // Narancssárga keret (#FF8C00)
+                                            gfx.DrawRectangle(new XPen(XColor.FromArgb(255, 140, 0), border), x - border / 2, y - border / 2, w + border, h + border);
+                                            gfx.DrawImage(img, x, y, w, h);
+                                        }
+                                    }
 
-                                double x = (pageWidth - width) / 2;
-                                double y = (pageHeight - height) / 2;
+                                    // Jobb oldali kép
+                                    if (i + row * 2 + 1 < tripData.PhotoPaths.Count && File.Exists(tripData.PhotoPaths[i + row * 2 + 1]))
+                                    {
+                                        using (var img = XImage.FromFile(tripData.PhotoPaths[i + row * 2 + 1]))
+                                        {
+                                            double scale = Math.Min(imgWidth / img.PixelWidth, maxImgHeight / img.PixelHeight);
+                                            double w = img.PixelWidth * scale;
+                                            double h = img.PixelHeight * scale;
+                                            double x = leftX + imgWidth + spacing;
 
-                                photoGfx.DrawImage(photoImage, x, y, width, height);
+                                            // Narancssárga keret (#FF8C00)
+                                            gfx.DrawRectangle(new XPen(XColor.FromArgb(255, 140, 0), border), x - border / 2, y - border / 2, w + border, h + border);
+                                            gfx.DrawImage(img, x, y, w, h);
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
