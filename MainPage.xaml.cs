@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using StackLayout = Microsoft.Maui.Controls.StackLayout;
+using OKKT;
 
 namespace OKKT25
 {
@@ -66,6 +67,13 @@ namespace OKKT25
         {
             InitializeComponent();
             UpdatePocketMoneyLayout();
+
+            TripName.RemoveUnderline();
+            TripDestination.RemoveUnderline();
+
+            RadioGrouped.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
+            RadioPerPerson.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
+
         }
 
         private async void SaveData()
@@ -200,6 +208,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
+            costTypeEntry.RemoveUnderline();
 
             var costAmountEntry = new Entry
             {
@@ -214,6 +223,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
+            costAmountEntry.RemoveUnderline();
 
             var numberOfFullCost = new Entry
             {
@@ -242,6 +252,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
+            discountCostAmountEntry.RemoveUnderline();
 
             var numberOfDiscountCost = new Entry
             {
@@ -256,6 +267,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
+            numberOfDiscountCost.RemoveUnderline();
 
             var isDiscountAvailable = new CheckBox
             {
