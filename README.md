@@ -1,2 +1,1 @@
 - entry focus color fix
-- pdf foto export ????
