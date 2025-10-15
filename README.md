@@ -1,2 +1,1 @@
-- resztvevok szamanak visszaallitasa (entry)
 - valuta kiirasa a label mellett
