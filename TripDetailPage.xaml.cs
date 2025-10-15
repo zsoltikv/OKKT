@@ -1,7 +1,8 @@
-﻿using System.Collections.ObjectModel;
-using System.Globalization;
-using PdfSharpCore.Drawing;
+﻿using PdfSharpCore.Drawing;
 using PdfSharpCore.Fonts;
+using PdfSharpCore.Pdf;
+using System.Collections.ObjectModel;
+using System.Globalization;
 
 namespace OKKT25
 {
@@ -415,39 +416,115 @@ namespace OKKT25
                         gfx.DrawImage(xImage, 0, 0, pageWidth, pageHeight);
                     }
 
-                    // 📸 Fotók hozzáadása külön oldalakra (ha vannak)
+                    // 📸 Fotók hozzáadása szép elrendezésben (ha vannak)
                     if (tripData.PhotoPaths != null && tripData.PhotoPaths.Count > 0)
                     {
-                        foreach (var photoPath in tripData.PhotoPaths)
+                        var validPhotos = tripData.PhotoPaths.Where(p => File.Exists(p)).ToList();
+
+                        if (validPhotos.Count > 0)
                         {
-                            if (!File.Exists(photoPath)) continue;
+                            double pageWidth = 595; // A4 szélesség
+                            double pageHeight = 842; // A4 magasság
+                            double margin = 40;
+                            double startY = 100;
+                            double photoWidth = (pageWidth - (3 * margin)) / 2; // 2 oszlop
+                            double photoHeight = 250; // Fix magasság
+                            double spacing = 20;
 
-                            var photoPage = document.AddPage();
-                            photoPage.Size = PdfSharpCore.PageSize.A4;
+                            var bgBrush = new XSolidBrush(XColor.FromArgb(26, 26, 26));
+                            var headerBrush = new XSolidBrush(XColor.FromArgb(255, 140, 0));
+                            var titleFont = new XFont("Arial", 24, XFontStyle.Bold);
+                            var titleBrush = new XSolidBrush(XColor.FromArgb(0, 0, 0));
 
-                            using (var photoGfx = XGraphics.FromPdfPage(photoPage))
-                            using (var photoImage = XImage.FromFile(photoPath))
+                            int col = 0;
+                            int row = 0;
+                            int photosPerPage = 4; // 2x2 elrendezés
+                            int photoIndex = 0;
+
+                            PdfPage currentPhotoPage = null;
+                            XGraphics currentGfx = null;
+
+                            foreach (var photoPath in validPhotos)
                             {
-                                double pageWidth = photoPage.Width.Point;
-                                double pageHeight = photoPage.Height.Point;
-                                double margin = 40;
+                                // Új oldal szükséges?
+                                if (photoIndex % photosPerPage == 0)
+                                {
+                                    // Előző graphics dispose
+                                    currentGfx?.Dispose();
 
-                                double availableWidth = pageWidth - (2 * margin);
-                                double availableHeight = pageHeight - (2 * margin);
+                                    // Új oldal létrehozása
+                                    currentPhotoPage = document.AddPage();
+                                    currentPhotoPage.Size = PdfSharpCore.PageSize.A4;
+                                    currentGfx = XGraphics.FromPdfPage(currentPhotoPage);
 
-                                double scale = Math.Min(
-                                    availableWidth / photoImage.PixelWidth,
-                                    availableHeight / photoImage.PixelHeight
-                                );
+                                    // Háttér
+                                    currentGfx.DrawRectangle(bgBrush, 0, 0, pageWidth, pageHeight);
 
-                                double width = photoImage.PixelWidth * scale;
-                                double height = photoImage.PixelHeight * scale;
+                                    // Fejléc
+                                    currentGfx.DrawRectangle(headerBrush, 0, 0, pageWidth, 80);
 
-                                double x = (pageWidth - width) / 2;
-                                double y = (pageHeight - height) / 2;
+                                    // Cím
+                                    currentGfx.DrawString("Számlák | Blokkok", titleFont, titleBrush,
+                                        new XRect(0, 0, pageWidth, 80),
+                                        XStringFormats.Center);
 
-                                photoGfx.DrawImage(photoImage, x, y, width, height);
+                                    col = 0;
+                                    row = 0;
+                                }
+
+                                double x = margin + (col * (photoWidth + spacing));
+                                double y = startY + (row * (photoHeight + spacing));
+
+                                // Keret a fotó köré
+                                var frameBrush = new XSolidBrush(XColor.FromArgb(42, 42, 42));
+                                var borderPen = new XPen(XColor.FromArgb(255, 140, 0), 2);
+                                currentGfx.DrawRectangle(borderPen, frameBrush, x - 5, y - 5, photoWidth + 10, photoHeight + 10);
+
+                                try
+                                {
+                                    using (var photoImage = XImage.FromFile(photoPath))
+                                    {
+                                        // Fotó arányának megtartása
+                                        double imgRatio = (double)photoImage.PixelWidth / photoImage.PixelHeight;
+                                        double containerRatio = photoWidth / photoHeight;
+
+                                        double imgWidth, imgHeight, imgX, imgY;
+
+                                        if (imgRatio > containerRatio)
+                                        {
+                                            imgWidth = photoWidth;
+                                            imgHeight = photoWidth / imgRatio;
+                                            imgX = x;
+                                            imgY = y + (photoHeight - imgHeight) / 2;
+                                        }
+                                        else
+                                        {
+                                            imgHeight = photoHeight;
+                                            imgWidth = photoHeight * imgRatio;
+                                            imgX = x + (photoWidth - imgWidth) / 2;
+                                            imgY = y;
+                                        }
+
+                                        currentGfx.DrawImage(photoImage, imgX, imgY, imgWidth, imgHeight);
+                                    }
+                                }
+                                catch
+                                {
+                                    // Ha nem sikerül betölteni a képet, üres keretet hagyunk
+                                }
+
+                                col++;
+                                if (col >= 2) // 2 oszlop után új sor
+                                {
+                                    col = 0;
+                                    row++;
+                                }
+
+                                photoIndex++;
                             }
+
+                            // Utolsó graphics dispose
+                            currentGfx?.Dispose();
                         }
                     }
 
@@ -458,7 +535,7 @@ namespace OKKT25
                 if (File.Exists(tempImagePath))
                     File.Delete(tempImagePath);
 
-                await DisplayAlert("✅ Siker", $"PDF elkészült!\n📁 {filePath}", "Rendben");
+                await DisplayAlert("✅ Siker", $"PDF elkészült!\n📁 {filePath}", "OK");
             }
             catch (Exception ex)
             {
@@ -489,12 +566,11 @@ namespace OKKT25
             var headerLayout = new VerticalStackLayout
             {
                 BackgroundColor = Color.FromArgb("#FF8C00"),
-                HeightRequest = 110, // Magasabb fejléc a cím és a térköz miatt
+                HeightRequest = 110,
                 Spacing = 10,
-                Padding = new Thickness(40, 20, 40, 20) // Padding a fejlécen belül
+                Padding = new Thickness(40, 20, 40, 20)
             };
 
-            // Cím
             var titleLabel = new Label
             {
                 Text = tripData.TripName.ToUpper(),
@@ -502,7 +578,6 @@ namespace OKKT25
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Colors.Black,
                 HorizontalTextAlignment = TextAlignment.Center
-                // Negatív margó eltávolítva, a headerLayout paddingja kezeli a pozíciót
             };
             headerLayout.Add(titleLabel);
 
@@ -516,7 +591,7 @@ namespace OKKT25
                 HasShadow = false,
                 CornerRadius = 12,
                 Padding = 25,
-                Margin = new Thickness(50, 30, 50, 20), // Nagyobb felső margó (30)
+                Margin = new Thickness(50, 30, 50, 20),
                 Content = new VerticalStackLayout
                 {
                     Spacing = 15,
