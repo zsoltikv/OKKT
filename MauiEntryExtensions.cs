@@ -3,6 +3,7 @@ using Android.Content.Res;
 using Android.Graphics;
 using Android.Views;
 using Android.Widget;
+using Microsoft.Maui.Controls.Platform;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
 using Color = Microsoft.Maui.Graphics.Color;
@@ -12,17 +13,41 @@ namespace OKKT
 {
     public static class MauiEntryExtensions
     {
-        public static void RemoveUnderline(this Entry entry)
+        public static void SetEntryCustomUnderline(this Entry entry, Microsoft.Maui.Graphics.Color mauiColor)
         {
 #if ANDROID
             entry.HandlerChanged += (s, e) =>
             {
-                if (entry.Handler.PlatformView is Android.Widget.EditText editText)
+                if (entry.Handler?.PlatformView is Android.Widget.EditText editText)
                 {
-                    //editText.BackgroundTintList = ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
-                    var orangeColor = Android.Graphics.Color.Argb(255, 152, 0, 0);
+                    var androidColor = mauiColor.ToPlatform();
 
-                    editText.Background.SetColorFilter(orangeColor, Android.Graphics.PorterDuff.Mode.SrcAtop);
+                    // Létrehozunk egy átlátszó háttérrel rendelkező alakzatot, ami CSAK alulra rajzol vonalat
+                    var shape = new Android.Graphics.Drawables.ShapeDrawable(new Android.Graphics.Drawables.Shapes.RectShape());
+                    shape.Paint.Color = Android.Graphics.Color.Transparent; // háttér átlátszó
+                    shape.Paint.SetStyle(Android.Graphics.Paint.Style.FillAndStroke);
+                    shape.Paint.StrokeWidth = 0;
+
+                    // Alulra jön a vonal – egy második ShapeDrawable, amit LayerDrawable-ba rakunk
+                    var underline = new Android.Graphics.Drawables.ShapeDrawable(new Android.Graphics.Drawables.Shapes.RectShape());
+                    underline.Paint.Color = androidColor;
+                    underline.Paint.SetStyle(Android.Graphics.Paint.Style.Fill);
+                    underline.SetPadding(0, 0, 0, 0); // nem kell padding, csak pozicionálás
+
+                    // LayerDrawable létrehozása, két réteggel (háttér + vonal)
+                    var layers = new Android.Graphics.Drawables.LayerDrawable(new Android.Graphics.Drawables.Drawable[] { shape, underline });
+
+                    // Beállítjuk, hogy a vonal csak alul legyen (bal, felső, jobb, alsó offset)
+                    layers.SetLayerInset(1, 0, editText.Height - 2, 0, 0); // 2px magas vonal az alján
+
+                    // Ezt a drawable-t állítjuk be háttérként
+                    editText.SetBackground(layers);
+
+                    // Ha elsőre még nem tudja a magasságot, akkor figyeljük meg később is
+                    editText.Post(() =>
+                    {
+                        layers.SetLayerInset(1, 0, editText.Height - 2, 0, 0);
+                    });
                 }
             };
 #endif

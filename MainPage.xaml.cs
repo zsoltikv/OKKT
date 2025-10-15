@@ -67,8 +67,8 @@ namespace OKKT25
             TripDateStart.MaximumDate = DateTime.Now.AddYears(6);
             TripDateEnd.MaximumDate = TripDateStart.Date.AddYears(6);
 
-            TripName.RemoveUnderline();
-            TripDestination.RemoveUnderline();
+            TripName.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
+            TripDestination.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
 
             RadioGrouped.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
             RadioPerPerson.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
@@ -203,11 +203,11 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            costTypeEntry.RemoveUnderline();
+            costTypeEntry.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
 
             var costAmountEntry = new Entry
             {
-                Placeholder = "Összeg (Ft)",
+                Placeholder = "Összeg/fő (Ft)",
                 Keyboard = Keyboard.Numeric,
                 BackgroundColor = Color.FromHex("#2D2D2D"),
                 TextColor = Color.FromHex("#FFFFFF"),
@@ -218,11 +218,11 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            costAmountEntry.RemoveUnderline();
+            costAmountEntry.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
 
             var numberOfFullCost = new Entry
             {
-                Placeholder = "Fő (db)",
+                Placeholder = "Darabszám",
                 Keyboard = Keyboard.Numeric,
                 BackgroundColor = Color.FromHex("#2D2D2D"),
                 TextColor = Color.FromHex("#FFFFFF"),
@@ -247,7 +247,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            discountCostAmountEntry.RemoveUnderline();
+            discountCostAmountEntry.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
 
             var numberOfDiscountCost = new Entry
             {
@@ -262,7 +262,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            numberOfDiscountCost.RemoveUnderline();
+            numberOfDiscountCost.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
 
             var isDiscountAvailable = new CheckBox
             {
