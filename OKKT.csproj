@@ -30,7 +30,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#121212" />
+    <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#121212" BaseSize="2048,2048" />
 
     <MauiImage Include="Resources\Images\*" />
     <MauiImage Update="Resources\Images\dotnet_bot.png" Resize="True" BaseSize="300,185" />
