@@ -248,7 +248,9 @@ namespace OKKT25
                 BackgroundColor = Color.FromHex("#FF9800"),
                 TextColor = Color.FromHex("#424242"),
                 WidthRequest = 40,
-                HeightRequest = 40
+                HeightRequest = 40,
+                BorderColor = Colors.Black,  
+                BorderWidth = 1.5,                
             };
 
             removeButton.Clicked += (s, eArgs) =>
