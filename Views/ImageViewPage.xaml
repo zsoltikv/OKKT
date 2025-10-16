@@ -7,28 +7,51 @@
     BackgroundColor="Black">
 
     <Grid>
-        
+
         <ScrollView 
             x:Name="ZoomScrollView"
             HorizontalOptions="Fill"
             VerticalOptions="Fill"
             BackgroundColor="Black">
             <Image 
-                x:Name="FullImage"
-                Aspect="AspectFit"
-                HorizontalOptions="Center"
-                VerticalOptions="Center"/>
+            x:Name="FullImage"
+            Aspect="AspectFit"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"/>
         </ScrollView>
 
-        <Button 
+        <Grid
+            HorizontalOptions="End"
+            VerticalOptions="Start"
+            Margin="0,10,10,0"
+            ColumnSpacing="10">
+            
+            <Grid.ColumnDefinitions>
+                
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                
+            </Grid.ColumnDefinitions>
+
+            <Button
+            Grid.Column="0"
+            Text="🗑️"
+            FontSize="24"
+            TextColor="White"
+            BackgroundColor="Transparent"
+            Padding="10"
+            Clicked="OnDeleteClicked"/>
+
+            <Button 
+            Grid.Column="1"
             Text="✕"
             FontSize="24"
             TextColor="White"
             BackgroundColor="Transparent"
             Padding="10"
-            HorizontalOptions="End"
-            VerticalOptions="Start"
             Clicked="OnCloseClicked"/>
+            
+        </Grid>
         
     </Grid>
 

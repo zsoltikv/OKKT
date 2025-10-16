@@ -41,8 +41,8 @@ namespace OKKT25
         private void UpdatePhotosLabel()
         {
 
-            if (tripData.PhotoPaths != null)
-                PhotosLabel.Text = $"Fotók: {tripData.PhotoPaths.Count}";
+            if (photoSources != null && photoSources.Count > 0)
+                PhotosLabel.Text = $"Fotók: {photoSources.Count}";
             else
                 PhotosLabel.Text = "Fotók: 0";
 
@@ -76,11 +76,12 @@ namespace OKKT25
                 };
 
                 image.SetBinding(Image.SourceProperty, ".");
+
                 var tapGesture = new TapGestureRecognizer();
                 tapGesture.Tapped += async (s, e) =>
                 {
                     var imgSource = ((Image)s).Source;
-                    await Navigation.PushModalAsync(new ImageViewPage(imgSource));
+                    await Navigation.PushModalAsync(new ImageViewPage(imgSource, DeletePhotoAsync));
                 };
                 image.GestureRecognizers.Add(tapGesture);
 
@@ -832,6 +833,37 @@ namespace OKKT25
                 await DisplayAlert("Hiba", $"Nem sikerült törölni a kirándulást: {ex.Message}", "OK");
             }
 
+        }
+
+        public async Task<bool> DeletePhotoAsync(ImageSource image)
+        {
+            try
+            {
+                string pathToDelete = tripData.PhotoPaths.FirstOrDefault(p =>
+                    Path.GetFileName(p) == (image as FileImageSource)?.File);
+
+                if (pathToDelete != null && File.Exists(pathToDelete))
+                {
+                    File.Delete(pathToDelete);
+                    tripData.PhotoPaths.Remove(pathToDelete);
+                }
+
+                var sourceToRemove = photoSources.FirstOrDefault(s => s == image);
+                if (sourceToRemove != null)
+                    photoSources.Remove(sourceToRemove);
+
+                // Frissítjük a CollectionView-t
+                PhotosCollection.ItemsSource = null;
+                PhotosCollection.ItemsSource = photoSources;
+                UpdatePhotosLabel();
+
+                await SaveTripDataAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
     }
