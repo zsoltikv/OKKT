@@ -1,6 +1,7 @@
 ﻿using OKKT25.Models;
 using System;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -309,30 +310,65 @@ namespace OKKT25
 
             if (isPerPersonMode)
             {
+                
                 int participants = 0;
                 var firstCostLayout = DynamicCostsLayout.Children.OfType<StackLayout>().FirstOrDefault();
 
-                if (firstCostLayout != null)
+                foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
                 {
-                    var allEntries = firstCostLayout.Children
-                        .OfType<StackLayout>()
-                        .SelectMany(sl => sl.Children.OfType<Entry>())
-                        .ToList();
+                    var allEntries = layout.Children
+                      .OfType<StackLayout>()
+                      .SelectMany(sl => sl.Children.OfType<Entry>())
+                      .ToList();
 
-                    var checkBox = firstCostLayout.Children
-                        .OfType<StackLayout>()
-                        .SelectMany(sl => sl.Children.OfType<CheckBox>())
+
+                    var checkBox = layout.Children
+                        .SelectMany(child =>
+                            (child is Layout childLayout)
+                                ? childLayout.Children.OfType<View>() 
+                                : new List<View> { child as View })
+                        .OfType<CheckBox>()
                         .FirstOrDefault();
 
                     if (allEntries.Count >= 3 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
                     {
                         participants = numberOfPeople;
+
+
                         if (checkBox?.IsChecked == true && allEntries.Count >= 5 && int.TryParse(allEntries[4].Text, out int discountNumberOfPeople))
                         {
                             participants += discountNumberOfPeople;
                         }
                     }
                 }
+                
+                //if (firstCostLayout != null)
+                //{
+                //    var allEntries = firstCostLayout.Children
+                //        .OfType<StackLayout>()
+                //        .SelectMany(sl => sl.Children.OfType<Entry>())
+                //        .ToList();
+
+                //    var checkBox = firstCostLayout.Children
+                //        .SelectMany(child =>
+                //            (child is Layout childLayout)
+                //                ? childLayout.Children.OfType<View>() 
+                //                : new List<View> { child as View})
+                //        .OfType<CheckBox>()
+                //        .FirstOrDefault();
+
+                    
+                //    if (allEntries.Count >= 3 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
+                //    {
+                //        participants = numberOfPeople;
+
+                        
+                //        if (checkBox?.IsChecked == true && allEntries.Count >= 5 && int.TryParse(allEntries[4].Text, out int discountNumberOfPeople))
+                //        {
+                //            participants += discountNumberOfPeople;
+                //        }
+                //    }
+                //}
 
                 if (participants <= 0 || participants > 100)
                 {
@@ -380,6 +416,7 @@ namespace OKKT25
 
                     pocketMoneyEntries.Add(entry);
                     frame.Content = entry;
+
                     LayoutPocketMoney.Add(label);
                     LayoutPocketMoney.Add(frame);
                 }
@@ -427,13 +464,13 @@ namespace OKKT25
 
         private async void OnCalculateClicked(object sender, EventArgs e)
         {
-
-            LayoutResults.IsVisible = false;
-
+            currentTripData.MonthsLeft = 0;
             currentTripData.MonthsLeft = TripDateStart.Date.Month - DateTime.Now.Month +
-                                         12 * (TripDateStart.Date.Year - DateTime.Now.Year);
-            currentTripData.Costs.Clear();
+                                          12 * (TripDateStart.Date.Year - DateTime.Now.Year);
 
+
+
+            currentTripData.Costs.Clear();
             foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
             {
                 var allEntries = layout.Children
@@ -441,9 +478,13 @@ namespace OKKT25
                     .SelectMany(sl => sl.Children.OfType<Entry>())
                     .ToList();
 
+
                 var checkBox = layout.Children
-                    .OfType<StackLayout>()
-                    .SelectMany(sl => sl.Children.OfType<CheckBox>())
+                    .SelectMany(child =>
+                        (child is Layout childLayout)
+                            ? childLayout.Children.OfType<View>() 
+                            : new List<View> { child as View })
+                    .OfType<CheckBox>()
                     .FirstOrDefault();
 
                 if (allEntries.Count >= 3)
@@ -472,21 +513,26 @@ namespace OKKT25
                     if (allEntries.Count > 3 && double.TryParse(allEntries[3].Text, out double discountAmount))
                         costItem.DiscountAmount = discountAmount;
                     else
+                    {
                         costItem.DiscountAmount = 0;
+                    }
 
                     if (allEntries.Count > 4 && int.TryParse(allEntries[4].Text, out int discountPeople))
                         costItem.DiscountNumberOfPeople = discountPeople;
                     else
+                    {
                         costItem.DiscountNumberOfPeople = 0;
+                    }
 
                     costItem.HasDiscount = checkBox?.IsChecked ?? false;
+
                     currentTripData.Costs.Add(costItem);
                 }
             }
 
             int participants = currentTripData.Costs.Any()
-                ? currentTripData.Costs.Max(c => c.NumberOfPeople + (c.HasDiscount ? c.DiscountNumberOfPeople : 0))
-                : 0;
+                                ? currentTripData.Costs.Max(c => c.NumberOfPeople + (c.HasDiscount ? c.DiscountNumberOfPeople : 0))
+                                : 0;
 
             if (participants <= 0)
             {
@@ -495,8 +541,8 @@ namespace OKKT25
             }
 
             currentTripData.Participants = participants;
-            currentTripData.PocketMoney.Clear();
 
+            currentTripData.PocketMoney.Clear();
             if (isPerPersonMode)
             {
                 for (int i = 0; i < pocketMoneyEntries.Count; i++)
@@ -522,17 +568,18 @@ namespace OKKT25
                 }
             }
 
+            currentTripData.AveragePocketMoney = 0;
             currentTripData.AveragePocketMoney = currentTripData.PocketMoney.Average();
+
             currentTripData.IsPerPersonMode = isPerPersonMode;
+
             double finalCost = currentTripData.Costs.Sum(c =>
-                c.Amount * c.NumberOfPeople + (c.HasDiscount ? c.DiscountAmount * c.DiscountNumberOfPeople : 0));
+                (c.Amount * c.NumberOfPeople) +
+                (c.HasDiscount ? c.DiscountAmount * c.DiscountNumberOfPeople : 0)
+            );
+
             currentTripData.Calculated = true;
-
-            if (currentTripData.Calculated)
-            {
-                DisplayResults(finalCost, participants, currentTripData.MonthsLeft, currentTripData.PocketMoney);
-            }
-
+            DisplayResults(finalCost, participants, currentTripData.MonthsLeft, currentTripData.PocketMoney);
         }
 
         private void DisplayResults(double totalCost, int participants, int monthsLeft, List<double> pocketMoneyList)
