@@ -1,43 +1,49 @@
 ﻿#if ANDROID
 using Android.Content.Res;
 using Android.Graphics;
-using Android.Views;
 using Android.Widget;
 using Microsoft.Maui.Controls.Platform;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
+using OKKT;
 using Color = Microsoft.Maui.Graphics.Color;
 #endif
-namespace OKKT
+using MauiRadioButton = Microsoft.Maui.Controls.RadioButton;
+
+namespace OKKT25.Models
 {
     public static class MauiEntryExtensions
     {
-        public static void SetRadioButtonCheckedColor(this Microsoft.Maui.Controls.RadioButton radioButton, Color mauiColor)
+        public static void SetRadioButtonCheckedColor(this MauiRadioButton radioButton, Color mauiColor)
         {
-#if ANDROID
+
+            #if ANDROID
             radioButton.HandlerChanged += (s, e) =>
             {
                 if (radioButton.Handler.PlatformView is Android.Widget.RadioButton androidRadioButton)
                 {
-                    // Átváltás Android.Graphics.Color típusra
                     var androidColor = mauiColor.ToPlatform();
-                    // Create a ColorStateList with checked and unchecked states
+
                     var states = new int[][]
                     {
-                    new int[] { Android.Resource.Attribute.StateChecked },
-                    new int[] { -Android.Resource.Attribute.StateChecked }
+                        new int[] { Android.Resource.Attribute.StateChecked },
+                        new int[] { -Android.Resource.Attribute.StateChecked }
                     };
+
                     var colors = new int[]
                     {
-                    androidColor.ToArgb(), // checked color
-                    Android.Graphics.Color.Gray.ToArgb() // unchecked color, vagy amit szeretnél
+                        androidColor.ToArgb(),
+                        Android.Graphics.Color.Gray.ToArgb()
                     };
+
                     var colorStateList = new ColorStateList(states, colors);
                     androidRadioButton.ButtonTintList = colorStateList;
                 }
             };
-#endif
+            #endif
+
         }
 
     }
+
 }

@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text;
 using System.Windows.Input;
+using OKKT25.Models;
 
 namespace OKKT25
 {
@@ -9,40 +10,45 @@ namespace OKKT25
     {
         public ICommand TripTappedCommand { get; }
 
-        private ObservableCollection<MainPage.TripSummary> trips = new();
+        private ObservableCollection<TripSummary> trips = new();
 
         public PastTripsPage()
         {
+
             InitializeComponent();
-            TripTappedCommand = new Command<MainPage.TripSummary>(async (trip) => await OpenTripAsync(trip));
+
+            TripTappedCommand = new Command<TripSummary>(async (trip) => await OpenTripAsync(trip));
+
             BindingContext = this;
             this.Appearing += PastTripsPage_Appearing;
 
         }
 
-        private void PastTripsPage_Appearing(object? sender, EventArgs e)
-        {
-            LoadTrips();
-        }
+        private void PastTripsPage_Appearing(object? sender, EventArgs e) => LoadTrips();
 
-        private async Task OpenTripAsync(MainPage.TripSummary selectedTrip)
+        private async Task OpenTripAsync(TripSummary selectedTrip)
         {
+
             try
             {
                 var json = await File.ReadAllTextAsync(selectedTrip.FileName, Encoding.UTF8);
-                var tripData = JsonSerializer.Deserialize<MainPage.TripData>(json);
+                var tripData = JsonSerializer.Deserialize<TripData>(json);
 
                 if (tripData != null)
+                {
                     await Navigation.PushAsync(new TripDetailPage(tripData, selectedTrip.TripName));
+                }
             }
             catch (Exception ex)
             {
                 await DisplayAlert("Hiba", $"Nem sikerült megnyitni: {ex.Message}", "OK");
             }
+
         }
 
         private async void LoadTrips()
         {
+
             try
             {
                 trips.Clear();
@@ -54,7 +60,7 @@ namespace OKKT25
                     try
                     {
                         var json = await File.ReadAllTextAsync(file, Encoding.UTF8);
-                        var tripData = JsonSerializer.Deserialize<MainPage.TripData>(json);
+                        var tripData = JsonSerializer.Deserialize<TripData>(json);
 
                         if (tripData != null)
                         {
@@ -62,7 +68,7 @@ namespace OKKT25
                                 (c.Amount * c.NumberOfPeople) +
                                 (c.DiscountAmount * c.DiscountNumberOfPeople));
 
-                            trips.Add(new MainPage.TripSummary
+                            trips.Add(new TripSummary
                             {
                                 FileName = file,
                                 TripName = string.IsNullOrWhiteSpace(tripData.TripName)
@@ -90,9 +96,9 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült betölteni a kirándulásokat: {ex.Message}", "OK");
             }
+
         }
 
-
-
     }
+
 }

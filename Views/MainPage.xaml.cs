@@ -1,62 +1,16 @@
-﻿using System.Diagnostics;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using StackLayout = Microsoft.Maui.Controls.StackLayout;
-using OKKT;
+using OKKT25.Models;
 
 namespace OKKT25
 {
     public partial class MainPage : ContentPage
     {
-        public class TripData
-        {
-
-            public string TripName { get; set; } = string.Empty;
-            public int Participants { get; set; }
-            public int MonthsLeft { get; set; }
-            public bool IsPerPersonMode { get; set; }
-            public List<CostItem> Costs { get; set; } = new List<CostItem>();
-            public List<double> PocketMoney { get; set; } = new List<double>();
-            public double AveragePocketMoney { get; set; }
-            public DateTime LastSaved { get; set; } = DateTime.Now;
-            public List<string> PhotoPaths { get; set; } = new();
-            public string TripDestination { get; set; } = string.Empty;
-            public DateTime TripDateStart { get; set; } = DateTime.Now;
-            public DateTime TripDateEnd { get; set; } = DateTime.Now;
-            public bool Calculated = false;
-        }
-        public class CostItem
-        {
-            public string Type { get; set; } = string.Empty;
-            public double Amount { get; set; }
-            public int NumberOfPeople { get; set; }
-            public bool HasDiscount { get; set; }
-            public double DiscountAmount { get; set; }
-            public int DiscountNumberOfPeople { get; set; }
-        }
-
-        public class TripSummary
-        {
-            public string FileName { get; set; }
-            public string TripName { get; set; }
-            public string TripDestination { get; set; }
-            public DateTime TripDateStart { get; set; }
-            public DateTime TripDateEnd { get; set; }
-            public DateTime LastSaved { get; set; }
-            public int Participants { get; set; }
-            public double TotalCost { get; set; }
-        }
 
         private List<Entry> pocketMoneyEntries = new List<Entry>();
         private bool isPerPersonMode = false;
         private TripData currentTripData = new TripData();
-        
 
         public MainPage()
         {
@@ -66,19 +20,18 @@ namespace OKKT25
             TripDateEnd.MinimumDate = TripDateStart.Date;
             TripDateStart.MaximumDate = DateTime.Now.AddYears(6);
             TripDateEnd.MaximumDate = TripDateStart.Date.AddYears(6);
-
             RadioGrouped.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
             RadioPerPerson.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
-
         }
 
         private async void SaveData()
         {
-            if(!currentTripData.Calculated)
+            if (!currentTripData.Calculated)
             {
                 await DisplayAlert("Hiba", "Kérlek először számold ki az adatokat!", "OK");
                 return;
             }
+
             currentTripData.IsPerPersonMode = isPerPersonMode;
             currentTripData.LastSaved = DateTime.Now;
             currentTripData.TripName = TripName.Text;
@@ -86,6 +39,7 @@ namespace OKKT25
             currentTripData.TripDateStart = TripDateStart.Date;
             currentTripData.TripDateEnd = TripDateEnd.Date;
             currentTripData.PocketMoney.Clear();
+
             try
             {
                 var json = JsonSerializer.Serialize(currentTripData, new JsonSerializerOptions
@@ -93,13 +47,10 @@ namespace OKKT25
                     WriteIndented = true
                 });
 
-                // A fájl neve csak a trip neve lesz
                 string tripNameSafe = string.Join("_", currentTripData.TripName.Split(Path.GetInvalidFileNameChars()));
                 string safeFileName = $"{tripNameSafe}.json";
-
                 string targetFile = Path.Combine(FileSystem.Current.AppDataDirectory, safeFileName);
                 await File.WriteAllTextAsync(targetFile, json, Encoding.UTF8);
-
                 await DisplayAlert("Sikeres mentés", "Az adatok el lettek mentve!", "OK");
                 ClearAllInputs();
             }
@@ -111,35 +62,23 @@ namespace OKKT25
 
         private void ClearAllInputs()
         {
-            // Alap mezők
             TripName.Text = string.Empty;
             TripDestination.Text = string.Empty;
-
-            // Dátumok visszaállítása
             TripDateStart.Date = DateTime.Now;
             TripDateEnd.Date = DateTime.Now;
 
-            // Zsebpénz mezők törlése
             foreach (var entry in pocketMoneyEntries)
             {
                 entry.Text = string.Empty;
             }
 
-            // Dinamikus költségek törlése
             DynamicCostsLayout.Children.Clear();
-
-            // Eredmények törlése
             LayoutResults.Clear();
             LayoutResults.IsVisible = false;
-
-            // Állapot visszaállítása
             currentTripData = new TripData();
             isPerPersonMode = false;
-
-            // Zsebpénz layout frissítése (visszaáll az átlagos módra)
             UpdatePocketMoneyLayout();
         }
-
 
         private void OnEndDateChanged(object sender, DateChangedEventArgs e)
         {
@@ -191,9 +130,9 @@ namespace OKKT25
             var costTypeEntry = new Entry
             {
                 Placeholder = "Költség típusa",
-                BackgroundColor = Color.FromHex("#2D2D2D"),  // Frame háttérszíne
-                TextColor = Color.FromHex("#FFFFFF"),         // Entry szövegszíne
-                PlaceholderColor = Color.FromHex("#C8C8C8"),  // Placeholder színe
+                BackgroundColor = Color.FromHex("#2D2D2D"),
+                TextColor = Color.FromHex("#FFFFFF"),
+                PlaceholderColor = Color.FromHex("#C8C8C8"),
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 StyleId = "CostType",
                 FontFamily = "Arial",
@@ -233,9 +172,9 @@ namespace OKKT25
             {
                 Placeholder = "Kedvezményes összeg (Ft)",
                 Keyboard = Keyboard.Numeric,
-                BackgroundColor = Color.FromHex("#2D2D2D"),  // Frame háttérszíne
-                TextColor = Color.FromHex("#FFFFFF"),         // Entry szövegszíne
-                PlaceholderColor = Color.FromHex("#C8C8C8"),  // Placeholder színe
+                BackgroundColor = Color.FromHex("#2D2D2D"),
+                TextColor = Color.FromHex("#FFFFFF"),
+                PlaceholderColor = Color.FromHex("#C8C8C8"),
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 StyleId = "DiscountCostAmount",
                 FontFamily = "Arial",
@@ -247,9 +186,9 @@ namespace OKKT25
             {
                 Placeholder = "Fő (db)",
                 Keyboard = Keyboard.Numeric,
-                BackgroundColor = Color.FromHex("#2D2D2D"),  // Frame háttérszíne
-                TextColor = Color.FromHex("#FFFFFF"),         // Entry szövegszíne
-                PlaceholderColor = Color.FromHex("#C8C8C8"),  // Placeholder színe
+                BackgroundColor = Color.FromHex("#2D2D2D"),
+                TextColor = Color.FromHex("#FFFFFF"),
+                PlaceholderColor = Color.FromHex("#C8C8C8"),
                 HorizontalOptions = LayoutOptions.FillAndExpand,
                 StyleId = "DiscountCostAmount",
                 FontFamily = "Arial",
@@ -259,7 +198,7 @@ namespace OKKT25
 
             var isDiscountAvailable = new CheckBox
             {
-                Color = Color.FromHex("#FF9800"),
+                Color = Color.FromHex("#FF9800")
             };
 
             var discountLabel = new Label
@@ -289,6 +228,7 @@ namespace OKKT25
                 WidthRequest = 40,
                 HeightRequest = 40
             };
+
             removeButton.Clicked += (s, eArgs) =>
             {
                 DynamicCostsLayout.Children.Remove(newCostLayout);
@@ -303,19 +243,15 @@ namespace OKKT25
 
             firstRowLayout.Children.Add(costTypeEntry);
             firstRowLayout.Children.Add(removeButton);
-
             secondRowLayout.Children.Add(costAmountEntry);
             secondRowLayout.Children.Add(numberOfFullCost);
-
             thirdRowLayout.Children.Add(discountCostAmountEntry);
             thirdRowLayout.Children.Add(numberOfDiscountCost);
-
             newCostLayout.Children.Add(firstRowLayout);
             newCostLayout.Children.Add(secondRowLayout);
             newCostLayout.Children.Add(checkBoxLayout);
             newCostLayout.Children.Add(thirdRowLayout);
             newCostLayout.Children.Add(line);
-
             DynamicCostsLayout.Children.Add(newCostLayout);
         }
 
@@ -332,7 +268,6 @@ namespace OKKT25
             if (sender is RadioButton radioButton && radioButton.IsChecked)
             {
                 isPerPersonMode = radioButton == RadioPerPerson;
-
                 UpdatePocketMoneyLayout();
             }
         }
@@ -344,9 +279,9 @@ namespace OKKT25
 
             if (isPerPersonMode)
             {
-                // Az első költségmezőből olvassuk ki a résztvevők számát
                 int participants = 0;
                 var firstCostLayout = DynamicCostsLayout.Children.OfType<StackLayout>().FirstOrDefault();
+
                 if (firstCostLayout != null)
                 {
                     var allEntries = firstCostLayout.Children
@@ -359,12 +294,9 @@ namespace OKKT25
                         .SelectMany(sl => sl.Children.OfType<CheckBox>())
                         .FirstOrDefault();
 
-                    // Ellenőrizzük, hogy az első költségmezőben megadták-e a szükséges adatokat
                     if (allEntries.Count >= 3 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
                     {
                         participants = numberOfPeople;
-
-                        // Ha van kedvezmény, hozzáadjuk a kedvezményes létszámot
                         if (checkBox?.IsChecked == true && allEntries.Count >= 5 && int.TryParse(allEntries[4].Text, out int discountNumberOfPeople))
                         {
                             participants += discountNumberOfPeople;
@@ -418,7 +350,6 @@ namespace OKKT25
 
                     pocketMoneyEntries.Add(entry);
                     frame.Content = entry;
-
                     LayoutPocketMoney.Add(label);
                     LayoutPocketMoney.Add(frame);
                 }
@@ -466,12 +397,10 @@ namespace OKKT25
 
         private async void OnCalculateClicked(object sender, EventArgs e)
         {
-
-            currentTripData.MonthsLeft = 0;
             currentTripData.MonthsLeft = TripDateStart.Date.Month - DateTime.Now.Month +
-                                          12 * (TripDateStart.Date.Year - DateTime.Now.Year);
-            
+                                         12 * (TripDateStart.Date.Year - DateTime.Now.Year);
             currentTripData.Costs.Clear();
+
             foreach (var layout in DynamicCostsLayout.Children.OfType<StackLayout>())
             {
                 var allEntries = layout.Children
@@ -488,7 +417,7 @@ namespace OKKT25
                 {
                     var costItem = new CostItem
                     {
-                        Type = allEntries[0].Text ?? string.Empty 
+                        Type = allEntries[0].Text ?? string.Empty
                     };
 
                     if (allEntries.Count > 1 && double.TryParse(allEntries[1].Text, out double amount))
@@ -510,26 +439,21 @@ namespace OKKT25
                     if (allEntries.Count > 3 && double.TryParse(allEntries[3].Text, out double discountAmount))
                         costItem.DiscountAmount = discountAmount;
                     else
-                    {
                         costItem.DiscountAmount = 0;
-                    }
 
                     if (allEntries.Count > 4 && int.TryParse(allEntries[4].Text, out int discountPeople))
                         costItem.DiscountNumberOfPeople = discountPeople;
                     else
-                    {
                         costItem.DiscountNumberOfPeople = 0;
-                    }
 
                     costItem.HasDiscount = checkBox?.IsChecked ?? false;
-
                     currentTripData.Costs.Add(costItem);
                 }
             }
 
             int participants = currentTripData.Costs.Any()
-                                ? currentTripData.Costs.Max(c => c.NumberOfPeople + (c.HasDiscount ? c.DiscountNumberOfPeople : 0))
-                                : 0;
+                ? currentTripData.Costs.Max(c => c.NumberOfPeople + (c.HasDiscount ? c.DiscountNumberOfPeople : 0))
+                : 0;
 
             if (participants <= 0)
             {
@@ -538,10 +462,8 @@ namespace OKKT25
             }
 
             currentTripData.Participants = participants;
-
-
-
             currentTripData.PocketMoney.Clear();
+
             if (isPerPersonMode)
             {
                 for (int i = 0; i < pocketMoneyEntries.Count; i++)
@@ -567,14 +489,10 @@ namespace OKKT25
                 }
             }
 
-            currentTripData.AveragePocketMoney = 0;
             currentTripData.AveragePocketMoney = currentTripData.PocketMoney.Average();
-
             currentTripData.IsPerPersonMode = isPerPersonMode;
-
             double finalCost = currentTripData.Costs.Sum(c =>
-                c.Amount * c.NumberOfPeople + (c.HasDiscount ? c.DiscountAmount * c.DiscountNumberOfPeople : 0)
-            );
+                c.Amount * c.NumberOfPeople + (c.HasDiscount ? c.DiscountAmount * c.DiscountNumberOfPeople : 0));
             currentTripData.Calculated = true;
             DisplayResults(finalCost, participants, currentTripData.MonthsLeft, currentTripData.PocketMoney);
         }
@@ -585,35 +503,27 @@ namespace OKKT25
             double costPerPerson = totalCost / participants;
             double monthlyPerPerson = costPerPerson / monthsLeft;
 
-            // --- ÖSSZEFOGLALÓ KÁRTYA ---
             var summaryCard = CreateDarkCard("📊 Összefoglaló", "#FFD700");
             var summaryLabel = new Label
             {
                 FormattedText = new FormattedString
                 {
                     Spans =
-                        {
-                            new Span { Text = "📊 Összegzés\n\n", FontAttributes = FontAttributes.Bold, FontSize = 15 },
-
-                            new Span { Text = "Teljes költség: ", FontAttributes = FontAttributes.Bold },
-                            new Span { Text = $"{FormatNumber(totalCost)} Ft\n" },
-
-                            new Span { Text = "Résztvevők: ", FontAttributes = FontAttributes.Bold },
-                            new Span { Text = $"{participants} fő\n" },
-
-                            new Span { Text = "Hátralévő idő: ", FontAttributes = FontAttributes.Bold },
-                            new Span { Text = $"{monthsLeft} hónap\n\n" },
-
-                            new Span { Text = "───────────────────────\n\n", FontSize = 12, TextColor = Color.FromArgb("#CCCCCC") },
-
-                            new Span { Text = "💰 Fejenként fizetendő\n\n", FontAttributes = FontAttributes.Bold, FontSize = 14 },
-
-                            new Span { Text = "Összesen: ", FontAttributes = FontAttributes.Bold },
-                            new Span { Text = $"{FormatNumber(costPerPerson)} Ft\n" },
-
-                            new Span { Text = "Havonta: ", FontAttributes = FontAttributes.Bold },
-                            new Span { Text = $"{FormatNumber(monthlyPerPerson)} Ft" }
-                        }
+                    {
+                        new Span { Text = "📊 Összegzés\n\n", FontAttributes = FontAttributes.Bold, FontSize = 15 },
+                        new Span { Text = "Teljes költség: ", FontAttributes = FontAttributes.Bold },
+                        new Span { Text = $"{FormatNumber(totalCost)} Ft\n" },
+                        new Span { Text = "Résztvevők: ", FontAttributes = FontAttributes.Bold },
+                        new Span { Text = $"{participants} fő\n" },
+                        new Span { Text = "Hátralévő idő: ", FontAttributes = FontAttributes.Bold },
+                        new Span { Text = $"{monthsLeft} hónap\n\n" },
+                        new Span { Text = "───────────────────────\n\n", FontSize = 12, TextColor = Color.FromArgb("#CCCCCC") },
+                        new Span { Text = "💰 Fejenként fizetendő\n\n", FontAttributes = FontAttributes.Bold, FontSize = 14 },
+                        new Span { Text = "Összesen: ", FontAttributes = FontAttributes.Bold },
+                        new Span { Text = $"{FormatNumber(costPerPerson)} Ft\n" },
+                        new Span { Text = "Havonta: ", FontAttributes = FontAttributes.Bold },
+                        new Span { Text = $"{FormatNumber(monthlyPerPerson)} Ft" }
+                    }
                 },
                 TextColor = Color.FromArgb("#FFFFFF"),
                 FontFamily = "Arial",
@@ -623,11 +533,8 @@ namespace OKKT25
             ((VerticalStackLayout)summaryCard.Content).Add(summaryLabel);
             LayoutResults.Add(summaryCard);
 
-
-            // --- EGYÉNI ELEMZÉS ---
             var analysisCard = CreateDarkCard("👥 Egyéni elemzés", "#FFD700");
             var analysisLayout = new VerticalStackLayout { Padding = new Thickness(10), Spacing = 10 };
-
             bool allCanPay = true;
             var cantPayList = new List<(int studentNum, double shortage)>();
 
@@ -651,23 +558,19 @@ namespace OKKT25
                     FormattedText = new FormattedString
                     {
                         Spans =
-                            {
-                                new Span { Text = $"{statusIcon} {i + 1}. diák\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
-
-                                new Span { Text = "💵 Havi zsebpénz: ", FontAttributes = FontAttributes.Bold },
-                                new Span { Text = $"{FormatNumber(pocketMoney)} Ft\n" },
-
-                                new Span { Text = "📅 Összesen ", FontAttributes = FontAttributes.Bold },
-                                new Span { Text = $"{monthsLeft} hónap alatt: ", FontAttributes = FontAttributes.None },
-                                new Span { Text = $"{FormatNumber(monthlyTotal)} Ft\n" },
-
-                                new Span { Text = "💰 Fizetendő: ", FontAttributes = FontAttributes.Bold },
-                                new Span { Text = $"{FormatNumber(costPerPerson)} Ft\n\n" },
-
-                                canPay
-                                    ? new Span { Text = "✅ Fedezi a költséget!", FontAttributes = FontAttributes.Bold }
-                                    : new Span { Text = $"⚠️ Hiány: {FormatNumber(costPerPerson - monthlyTotal)} Ft", FontAttributes = FontAttributes.Bold }
-                            }
+                        {
+                            new Span { Text = $"{statusIcon} {i + 1}. diák\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
+                            new Span { Text = "💵 Havi zsebpénz: ", FontAttributes = FontAttributes.Bold },
+                            new Span { Text = $"{FormatNumber(pocketMoney)} Ft\n" },
+                            new Span { Text = "📅 Összesen ", FontAttributes = FontAttributes.Bold },
+                            new Span { Text = $"{monthsLeft} hónap alatt: ", FontAttributes = FontAttributes.None },
+                            new Span { Text = $"{FormatNumber(monthlyTotal)} Ft\n" },
+                            new Span { Text = "💰 Fizetendő: ", FontAttributes = FontAttributes.Bold },
+                            new Span { Text = $"{FormatNumber(costPerPerson)} Ft\n\n" },
+                            canPay
+                                ? new Span { Text = "✅ Fedezi a költséget!", FontAttributes = FontAttributes.Bold }
+                                : new Span { Text = $"⚠️ Hiány: {FormatNumber(costPerPerson - monthlyTotal)} Ft", FontAttributes = FontAttributes.Bold }
+                        }
                     },
                     TextColor = statusColor,
                     FontSize = 12,
@@ -689,11 +592,9 @@ namespace OKKT25
                 }
             }
 
-    ((VerticalStackLayout)analysisCard.Content).Add(analysisLayout);
+            ((VerticalStackLayout)analysisCard.Content).Add(analysisLayout);
             LayoutResults.Add(analysisCard);
 
-
-            // --- DIAGRAM KÁRTYA ---
             var chartCard = CreateDarkCard("📈 Fedezettségi diagram", "#FFD700");
             var chartView = new PieChartView(pocketMoneyList, costPerPerson, monthsLeft)
             {
@@ -703,43 +604,36 @@ namespace OKKT25
             ((VerticalStackLayout)chartCard.Content).Add(chartView);
             LayoutResults.Add(chartCard);
 
-
-            // --- JAVASLATOK / SIKER ---
             if (!allCanPay)
             {
                 var suggestionsCard = CreateDarkCard("💡 Javaslatok", "#FFD700");
                 var suggestionsLayout = new VerticalStackLayout { Padding = new Thickness(10), Spacing = 10 };
-
                 double totalShortage = cantPayList.Sum(x => x.shortage);
 
-                // Figyelmeztetés
                 suggestionsLayout.Add(new Label
                 {
                     FormattedText = new FormattedString
                     {
                         Spans =
-            {
-                new Span { Text = $"⚠️ {cantPayList.Count} diák nem tudja fedezni a költséget!",
-                           FontAttributes = FontAttributes.Bold,
-                           TextColor = Color.FromArgb("#FF6B6B"), FontSize = 13 }
-            }
+                        {
+                            new Span { Text = $"⚠️ {cantPayList.Count} diák nem tudja fedezni a költséget!", FontAttributes = FontAttributes.Bold, TextColor = Color.FromArgb("#FF6B6B"), FontSize = 13 }
+                        }
                     }
                 });
 
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
-                // 1️⃣ Költségcsökkentés
                 double neededReduction = totalShortage;
                 suggestionsLayout.Add(new Label
                 {
                     FormattedText = new FormattedString
                     {
                         Spans =
-            {
-                new Span { Text = "1️⃣ Költségcsökkentés\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
-                new Span { Text = $"Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget, mindenki tudja fizetni a kirándulást.\n" },
-                new Span { Text = $"Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft", FontAttributes = FontAttributes.Bold }
-            }
+                        {
+                            new Span { Text = "1️⃣ Költségcsökkentés\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
+                            new Span { Text = $"Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget, mindenki tudja fizetni a kirándulást.\n" },
+                            new Span { Text = $"Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft", FontAttributes = FontAttributes.Bold }
+                        }
                     },
                     FontSize = 12,
                     TextColor = Color.FromArgb("#FFFFFF")
@@ -747,19 +641,18 @@ namespace OKKT25
 
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
-                // 2️⃣ Többi diák fizet többet
                 double extraPerPerson = totalShortage / (participants - cantPayList.Count);
                 suggestionsLayout.Add(new Label
                 {
                     FormattedText = new FormattedString
                     {
                         Spans =
-            {
-                new Span { Text = "2️⃣ Többi diák fizet többet\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
-                new Span { Text = $"Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:\n" },
-                new Span { Text = $"Extra fejenként: {FormatNumber(extraPerPerson)} Ft\n", FontAttributes = FontAttributes.Bold },
-                new Span { Text = $"Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft", FontAttributes = FontAttributes.Bold }
-            }
+                        {
+                            new Span { Text = "2️⃣ Többi diák fizet többet\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
+                            new Span { Text = $"Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:\n" },
+                            new Span { Text = $"Extra fejenként: {FormatNumber(extraPerPerson)} Ft\n", FontAttributes = FontAttributes.Bold },
+                            new Span { Text = $"Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft", FontAttributes = FontAttributes.Bold }
+                        }
                     },
                     FontSize = 12,
                     TextColor = Color.FromArgb("#FFFFFF")
@@ -767,7 +660,6 @@ namespace OKKT25
 
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
-                // 3️⃣ Több idő szükséges
                 int neededMonths = (int)Math.Ceiling(costPerPerson / pocketMoneyList.Min());
                 if (neededMonths > monthsLeft)
                 {
@@ -776,11 +668,11 @@ namespace OKKT25
                         FormattedText = new FormattedString
                         {
                             Spans =
-                {
-                    new Span { Text = "3️⃣ Több idő szükséges\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
-                    new Span { Text = $"Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.\n" },
-                    new Span { Text = $"(Még {neededMonths - monthsLeft} hónap szükséges)", FontAttributes = FontAttributes.Bold }
-                }
+                            {
+                                new Span { Text = "3️⃣ Több idő szükséges\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
+                                new Span { Text = $"Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.\n" },
+                                new Span { Text = $"(Még {neededMonths - monthsLeft} hónap szükséges)", FontAttributes = FontAttributes.Bold }
+                            }
                         },
                         FontSize = 12,
                         TextColor = Color.FromArgb("#FFFFFF")
@@ -798,11 +690,11 @@ namespace OKKT25
                     FormattedText = new FormattedString
                     {
                         Spans =
-            {
-                new Span { Text = "✨ Minden diák tudja fizetni a kirándulást!\n\n", FontAttributes = FontAttributes.Bold, FontSize = 14 },
-                new Span { Text = "Az osztálykirándulás megvalósítható a megadott feltételekkel.\n" },
-                new Span { Text = "Kezdjétek el gyűjteni a pénzt! 🎒", FontAttributes = FontAttributes.Bold }
-            }
+                        {
+                            new Span { Text = "✨ Minden diák tudja fizetni a kirándulást!\n\n", FontAttributes = FontAttributes.Bold, FontSize = 14 },
+                            new Span { Text = "Az osztálykirándulás megvalósítható a megadott feltételekkel.\n" },
+                            new Span { Text = "Kezdjétek el gyűjteni a pénzt! 🎒", FontAttributes = FontAttributes.Bold }
+                        }
                     },
                     FontSize = 13,
                     TextColor = Color.FromArgb("#FFFFFF"),
@@ -842,14 +734,13 @@ namespace OKKT25
 
             var content = new VerticalStackLayout { Spacing = 5 };
             content.Add(titleLabel);
-
             card.Content = content;
             return card;
         }
+
         private async Task ShowError(string message)
         {
             await DisplayAlert("Hiba", message, "OK");
-
             await BtnCalculate.TranslateTo(-15, 0, 50);
             await BtnCalculate.TranslateTo(15, 0, 50);
             await BtnCalculate.TranslateTo(-10, 0, 50);
@@ -899,27 +790,21 @@ namespace OKKT25
 
             int canPayCount = pocketMoneyList.Count(pm => pm * monthsLeft >= costPerPerson);
             int cantPayCount = pocketMoneyList.Count - canPayCount;
-
             float total = (float)pocketMoneyList.Count;
             float canPayAngle = (canPayCount / total) * 360f;
             float cantPayAngle = (cantPayCount / total) * 360f;
-
             float centerX = dirtyRect.Width / 2;
             float centerY = dirtyRect.Height / 2;
             float radius = Math.Min(centerX, centerY) * 0.7f;
 
-            // Rajzoljunk szeleteket
             DrawPieSlice(canvas, centerX, centerY, radius, -90, canPayAngle, Color.FromArgb("#4CAF50"));
             DrawPieSlice(canvas, centerX, centerY, radius, -90 + canPayAngle, cantPayAngle, Color.FromArgb("#F44336"));
 
-            // Fehér vagy fekete középső kör a témától függően
             bool isDarkMode = Application.Current?.RequestedTheme == AppTheme.Dark;
             Application.Current.Resources.TryGetValue("BlackBg", out var blackBg);
             canvas.FillColor = isDarkMode ? (Color)blackBg : Colors.White;
             canvas.FillCircle(centerX, centerY, radius * 0.6f);
 
-
-            // Szövegek
             canvas.FontColor = Color.FromArgb("#4CAF50");
             canvas.FontSize = radius * 0.16f;
             canvas.DrawString($"{canPayCount} fő", centerX, centerY - radius * 0.08f, HorizontalAlignment.Center);
@@ -940,7 +825,6 @@ namespace OKKT25
         {
             var path = new PathF();
             path.MoveTo(cx, cy);
-
             int steps = 100;
             float angleStep = sweepAngle / steps;
 
@@ -953,9 +837,10 @@ namespace OKKT25
             }
 
             path.Close();
-
             canvas.FillColor = color;
             canvas.FillPath(path);
         }
+
     }
+
 }

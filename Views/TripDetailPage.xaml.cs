@@ -2,17 +2,19 @@
 using System.Globalization;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Fonts;
-using SkiaSharp;
+using OKKT25.Models;
 
 namespace OKKT25
 {
     public partial class TripDetailPage : ContentPage
     {
-        private MainPage.TripData tripData;
+
+        private TripData tripData;
         private ObservableCollection<ImageSource> photoSources = new();
 
-        public TripDetailPage(MainPage.TripData data, string tripName)
+        public TripDetailPage(TripData data, string tripName)
         {
+
             InitializeComponent();
 
             string tripFileName = $"{tripName}.json";
@@ -21,7 +23,7 @@ namespace OKKT25
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
-                tripData = System.Text.Json.JsonSerializer.Deserialize<MainPage.TripData>(json);
+                tripData = System.Text.Json.JsonSerializer.Deserialize<TripData>(json);
             }
             else
             {
@@ -33,21 +35,24 @@ namespace OKKT25
             PhotosCollection.ItemsSource = photoSources;
             DisplayPhotos();
             UpdatePhotosLabel();
+
         }
 
         private void UpdatePhotosLabel()
         {
+
             if (tripData.PhotoPaths != null)
                 PhotosLabel.Text = $"Fotók: {tripData.PhotoPaths.Count}";
             else
                 PhotosLabel.Text = "Fotók: 0";
+
         }
 
         private void DisplayPhotos()
         {
+
             PhotosCollection.ItemsSource = null;
 
-            // 🔹 betöltjük a korábban elmentett képeket
             if (tripData.PhotoPaths != null)
             {
                 foreach (var path in tripData.PhotoPaths)
@@ -59,7 +64,6 @@ namespace OKKT25
                 }
             }
 
-            // 🔹 újra frissítjük az ItemsSource-t
             PhotosCollection.ItemsSource = photoSources;
 
             PhotosCollection.ItemTemplate = new DataTemplate(() =>
@@ -88,10 +92,12 @@ namespace OKKT25
                     Content = image
                 };
             });
+
         }
 
         private async void OnAddPhotoClicked(object sender, EventArgs e)
         {
+
             string action = await DisplayActionSheet("Fénykép hozzáadása", "Mégse", null, "📷 Kamera", "🖼️ Galéria");
 
             FileResult result = null;
@@ -132,10 +138,12 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült a művelet: {ex.Message}", "OK");
             }
+
         }
 
         private async Task SaveTripDataAsync()
         {
+
             try
             {
                 string json = System.Text.Json.JsonSerializer.Serialize(tripData,
@@ -150,17 +158,18 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült menteni az adatokat: {ex.Message}", "OK");
             }
+
         }
 
         private void DisplayTripDetails()
         {
+
             DetailLayout.Clear();
 
             double totalCost = tripData.Costs.Sum(c =>
                 (c.Amount * c.NumberOfPeople) +
                 (c.DiscountAmount * c.DiscountNumberOfPeople));
 
-            // --- Összefoglaló kártya ---
             var summaryCard = CreateCard("📊 Összefoglaló", "#FF9800");
             var summaryLayout = new VerticalStackLayout { Padding = 15, Spacing = 6 };
 
@@ -223,7 +232,6 @@ namespace OKKT25
             ((VerticalStackLayout)summaryCard.Content).Add(summaryLayout);
             DetailLayout.Add(summaryCard);
 
-            // --- Költségek kártya ---
             var costsCard = CreateCard("💰 Költségek részletezve", "#FF9800");
             var costsLayout = new VerticalStackLayout { Padding = 15, Spacing = 8 };
 
@@ -282,10 +290,9 @@ namespace OKKT25
                 }
             }
 
-    ((VerticalStackLayout)costsCard.Content).Add(costsLayout);
+            ((VerticalStackLayout)costsCard.Content).Add(costsLayout);
             DetailLayout.Add(costsCard);
 
-            // --- Zsebpénz kártya ---
             var pocketMoneyCard = CreateCard("💵 Zsebpénz", "#FF9800");
             var pocketMoneyLayout = new VerticalStackLayout { Padding = 15, Spacing = 6 };
 
@@ -306,11 +313,12 @@ namespace OKKT25
 
             ((VerticalStackLayout)pocketMoneyCard.Content).Add(pocketMoneyLayout);
             DetailLayout.Add(pocketMoneyCard);
-        }
 
+        }
 
         private Frame CreateCard(string title, string colorHex)
         {
+
             var frame = new Frame
             {
                 CornerRadius = 15,
@@ -335,6 +343,7 @@ namespace OKKT25
             container.Add(titleLabel);
             frame.Content = container;
             return frame;
+
         }
 
         private string FormatNumber(double number)
@@ -344,12 +353,12 @@ namespace OKKT25
 
         private async Task ExportPageToPdf()
         {
+
             try
             {
-                // 🎨 Létrehozunk egy szép PDF-szerű nézetet programatikusan
+
                 var pdfView = await CreatePdfViewAsync();
 
-                // Ideiglenesen hozzáadjuk az oldalhoz (láthatatlanul, képernyőn kívül)
                 var rootLayout = (this.Content as ScrollView)?.Content as Layout;
                 if (rootLayout == null)
                 {
@@ -357,17 +366,13 @@ namespace OKKT25
                     return;
                 }
 
-                // Elmentjük az eredeti pozíciót és láthatatlanná tesszük
-                pdfView.TranslationY = 10000; // Képernyőn kívülre tesszük
+                pdfView.TranslationY = 10000; 
                 rootLayout.Add(pdfView);
 
-                // Várunk egy kicsit, hogy renderelődjön
                 await Task.Delay(300);
 
-                // 📸 Képernyőkép készítése a nézetről
                 var screenshot = await pdfView.CaptureAsync();
 
-                // Eltávolítjuk a view-t
                 rootLayout.Remove(pdfView);
 
                 if (screenshot == null)
@@ -376,7 +381,6 @@ namespace OKKT25
                     return;
                 }
 
-                // Ideiglenes fájlba mentés
                 string tempImagePath = Path.Combine(FileSystem.Current.CacheDirectory, $"temp_pdf_{Guid.NewGuid()}.png");
                 using (var stream = await screenshot.OpenReadAsync())
                 using (var fileStream = File.Create(tempImagePath))
@@ -388,19 +392,19 @@ namespace OKKT25
                 string filePath = "";
 
                 // ✅ PLATFORMFÜGGŐ ÚTVONAL
-#if ANDROID
+                #if ANDROID
                 var downloadsPath = Android.OS.Environment
                     .GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads)
                     .AbsolutePath;
                 filePath = Path.Combine(downloadsPath, pdfFileName);
-#elif WINDOWS
-        var downloadsPath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            "Downloads");
-        filePath = Path.Combine(downloadsPath, pdfFileName);
-#else
-        filePath = Path.Combine(FileSystem.Current.AppDataDirectory, pdfFileName);
-#endif
+                #elif WINDOWS
+                var downloadsPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "Downloads");
+                filePath = Path.Combine(downloadsPath, pdfFileName);
+                #else
+                filePath = Path.Combine(FileSystem.Current.AppDataDirectory, pdfFileName);
+                #endif
 
                 using (var document = new PdfSharpCore.Pdf.PdfDocument())
                 {
@@ -413,24 +417,21 @@ namespace OKKT25
                         double pageWidth = page.Width.Point;
                         double pageHeight = page.Height.Point;
 
-                        // Teljes oldal kitöltése
                         gfx.DrawImage(xImage, 0, 0, pageWidth, pageHeight);
                     }
 
-                    // 📸 Fotók hozzáadása két oszlopos elrendezésben, középre igazítva, annyi sorral, amennyi kifér
                     if (tripData.PhotoPaths != null && tripData.PhotoPaths.Count > 0)
                     {
                         const double margin = 40;
-                        const double spacing = 20; // Képek közötti vízszintes távolság
-                        const double rowSpacing = 20; // Sorok közötti távolság
-                        const double border = 4; // Narancssárga keret vastagsága
-                        const double pageWidth = 595; // A4 szélesség pontokban
-                        const double pageHeight = 842; // A4 magasság pontokban
-                        double imgWidth = (pageWidth - 2 * margin - spacing) / 2; // Kép szélessége oszloponként, középre igazításhoz igazítva
+                        const double spacing = 20; 
+                        const double rowSpacing = 20; 
+                        const double border = 4; 
+                        const double pageWidth = 595; 
+                        const double pageHeight = 842;
+                        double imgWidth = (pageWidth - 2 * margin - spacing) / 2; 
 
-                        // Kiszámítjuk a maximum sorok számát a képek magassága alapján
                         double maxImgHeight = 0;
-                        foreach (var photoPath in tripData.PhotoPaths.Take(Math.Min(tripData.PhotoPaths.Count, 10))) // Korlátozás 10 képre a ciklusidő miatt
+                        foreach (var photoPath in tripData.PhotoPaths.Take(Math.Min(tripData.PhotoPaths.Count, 10)))
                         {
                             if (File.Exists(photoPath))
                             {
@@ -442,26 +443,22 @@ namespace OKKT25
                             }
                         }
 
-                        // Maximum sorok száma: (teljes magasság - margók - (n-1)*rowSpacing) / n
                         int maxRows = Math.Max(1, (int)Math.Floor((pageHeight - 2 * margin + rowSpacing) / (maxImgHeight + rowSpacing)));
 
-                        for (int i = 0; i < tripData.PhotoPaths.Count; i += 2 * maxRows) // Soronként 2 kép
+                        for (int i = 0; i < tripData.PhotoPaths.Count; i += 2 * maxRows)
                         {
                             var photoPage = document.AddPage();
                             photoPage.Size = PdfSharpCore.PageSize.A4;
 
                             using (var gfx = XGraphics.FromPdfPage(photoPage))
                             {
-                                // Sötétszürke háttér (#2A2A2A)
                                 gfx.DrawRectangle(new XSolidBrush(XColor.FromArgb(42, 42, 42)), 0, 0, photoPage.Width.Point, photoPage.Height.Point);
 
-                                // Sorok és képek hozzáadása
                                 for (int row = 0; row < maxRows && i + row * 2 < tripData.PhotoPaths.Count; row++)
                                 {
-                                    double y = margin + row * (maxImgHeight + rowSpacing); // Sor pozíciója felülről
-                                    double leftX = (pageWidth - (2 * imgWidth + spacing)) / 2; // Középre igazítás
+                                    double y = margin + row * (maxImgHeight + rowSpacing);
+                                    double leftX = (pageWidth - (2 * imgWidth + spacing)) / 2;
 
-                                    // Bal oldali kép
                                     if (i + row * 2 < tripData.PhotoPaths.Count && File.Exists(tripData.PhotoPaths[i + row * 2]))
                                     {
                                         using (var img = XImage.FromFile(tripData.PhotoPaths[i + row * 2]))
@@ -471,13 +468,11 @@ namespace OKKT25
                                             double h = img.PixelHeight * scale;
                                             double x = leftX;
 
-                                            // Narancssárga keret (#FF8C00)
                                             gfx.DrawRectangle(new XPen(XColor.FromArgb(255, 140, 0), border), x - border / 2, y - border / 2, w + border, h + border);
                                             gfx.DrawImage(img, x, y, w, h);
                                         }
                                     }
 
-                                    // Jobb oldali kép
                                     if (i + row * 2 + 1 < tripData.PhotoPaths.Count && File.Exists(tripData.PhotoPaths[i + row * 2 + 1]))
                                     {
                                         using (var img = XImage.FromFile(tripData.PhotoPaths[i + row * 2 + 1]))
@@ -496,11 +491,9 @@ namespace OKKT25
                             }
                         }
                     }
-
                     document.Save(filePath);
                 }
 
-                // Temp file törlése
                 if (File.Exists(tempImagePath))
                     File.Delete(tempImagePath);
 
@@ -510,12 +503,12 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"PDF készítés sikertelen: {ex.Message}", "OK");
             }
+
         }
 
         private async Task<View> CreatePdfViewAsync()
         {
-            // A4 arány: 595x842 pont (72 DPI-nél)
-            // Mobilon 2x-es felbontással: 1190x1684 px
+
             double width = 1190;
             double height = 1684;
 
@@ -531,16 +524,14 @@ namespace OKKT25
             double totalCost = tripData.Costs.Sum(c => (c.Amount * c.NumberOfPeople) + (c.DiscountAmount * c.DiscountNumberOfPeople));
             double costPerPerson = tripData.Participants > 0 ? totalCost / tripData.Participants : 0;
 
-            // 📌 Fejléc szekció
             var headerLayout = new VerticalStackLayout
             {
                 BackgroundColor = Color.FromArgb("#FF8C00"),
-                HeightRequest = 110, // Magasabb fejléc a cím és a térköz miatt
+                HeightRequest = 110, 
                 Spacing = 10,
-                Padding = new Thickness(40, 20, 40, 20) // Padding a fejlécen belül
+                Padding = new Thickness(40, 20, 40, 20) 
             };
 
-            // Cím
             var titleLabel = new Label
             {
                 Text = tripData.TripName.ToUpper(),
@@ -548,13 +539,11 @@ namespace OKKT25
                 FontAttributes = FontAttributes.Bold,
                 TextColor = Colors.Black,
                 HorizontalTextAlignment = TextAlignment.Center
-                // Negatív margó eltávolítva, a headerLayout paddingja kezeli a pozíciót
             };
             headerLayout.Add(titleLabel);
 
             mainLayout.Add(headerLayout);
 
-            // 📍 Helyszín és időpont
             var infoBox = new Frame
             {
                 BackgroundColor = Color.FromArgb("#2A2A2A"),
@@ -562,12 +551,12 @@ namespace OKKT25
                 HasShadow = false,
                 CornerRadius = 12,
                 Padding = 25,
-                Margin = new Thickness(50, 30, 50, 20), // Nagyobb felső margó (30)
+                Margin = new Thickness(50, 30, 50, 20), 
                 Content = new VerticalStackLayout
                 {
                     Spacing = 15,
                     Children =
-            {
+                {
                 new Label
                 {
                     FormattedText = new FormattedString
@@ -595,7 +584,6 @@ namespace OKKT25
             };
             mainLayout.Add(infoBox);
 
-            // 📊 Összesítő kártyák
             var cardsLayout = new HorizontalStackLayout
             {
                 Spacing = 20,
@@ -610,7 +598,6 @@ namespace OKKT25
             };
             mainLayout.Add(cardsLayout);
 
-            // 💰 Zsebpénz szekció
             var pocketMoneySection = new VerticalStackLayout
             {
                 Spacing = 12,
@@ -646,7 +633,6 @@ namespace OKKT25
 
             mainLayout.Add(pocketMoneySection);
 
-            // 💵 Költségek szekció
             var costsSection = new VerticalStackLayout
             {
                 Spacing = 12,
@@ -710,14 +696,13 @@ namespace OKKT25
             costsSection.Add(costsStack);
             mainLayout.Add(costsSection);
 
-            // Végösszeg
             var totalGrid = new Grid
             {
                 ColumnDefinitions =
-        {
-            new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-            new ColumnDefinition { Width = GridLength.Auto }
-        }
+                {
+                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+                    new ColumnDefinition { Width = GridLength.Auto }
+                }
             };
 
             var totalLabel = new Label
@@ -728,6 +713,7 @@ namespace OKKT25
                 TextColor = Colors.Black,
                 VerticalTextAlignment = TextAlignment.Center
             };
+
             Grid.SetColumn(totalLabel, 0);
             totalGrid.Add(totalLabel);
 
@@ -740,6 +726,7 @@ namespace OKKT25
                 VerticalTextAlignment = TextAlignment.Center,
                 HorizontalTextAlignment = TextAlignment.End
             };
+
             Grid.SetColumn(totalValueLabel, 1);
             totalGrid.Add(totalValueLabel);
 
@@ -755,14 +742,14 @@ namespace OKKT25
             };
             mainLayout.Add(totalFrame);
 
-            // Render kikényszerítése
             await Task.Delay(100);
 
             return mainLayout;
-        }
 
+        }
         private Frame CreateSummaryCard(string title, string value, string colorHex)
         {
+
             return new Frame
             {
                 WidthRequest = 340,
@@ -797,6 +784,7 @@ namespace OKKT25
             }
                 }
             };
+
         }
 
         private async void OnExportPdfClicked(object sender, EventArgs e)
@@ -806,6 +794,7 @@ namespace OKKT25
 
         private async void OnDeleteTripClicked(object sender, EventArgs e)
         {
+
             bool confirm = await DisplayAlert(
                 "Kirándulás törlése",
                 "Biztosan törölni szeretnéd ezt a kirándulást és az összes hozzá tartozó fotót?",
@@ -817,7 +806,6 @@ namespace OKKT25
 
             try
             {
-                // A fájl neve most csak a tripName
                 string tripNameSafe = string.Join("_", tripData.TripName.Split(Path.GetInvalidFileNameChars()));
                 string filePath = Path.Combine(FileSystem.Current.AppDataDirectory, $"{tripNameSafe}.json");
 
@@ -826,7 +814,6 @@ namespace OKKT25
                     File.Delete(filePath);
                 }
 
-                // Fotók törlése
                 if (tripData.PhotoPaths != null)
                 {
                     foreach (var photoPath in tripData.PhotoPaths)
@@ -844,6 +831,9 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült törölni a kirándulást: {ex.Message}", "OK");
             }
+
         }
+
     }
+
 }
