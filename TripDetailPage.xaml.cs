@@ -2,6 +2,7 @@
 using System.Globalization;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Fonts;
+using SkiaSharp;
 
 namespace OKKT25
 {
@@ -110,10 +111,10 @@ namespace OKKT25
                 {
                     string targetPath = Path.Combine(FileSystem.Current.AppDataDirectory, Path.GetFileName(result.FullPath));
 
+                    // Kép másolása és orientáció javítása
                     using (var sourceStream = await result.OpenReadAsync())
-                    using (var targetStream = File.Create(targetPath))
                     {
-                        await sourceStream.CopyToAsync(targetStream);
+                        await FixImageOrientationAsync(sourceStream, targetPath);
                     }
 
                     photoSources.Add(ImageSource.FromFile(targetPath));
@@ -130,6 +131,76 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült a művelet: {ex.Message}", "OK");
             }
+        }
+
+        private async Task FixImageOrientationAsync(Stream sourceStream, string targetPath)
+        {
+            try
+            {
+                // Betöltjük a képet SkiaSharp-pal
+                using var originalBitmap = SKBitmap.Decode(sourceStream);
+                if (originalBitmap == null)
+                {
+                    // Ha nem sikerült dekódolni, egyszerű másolás
+                    sourceStream.Position = 0;
+                    using var fallbackStream = File.Create(targetPath);
+                    await sourceStream.CopyToAsync(fallbackStream);
+                    return;
+                }
+
+                // EXIF orientáció beolvasása
+                sourceStream.Position = 0;
+                using var imageCodec = SKCodec.Create(sourceStream);
+                var orientation = imageCodec?.EncodedOrigin ?? SKEncodedOrigin.TopLeft;
+
+                SKBitmap rotatedBitmap = originalBitmap;
+
+                // Forgatás az EXIF adat alapján
+                switch (orientation)
+                {
+                    case SKEncodedOrigin.BottomRight:
+                        rotatedBitmap = RotateBitmap(originalBitmap, 180);
+                        break;
+                    case SKEncodedOrigin.RightTop:
+                        rotatedBitmap = RotateBitmap(originalBitmap, 90);
+                        break;
+                    case SKEncodedOrigin.LeftBottom:
+                        rotatedBitmap = RotateBitmap(originalBitmap, 270);
+                        break;
+                }
+
+                // Mentés JPEG formátumban
+                using var skImage = SKImage.FromBitmap(rotatedBitmap);
+                using var encodedData = skImage.Encode(SKEncodedImageFormat.Jpeg, 90);
+                using var outputStream = File.Create(targetPath);
+                encodedData.SaveTo(outputStream);
+
+                if (rotatedBitmap != originalBitmap)
+                    rotatedBitmap.Dispose();
+            }
+            catch
+            {
+                // Ha bármi hiba van, egyszerű másolás
+                sourceStream.Position = 0;
+                using var fallbackStream = File.Create(targetPath);
+                await sourceStream.CopyToAsync(fallbackStream);
+            }
+        }
+
+        private SKBitmap RotateBitmap(SKBitmap original, float degrees)
+        {
+            var rotated = new SKBitmap(
+                degrees % 180 == 0 ? original.Width : original.Height,
+                degrees % 180 == 0 ? original.Height : original.Width);
+
+            using var canvas = new SKCanvas(rotated);
+            canvas.Clear();
+            canvas.Translate(rotated.Width / 2f, rotated.Height / 2f);
+            canvas.RotateDegrees(degrees);
+            canvas.Translate(-original.Width / 2f, -original.Height / 2f);
+            canvas.DrawBitmap(original, 0, 0);
+
+            return rotated;
         }
 
         private async Task SaveTripDataAsync()
@@ -842,26 +913,6 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült törölni a kirándulást: {ex.Message}", "OK");
             }
-        }
-
-        private void DrawInfoCard(PdfSharpCore.Drawing.XGraphics gfx, double x, double y, double width, double height,
-        string title, string value, PdfSharpCore.Drawing.XColor color,
-        PdfSharpCore.Drawing.XFont titleFont, PdfSharpCore.Drawing.XFont valueFont)
-        {
-            // Háttér
-            var brush = new PdfSharpCore.Drawing.XSolidBrush(color);
-            gfx.DrawRectangle(brush, x, y, width, height);
-
-            // Árnyék effekt
-            var shadowBrush = new PdfSharpCore.Drawing.XSolidBrush(PdfSharpCore.Drawing.XColor.FromArgb(30, 0, 0, 0));
-            gfx.DrawRectangle(shadowBrush, x + 2, y + 2, width, height);
-            gfx.DrawRectangle(brush, x, y, width, height);
-
-            // Szövegek
-            gfx.DrawString(title, titleFont, PdfSharpCore.Drawing.XBrushes.White,
-                new PdfSharpCore.Drawing.XPoint(x + 15, y + 25));
-            gfx.DrawString(value, valueFont, PdfSharpCore.Drawing.XBrushes.White,
-                new PdfSharpCore.Drawing.XPoint(x + 15, y + 55));
         }
     }
 }
