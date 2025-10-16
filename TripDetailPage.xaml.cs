@@ -2,6 +2,7 @@
 using System.Globalization;
 using PdfSharpCore.Drawing;
 using PdfSharpCore.Fonts;
+using SkiaSharp;
 
 namespace OKKT25
 {
@@ -110,6 +111,7 @@ namespace OKKT25
                 {
                     string targetPath = Path.Combine(FileSystem.Current.AppDataDirectory, Path.GetFileName(result.FullPath));
 
+
                     using (var sourceStream = await result.OpenReadAsync())
                     using (var targetStream = File.Create(targetPath))
                     {
@@ -130,7 +132,7 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült a művelet: {ex.Message}", "OK");
             }
-        }
+        }restore
 
         private async Task SaveTripDataAsync()
         {
@@ -842,26 +844,6 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült törölni a kirándulást: {ex.Message}", "OK");
             }
-        }
-
-        private void DrawInfoCard(PdfSharpCore.Drawing.XGraphics gfx, double x, double y, double width, double height,
-        string title, string value, PdfSharpCore.Drawing.XColor color,
-        PdfSharpCore.Drawing.XFont titleFont, PdfSharpCore.Drawing.XFont valueFont)
-        {
-            // Háttér
-            var brush = new PdfSharpCore.Drawing.XSolidBrush(color);
-            gfx.DrawRectangle(brush, x, y, width, height);
-
-            // Árnyék effekt
-            var shadowBrush = new PdfSharpCore.Drawing.XSolidBrush(PdfSharpCore.Drawing.XColor.FromArgb(30, 0, 0, 0));
-            gfx.DrawRectangle(shadowBrush, x + 2, y + 2, width, height);
-            gfx.DrawRectangle(brush, x, y, width, height);
-
-            // Szövegek
-            gfx.DrawString(title, titleFont, PdfSharpCore.Drawing.XBrushes.White,
-                new PdfSharpCore.Drawing.XPoint(x + 15, y + 25));
-            gfx.DrawString(value, valueFont, PdfSharpCore.Drawing.XBrushes.White,
-                new PdfSharpCore.Drawing.XPoint(x + 15, y + 55));
         }
     }
 }

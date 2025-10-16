@@ -67,11 +67,12 @@ namespace OKKT25
             TripDateStart.MaximumDate = DateTime.Now.AddYears(6);
             TripDateEnd.MaximumDate = TripDateStart.Date.AddYears(6);
 
-            TripName.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
-            TripDestination.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
-
             RadioGrouped.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
             RadioPerPerson.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
+
+            TripName.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
+            TripDestination.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
+            EntryAveragePocketMoney.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
         }
 
@@ -203,7 +204,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            costTypeEntry.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
+            costTypeEntry.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var costAmountEntry = new Entry
             {
@@ -218,7 +219,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            costAmountEntry.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
+            costAmountEntry.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var numberOfFullCost = new Entry
             {
@@ -233,6 +234,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
+            numberOfFullCost.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var discountCostAmountEntry = new Entry
             {
@@ -247,7 +249,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            discountCostAmountEntry.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
+            discountCostAmountEntry.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var numberOfDiscountCost = new Entry
             {
@@ -262,7 +264,7 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            numberOfDiscountCost.SetEntryCustomUnderline(Color.FromHex("#FF9800"));
+            numberOfDiscountCost.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var isDiscountAvailable = new CheckBox
             {
