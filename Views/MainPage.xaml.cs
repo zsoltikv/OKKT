@@ -230,10 +230,10 @@ namespace OKKT25
                 TextColor = Color.FromHex("#C8C8C8")
             };
 
-            var checkBoxLayout = new StackLayout
+            var checkBoxLayout = new HorizontalStackLayout
             {
-                Orientation = StackOrientation.Horizontal,
-                Spacing = 10,
+                Spacing = -8,
+                VerticalOptions = LayoutOptions.Center,
                 Children = { isDiscountAvailable, discountLabel }
             };
 
