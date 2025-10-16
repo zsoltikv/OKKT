@@ -355,8 +355,38 @@ namespace OKKT25
         private async Task ExportPageToPdf()
         {
 
+            var loadingPage = new ContentPage
+            {
+                BackgroundColor = new Color(0, 0, 0, (float)0.6),
+                Content = new VerticalStackLayout
+                {
+                    VerticalOptions = LayoutOptions.Center,
+                    HorizontalOptions = LayoutOptions.Center,
+                    Children =
+            {
+                new ActivityIndicator
+                {
+                    IsRunning = true,
+                    Color = Colors.Orange,
+                    WidthRequest = 60,
+                    HeightRequest = 60
+                },
+                new Label
+                {
+                    Text = "PDF készítése folyamatban...",
+                    TextColor = Colors.White,
+                    FontSize = 18,
+                    HorizontalOptions = LayoutOptions.Center,
+                    Margin = new Thickness(0,10,0,0)
+                }
+            }
+                }
+            };
+
             try
             {
+
+                await Navigation.PushModalAsync(loadingPage, false);
 
                 var pdfView = await CreatePdfViewAsync();
 
@@ -392,7 +422,7 @@ namespace OKKT25
                 string pdfFileName = $"{tripData.TripName}.pdf";
                 string filePath = "";
 
-                // ✅ PLATFORMFÜGGŐ ÚTVONAL
+                // PLATFORMFÜGGŐ ÚTVONAL
                 #if ANDROID
                 var downloadsPath = Android.OS.Environment
                     .GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads)
@@ -483,7 +513,6 @@ namespace OKKT25
                                             double h = img.PixelHeight * scale;
                                             double x = leftX + imgWidth + spacing;
 
-                                            // Narancssárga keret (#FF8C00)
                                             gfx.DrawRectangle(new XPen(XColor.FromArgb(255, 140, 0), border), x - border / 2, y - border / 2, w + border, h + border);
                                             gfx.DrawImage(img, x, y, w, h);
                                         }
@@ -498,11 +527,21 @@ namespace OKKT25
                 if (File.Exists(tempImagePath))
                     File.Delete(tempImagePath);
 
-                await DisplayAlert("✅ Siker", $"PDF elkészült!\n📁 {filePath}", "OK");
+                await DisplayAlert(
+                    "✅ Siker!",
+                    $"A PDF fájl sikeresen elkészült és elmentésre került.\n\n📁 Helye: Saját fájlok/Letöltések",
+                    "OK"
+                );
+
             }
+
             catch (Exception ex)
             {
                 await DisplayAlert("Hiba", $"PDF készítés sikertelen: {ex.Message}", "OK");
+            }
+            finally
+            {
+                await Navigation.PopModalAsync(false);
             }
 
         }
