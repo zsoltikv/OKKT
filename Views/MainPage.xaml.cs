@@ -78,6 +78,18 @@ namespace OKKT25
             currentTripData = new TripData();
             isPerPersonMode = false;
             UpdatePocketMoneyLayout();
+            LayoutResults.IsVisible = false;
+
+            if (DynamicCostsLayout.Parent is Frame costsFrame)
+            {
+                costsFrame.IsVisible = false;
+            }
+
+            if (LayoutResults.Parent is Frame resultsFrame)
+            {
+                resultsFrame.IsVisible = false;
+            }
+
         }
 
         private void ButtonResetClicked(object sender, EventArgs e)
@@ -106,6 +118,11 @@ namespace OKKT25
         [Obsolete]
         private void OnAddCostClicked(object sender, EventArgs e)
         {
+            if (DynamicCostsLayout.Parent is Frame costsFrame)
+            {
+                costsFrame.IsVisible = true;
+            }
+
             var newCostLayout = new StackLayout
             {
                 Orientation = StackOrientation.Vertical,
@@ -237,6 +254,11 @@ namespace OKKT25
             removeButton.Clicked += (s, eArgs) =>
             {
                 DynamicCostsLayout.Children.Remove(newCostLayout);
+
+                if (DynamicCostsLayout.Children.Count == 0 && DynamicCostsLayout.Parent is Frame costsFrame)
+                {
+                    costsFrame.IsVisible = false;
+                }
             };
 
             var line = new BoxView
@@ -402,6 +424,9 @@ namespace OKKT25
 
         private async void OnCalculateClicked(object sender, EventArgs e)
         {
+
+            LayoutResults.IsVisible = false;
+
             currentTripData.MonthsLeft = TripDateStart.Date.Month - DateTime.Now.Month +
                                          12 * (TripDateStart.Date.Year - DateTime.Now.Year);
             currentTripData.Costs.Clear();
@@ -499,11 +524,17 @@ namespace OKKT25
             double finalCost = currentTripData.Costs.Sum(c =>
                 c.Amount * c.NumberOfPeople + (c.HasDiscount ? c.DiscountAmount * c.DiscountNumberOfPeople : 0));
             currentTripData.Calculated = true;
-            DisplayResults(finalCost, participants, currentTripData.MonthsLeft, currentTripData.PocketMoney);
+
+            if (currentTripData.Calculated)
+            {
+                DisplayResults(finalCost, participants, currentTripData.MonthsLeft, currentTripData.PocketMoney);
+            }
+
         }
 
         private void DisplayResults(double totalCost, int participants, int monthsLeft, List<double> pocketMoneyList)
         {
+
             LayoutResults.Clear();
             double costPerPerson = totalCost / participants;
             double monthlyPerPerson = costPerPerson / monthsLeft;
@@ -712,7 +743,14 @@ namespace OKKT25
             }
 
             LayoutResults.IsVisible = true;
+
+            if (LayoutResults.Parent is Frame resultsFrame)
+            {
+                resultsFrame.IsVisible = true;
+            }
+
             AnimateView(LayoutResults);
+
         }
 
         private Frame CreateDarkCard(string title, string accentColor)

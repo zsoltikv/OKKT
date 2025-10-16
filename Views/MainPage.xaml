@@ -155,7 +155,8 @@
                                 BackgroundColor="#2D2D2D"
                                 BorderColor="#3C3C3C"
                                 HasShadow="False"
-                                Padding="10">
+                                Padding="10"
+                                IsVisible="False">
 
                                 <StackLayout 
                                     x:Name="DynamicCostsLayout"
@@ -270,7 +271,8 @@
                 BorderColor="#3C3C3C"
                 HasShadow="True"
                 Padding="15"
-                Margin="0,10,0,0">
+                Margin="0,10,0,0"
+                IsVisible="False">
 
                 <VerticalStackLayout 
                     x:Name="LayoutResults"
