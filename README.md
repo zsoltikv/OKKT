@@ -1,7 +1,5 @@
-- entry focus color fix
-- splash screen fix
-
+- visszaallitas gomb a mentes gomb felett
+- kuka gomb a kepeknel
 
 - fejlesztoi/felhasznaloi dokumentacio iras
-- code cleanup
 - readme iras
