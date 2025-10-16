@@ -80,6 +80,11 @@ namespace OKKT25
             UpdatePocketMoneyLayout();
         }
 
+        private void ButtonResetClicked(object sender, EventArgs e)
+        {
+            ClearAllInputs();
+        }
+
         private void OnEndDateChanged(object sender, DateChangedEventArgs e)
         {
             if (TripDateEnd.Date < TripDateStart.Date)
