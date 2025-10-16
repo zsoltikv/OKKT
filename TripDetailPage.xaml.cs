@@ -111,10 +111,11 @@ namespace OKKT25
                 {
                     string targetPath = Path.Combine(FileSystem.Current.AppDataDirectory, Path.GetFileName(result.FullPath));
 
-                    // Kép másolása és orientáció javítása
+
                     using (var sourceStream = await result.OpenReadAsync())
+                    using (var targetStream = File.Create(targetPath))
                     {
-                        await FixImageOrientationAsync(sourceStream, targetPath);
+                        await sourceStream.CopyToAsync(targetStream);
                     }
 
                     photoSources.Add(ImageSource.FromFile(targetPath));
@@ -131,77 +132,7 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült a művelet: {ex.Message}", "OK");
             }
-        }
-
-        private async Task FixImageOrientationAsync(Stream sourceStream, string targetPath)
-        {
-            try
-            {
-                // Betöltjük a képet SkiaSharp-pal
-                using var originalBitmap = SKBitmap.Decode(sourceStream);
-                if (originalBitmap == null)
-                {
-                    // Ha nem sikerült dekódolni, egyszerű másolás
-                    sourceStream.Position = 0;
-                    using var fallbackStream = File.Create(targetPath);
-                    await sourceStream.CopyToAsync(fallbackStream);
-                    return;
-                }
-
-                // EXIF orientáció beolvasása
-                sourceStream.Position = 0;
-                using var imageCodec = SKCodec.Create(sourceStream);
-                var orientation = imageCodec?.EncodedOrigin ?? SKEncodedOrigin.TopLeft;
-
-                SKBitmap rotatedBitmap = originalBitmap;
-
-                // Forgatás az EXIF adat alapján
-                switch (orientation)
-                {
-                    case SKEncodedOrigin.BottomRight:
-                        rotatedBitmap = RotateBitmap(originalBitmap, 180);
-                        break;
-                    case SKEncodedOrigin.RightTop:
-                        rotatedBitmap = RotateBitmap(originalBitmap, 90);
-                        break;
-                    case SKEncodedOrigin.LeftBottom:
-                        rotatedBitmap = RotateBitmap(originalBitmap, 270);
-                        break;
-                }
-
-                // Mentés JPEG formátumban
-                using var skImage = SKImage.FromBitmap(rotatedBitmap);
-                using var encodedData = skImage.Encode(SKEncodedImageFormat.Jpeg, 90);
-                using var outputStream = File.Create(targetPath);
-                encodedData.SaveTo(outputStream);
-
-                if (rotatedBitmap != originalBitmap)
-                    rotatedBitmap.Dispose();
-            }
-            catch
-            {
-                // Ha bármi hiba van, egyszerű másolás
-                sourceStream.Position = 0;
-                using var fallbackStream = File.Create(targetPath);
-                await sourceStream.CopyToAsync(fallbackStream);
-            }
-        }
-
-        private SKBitmap RotateBitmap(SKBitmap original, float degrees)
-        {
-            var rotated = new SKBitmap(
-                degrees % 180 == 0 ? original.Width : original.Height,
-                degrees % 180 == 0 ? original.Height : original.Width);
-
-            using var canvas = new SKCanvas(rotated);
-            canvas.Clear();
-            canvas.Translate(rotated.Width / 2f, rotated.Height / 2f);
-            canvas.RotateDegrees(degrees);
-            canvas.Translate(-original.Width / 2f, -original.Height / 2f);
-            canvas.DrawBitmap(original, 0, 0);
-
-            return rotated;
-        }
+        }restore
 
         private async Task SaveTripDataAsync()
         {
