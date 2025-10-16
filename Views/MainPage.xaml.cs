@@ -1,7 +1,8 @@
-﻿using System.Globalization;
+﻿using OKKT25.Models;
+using System;
+using System.Globalization;
 using System.Text;
 using System.Text.Json;
-using OKKT25.Models;
 
 namespace OKKT25
 {
@@ -662,22 +663,26 @@ namespace OKKT25
                 suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
 
                 double neededReduction = totalShortage;
+
+                Color titleColor = Color.FromArgb("#FFD700");
+                Color textColor = Color.FromArgb("#FFFFFF");
+                Color highlightColor = Color.FromArgb("#00FFAA");
+
                 suggestionsLayout.Add(new Label
                 {
                     FormattedText = new FormattedString
                     {
                         Spans =
-                        {
-                            new Span { Text = "1️⃣ Költségcsökkentés\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
-                            new Span { Text = $"Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget, mindenki tudja fizetni a kirándulást.\n" },
-                            new Span { Text = $"Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft", FontAttributes = FontAttributes.Bold }
-                        }
+                            {
+                                new Span { Text = "💰 Költségcsökkentés\n", FontAttributes = FontAttributes.Bold, FontSize = 16, TextColor = titleColor },
+                                new Span { Text = $"Ha {FormatNumber(neededReduction)} Ft-tal csökkentjük a teljes költséget, mindenki tudja fizetni a kirándulást.\n", FontSize = 14, TextColor = textColor },
+                                new Span { Text = $"Új fejenként fizetendő: {FormatNumber(costPerPerson - (neededReduction / participants))} Ft\n", FontAttributes = FontAttributes.Bold, FontSize = 14, TextColor = highlightColor }
+                            }
                     },
-                    FontSize = 12,
-                    TextColor = Color.FromArgb("#FFFFFF")
+                    FontSize = 14
                 });
 
-                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
+                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C"), Margin = new Thickness(0, 10) });
 
                 double extraPerPerson = totalShortage / (participants - cantPayList.Count);
                 suggestionsLayout.Add(new Label
@@ -685,18 +690,17 @@ namespace OKKT25
                     FormattedText = new FormattedString
                     {
                         Spans =
-                        {
-                            new Span { Text = "2️⃣ Többi diák fizet többet\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
-                            new Span { Text = $"Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:\n" },
-                            new Span { Text = $"Extra fejenként: {FormatNumber(extraPerPerson)} Ft\n", FontAttributes = FontAttributes.Bold },
-                            new Span { Text = $"Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft", FontAttributes = FontAttributes.Bold }
-                        }
+                            {
+                                new Span { Text = "🤝 Többi diák fizet többet\n", FontAttributes = FontAttributes.Bold, FontSize = 16, TextColor = titleColor },
+                                new Span { Text = $"Ha a {participants - cantPayList.Count} másik diák befizeti a hiányt:\n", FontSize = 14, TextColor = textColor },
+                                new Span { Text = $"Extra fejenként: {FormatNumber(extraPerPerson)} Ft\n", FontAttributes = FontAttributes.Bold, FontSize = 14, TextColor = highlightColor },
+                                new Span { Text = $"Új összeg számukra: {FormatNumber(costPerPerson + extraPerPerson)} Ft\n", FontAttributes = FontAttributes.Bold, FontSize = 14, TextColor = highlightColor }
+                            }
                     },
-                    FontSize = 12,
-                    TextColor = Color.FromArgb("#FFFFFF")
+                    FontSize = 14
                 });
 
-                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C") });
+                suggestionsLayout.Add(new BoxView { HeightRequest = 1, BackgroundColor = Color.FromArgb("#3C3C3C"), Margin = new Thickness(0, 10) });
 
                 int neededMonths = (int)Math.Ceiling(costPerPerson / pocketMoneyList.Min());
                 if (neededMonths > monthsLeft)
@@ -706,14 +710,13 @@ namespace OKKT25
                         FormattedText = new FormattedString
                         {
                             Spans =
-                            {
-                                new Span { Text = "3️⃣ Több idő szükséges\n", FontAttributes = FontAttributes.Bold, FontSize = 13 },
-                                new Span { Text = $"Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.\n" },
-                                new Span { Text = $"(Még {neededMonths - monthsLeft} hónap szükséges)", FontAttributes = FontAttributes.Bold }
-                            }
+                                {
+                                    new Span { Text = "⏳ Több idő szükséges\n", FontAttributes = FontAttributes.Bold, FontSize = 16, TextColor = titleColor },
+                                    new Span { Text = $"Legalább {neededMonths} hónap kellene, hogy mindenki összegyűjtse a pénzt.\n", FontSize = 14, TextColor = textColor },
+                                    new Span { Text = $"(Még {neededMonths - monthsLeft} hónap szükséges)\n", FontAttributes = FontAttributes.Bold, FontSize = 14, TextColor = highlightColor }
+                                }
                         },
-                        FontSize = 12,
-                        TextColor = Color.FromArgb("#FFFFFF")
+                        FontSize = 14
                     });
                 }
 
