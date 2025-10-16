@@ -70,10 +70,6 @@ namespace OKKT25
             RadioGrouped.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
             RadioPerPerson.SetRadioButtonCheckedColor(Color.FromHex("#FF9800"));
 
-            TripName.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
-            TripDestination.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
-            EntryAveragePocketMoney.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
-
         }
 
         private async void SaveData()
@@ -204,7 +200,6 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            costTypeEntry.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var costAmountEntry = new Entry
             {
@@ -219,7 +214,6 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            costAmountEntry.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var numberOfFullCost = new Entry
             {
@@ -234,7 +228,6 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            numberOfFullCost.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var discountCostAmountEntry = new Entry
             {
@@ -249,7 +242,6 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            discountCostAmountEntry.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var numberOfDiscountCost = new Entry
             {
@@ -264,7 +256,6 @@ namespace OKKT25
                 FontSize = 13,
                 CharacterSpacing = 1
             };
-            numberOfDiscountCost.SetEntryUnderlineColor(Color.FromHex("#FF9800"));
 
             var isDiscountAvailable = new CheckBox
             {
