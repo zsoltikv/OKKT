@@ -386,6 +386,8 @@ namespace OKKT25
 
                 await Navigation.PushModalAsync(loadingPage, false);
 
+                tripData.PhotoPaths = tripData.PhotoPaths.Where(p => File.Exists(p)).ToList();
+
                 var pdfView = await CreatePdfViewAsync();
 
                 var rootLayout = (this.Content as ScrollView)?.Content as Layout;
@@ -877,7 +879,7 @@ namespace OKKT25
             try
             {
                 string pathToDelete = tripData.PhotoPaths.FirstOrDefault(p =>
-                    Path.GetFileName(p) == (image as FileImageSource)?.File);
+                    p == (image as FileImageSource)?.File || Path.GetFileName(p) == (image as FileImageSource)?.File);
 
                 if (pathToDelete != null && File.Exists(pathToDelete))
                 {
