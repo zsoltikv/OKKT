@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      width="100%" height="100%"
-     viewBox="0 0 800 800"
+     viewBox="0 0 1080 1920"
      preserveAspectRatio="none">
 
   <defs>
@@ -29,7 +29,7 @@
   </defs>
 
   <!-- TELJES képernyős háttér (bleeddel túlnyújtva) -->
-  <rect x="-100" y="-100" width="1000" height="1000" fill="url(#bgGradient)" />
+  <rect x="0" y="0" width="800" height="800" fill="url(#bgGradient)" />
 
   <!-- Ikon (középen marad, nem torzul látványosan preserveAspectRatio:none mellett sem) -->
   <g transform="translate(400, 350)">
