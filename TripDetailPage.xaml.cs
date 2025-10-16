@@ -132,7 +132,7 @@ namespace OKKT25
             {
                 await DisplayAlert("Hiba", $"Nem sikerült a művelet: {ex.Message}", "OK");
             }
-        }restore
+        }
 
         private async Task SaveTripDataAsync()
         {
