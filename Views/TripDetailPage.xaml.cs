@@ -127,10 +127,8 @@ namespace OKKT25
 
                     photoSources.Add(ImageSource.FromFile(targetPath));
 
-                    // 🔹 Hozzáadjuk a képet az adott kiránduláshoz
                     tripData.PhotoPaths.Add(targetPath);
 
-                    // 🔹 Mentjük a frissített adatokat fájlba
                     UpdatePhotosLabel();
                     await SaveTripDataAsync();
                 }
