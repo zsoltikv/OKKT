@@ -1,7 +1,21 @@
-﻿using OKKT25.Models;
-using System;
+﻿/* EXTRA FUNKCIÓK:
+  
+ - grafikus megjelenítés
+ - animációk
+ - adatok elmentése lokálisan JSON fájlba (majd visszatöltése)
+ - mezők visszaállítása funkció
+ - diagramok megjelenítése (fedezettség, költségmegoszlás)
+ - javaslatok ha nem fedezhető a kirándulás
+ - képek hozzáadása vagy törlése a mentett utakhoz (számlák/blokkok a későbbi elszámolás könnyítéséhez) galériából vagy fénykép készítése
+ - PDF exportálás 
+ - kirándulás törlése 
+
+ !!! FONTOS !!!
+ - az extra funkciók a fejlesztői dokumentációban részletesen bemutatásra kerülnek
+
+*/
+
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 using static OKKT25.PieChartDrawable;
