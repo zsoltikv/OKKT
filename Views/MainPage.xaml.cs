@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using static OKKT25.PieChartDrawable;
 
 namespace OKKT25
 {
@@ -251,8 +252,8 @@ namespace OKKT25
                 TextColor = Color.FromHex("#424242"),
                 WidthRequest = 40,
                 HeightRequest = 40,
-                BorderColor = Colors.Black,  
-                BorderWidth = 1.5,                
+                BorderColor = Colors.Black,
+                BorderWidth = 1.5,
             };
 
             removeButton.Clicked += (s, eArgs) =>
@@ -310,7 +311,7 @@ namespace OKKT25
 
             if (isPerPersonMode)
             {
-                
+
                 int participants = 0;
                 var firstCostLayout = DynamicCostsLayout.Children.OfType<StackLayout>().FirstOrDefault();
 
@@ -325,7 +326,7 @@ namespace OKKT25
                     var checkBox = layout.Children
                         .SelectMany(child =>
                             (child is Layout childLayout)
-                                ? childLayout.Children.OfType<View>() 
+                                ? childLayout.Children.OfType<View>()
                                 : new List<View> { child as View })
                         .OfType<CheckBox>()
                         .FirstOrDefault();
@@ -341,7 +342,7 @@ namespace OKKT25
                         }
                     }
                 }
-                
+
                 //if (firstCostLayout != null)
                 //{
                 //    var allEntries = firstCostLayout.Children
@@ -357,12 +358,12 @@ namespace OKKT25
                 //        .OfType<CheckBox>()
                 //        .FirstOrDefault();
 
-                    
+
                 //    if (allEntries.Count >= 3 && int.TryParse(allEntries[2].Text, out int numberOfPeople))
                 //    {
                 //        participants = numberOfPeople;
 
-                        
+
                 //        if (checkBox?.IsChecked == true && allEntries.Count >= 5 && int.TryParse(allEntries[4].Text, out int discountNumberOfPeople))
                 //        {
                 //            participants += discountNumberOfPeople;
@@ -482,7 +483,7 @@ namespace OKKT25
                 var checkBox = layout.Children
                     .SelectMany(child =>
                         (child is Layout childLayout)
-                            ? childLayout.Children.OfType<View>() 
+                            ? childLayout.Children.OfType<View>()
                             : new List<View> { child as View })
                     .OfType<CheckBox>()
                     .FirstOrDefault();
@@ -681,13 +682,20 @@ namespace OKKT25
             ((VerticalStackLayout)analysisCard.Content).Add(analysisLayout);
             LayoutResults.Add(analysisCard);
 
-            var chartCard = CreateDarkCard("📈 Fedezettségi diagram", "#FFD700");
+            var chartCard = CreateDarkCard("📈 Fedezettségi diagram | Költségmegoszlás diagram", "#FFD700");
             var chartView = new PieChartView(pocketMoneyList, costPerPerson, monthsLeft)
             {
                 HeightRequest = 300,
                 Margin = new Thickness(10)
             };
             ((VerticalStackLayout)chartCard.Content).Add(chartView);
+
+            var costBreakdownChart = new CostBreakdownChartView(currentTripData.Costs)
+            {
+                HeightRequest = 300 + (currentTripData.Costs.Count * 35),
+                Margin = new Thickness(10)
+            };
+            ((VerticalStackLayout)chartCard.Content).Add(costBreakdownChart);
             LayoutResults.Add(chartCard);
 
             if (!allCanPay)
@@ -918,6 +926,7 @@ namespace OKKT25
 
         private void DrawPieSlice(ICanvas canvas, float cx, float cy, float radius, float startAngle, float sweepAngle, Color color)
         {
+
             var path = new PathF();
             path.MoveTo(cx, cy);
             int steps = 100;
@@ -934,6 +943,128 @@ namespace OKKT25
             path.Close();
             canvas.FillColor = color;
             canvas.FillPath(path);
+        }
+        public class CostBreakdownChartView : GraphicsView
+        {
+            public CostBreakdownChartView(List<CostItem> costs)
+            {
+                Drawable = new CostBreakdownDrawable(costs);
+            }
+        }
+        public class CostBreakdownDrawable : IDrawable
+        {
+            private readonly List<CostItem> costs;
+
+            private readonly List<Color> colors = new List<Color>
+                {
+                    Color.FromArgb("#FFD700"),
+                    Color.FromArgb("#FF8C00"),
+                    Color.FromArgb("#3A3A3A"),
+                    Color.FromArgb("#FFC300"),
+                    Color.FromArgb("#FFB347"),
+                    Color.FromArgb("#2E2E2E"),
+                    Color.FromArgb("#FFA500"),
+                    Color.FromArgb("#3B3B3B"),
+                    Color.FromArgb("#FFF44F"),
+                    Color.FromArgb("#FF9800"),
+                    Color.FromArgb("#000000"),
+                    Color.FromArgb("#FFD54F")
+                };
+
+            public CostBreakdownDrawable(List<CostItem> costItems)
+            {
+                costs = costItems;
+            }
+
+            public void Draw(ICanvas canvas, RectF dirtyRect)
+            {
+
+                if (costs == null || costs.Count == 0)
+                    return;
+
+                double totalCost = costs.Sum(c =>
+                    (c.Amount * c.NumberOfPeople) +
+                    (c.HasDiscount ? c.DiscountAmount * c.DiscountNumberOfPeople : 0)
+                );
+
+                float centerX = dirtyRect.Width / 2;
+                float centerY = dirtyRect.Height / 2.5f;
+                float radius = Math.Min(centerX, centerY) * 0.8f;
+                float startAngle = -90;
+
+                for (int i = 0; i < costs.Count; i++)
+                {
+                    var cost = costs[i];
+                    double costValue = (cost.Amount * cost.NumberOfPeople) +
+                                      (cost.HasDiscount ? cost.DiscountAmount * cost.DiscountNumberOfPeople : 0);
+                    float percentage = (float)(costValue / totalCost);
+                    float sweepAngle = percentage * 360f;
+
+                    Color sliceColor = colors[i % colors.Count];
+                    DrawPieSlice(canvas, centerX, centerY, radius, startAngle, sweepAngle, sliceColor);
+
+                    if (percentage > 0.05)
+                    {
+                        float labelAngle = (startAngle + sweepAngle / 2) * (float)(Math.PI / 180);
+                        float labelRadius = radius * 0.7f;
+                        float labelX = centerX + labelRadius * (float)Math.Cos(labelAngle);
+                        float labelY = centerY + labelRadius * (float)Math.Sin(labelAngle);
+
+                        canvas.FontColor = (sliceColor.Red + sliceColor.Green + sliceColor.Blue) / 3 < 0.4
+                            ? Colors.White
+                            : Colors.Black;
+
+                        canvas.FontSize = 14;
+                        canvas.Font = Microsoft.Maui.Graphics.Font.DefaultBold;
+                        string costType = cost.Type.Length > 15 ? cost.Type.Substring(0, 12) + "..." : cost.Type;
+                        canvas.DrawString(costType, labelX, labelY - 15, HorizontalAlignment.Center);
+
+                        canvas.FontSize = 13;
+                        canvas.Font = Microsoft.Maui.Graphics.Font.Default;
+                        canvas.DrawString($"{percentage * 100:F1}%", labelX, labelY, HorizontalAlignment.Center);
+
+                        canvas.FontSize = 12;
+                        canvas.DrawString($"{FormatNumber(costValue)} Ft", labelX, labelY + 15, HorizontalAlignment.Center);
+                    }
+
+                    startAngle += sweepAngle;
+                }
+
+            }
+
+            private void DrawPieSlice(ICanvas canvas, float cx, float cy, float radius, float startAngle, float sweepAngle, Color color)
+            {
+
+                if (sweepAngle <= 0) return;
+
+                var path = new PathF();
+                path.MoveTo(cx, cy);
+                int steps = Math.Max(2, (int)(sweepAngle / 2));
+                float angleStep = sweepAngle / steps;
+
+                for (int i = 0; i <= steps; i++)
+                {
+                    float angle = (startAngle + i * angleStep) * (float)(Math.PI / 180);
+                    float x = cx + radius * (float)Math.Cos(angle);
+                    float y = cy + radius * (float)Math.Sin(angle);
+                    path.LineTo(x, y);
+                }
+
+                path.Close();
+                canvas.FillColor = color;
+                canvas.FillPath(path);
+
+                canvas.StrokeColor = Color.FromArgb("#1E1E1E");
+                canvas.StrokeSize = 2;
+                canvas.DrawPath(path);
+
+            }
+
+            private string FormatNumber(double number)
+            {
+                return number.ToString("N0", new CultureInfo("hu-HU"));
+            }
+
         }
 
     }
