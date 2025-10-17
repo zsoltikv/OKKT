@@ -1,4 +1,4 @@
-# 🎒 OKKT25 - Class Trip Planner
+# 🎒 OKKT - Class Trip Planner
 
 A comprehensive and intuitive mobile application designed to simplify class trip planning, cost calculations, and financial management for teachers and students.
 
@@ -105,7 +105,6 @@ Get suggestions for cost reduction if needed.
 - **Models/**: Contains data models for cost items, trip data, and trip summaries
 - **Views/**: Includes XAML files for the main page, past trips, trip details, and image viewer
 - **Resources/**: Stores application styling and assets
-- **Utilities/**: Contains UI customization utilities
 
 ---
 
