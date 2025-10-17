@@ -18,7 +18,7 @@ A comprehensive and intuitive mobile application designed to simplify class trip
 
 ---
 
-## ✨ Features
+## Features
 
 ### 🎯 Core Functionality
 - **Trip Planning:** Create detailed trip plans with destinations, dates, and participant information
@@ -46,7 +46,7 @@ A comprehensive and intuitive mobile application designed to simplify class trip
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - .NET 8.0 SDK
@@ -72,7 +72,7 @@ Run the application on an Android device or emulator.
 
 ---
 
-## 📱 Usage
+## Usage
 
 ### Creating a New Trip
 1. Open the app and navigate to "New Trip"
@@ -101,14 +101,14 @@ Get suggestions for cost reduction if needed.
 
 ---
 
-## 🏗️ Project Structure
+## Project Structure
 - **Models/**: Contains data models for cost items, trip data, and trip summaries
 - **Views/**: Includes XAML files for the main page, past trips, trip details, and image viewer
 - **Resources/**: Stores application styling and assets
 
 ---
 
-## 🔧 Technical Details
+## Technical Details
 ### Architecture
 - **Framework:** .NET MAUI (Multi-platform App UI)
 - **Language:** C#
@@ -132,7 +132,7 @@ Calculates the total cost based on regular and discounted pricing for cost items
 
 ---
 
-## 🎨 Customization
+## Customization
 ### Theming
 The app uses a consistent dark theme with orange accents. Customize colors in:
 - Resources/Styles/Colors.xaml
@@ -140,7 +140,7 @@ The app uses a consistent dark theme with orange accents. Customize colors in:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 1. Fork the project
 2. Create a feature branch
 3. Commit your changes
