@@ -8,13 +8,13 @@ A comprehensive and intuitive mobile application designed to simplify class trip
 
 ## Table of Contents
 
-- [Features](#✨-features)
-- [Getting Started](#🚀-getting-started)
-- [Usage](#📱-usage)
-- [Project Structure](#🏗️-project-structure)
-- [Technical Details](#🔧-technical-details)
-- [Customization](#🎨-customization)
-- [Contributing](#🤝-contributing)
+- [✨ Features](#features)
+- [🚀 Getting Started](#getting-started)
+- [📱 Usage](#usage)
+- [🏗️ Project Structure](#project-structure)
+- [🔧 Technical Details](#technical-details)
+- [🎨 Customization](#customization)
+- [🤝 Contributing](#contributing)
 
 ---
 
